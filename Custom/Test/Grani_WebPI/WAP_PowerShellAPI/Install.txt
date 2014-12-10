@@ -1,0 +1,19 @@
+    ディレクトリ: C:\hoge
+
+
+Mode                LastWriteTime     Length Name                                                               
+----                -------------     ------ ----                                                               
+-a---        2014/11/12      2:33        966 localhost.mof                                                      
+詳細: パラメーター ''methodName' = SendConfigurationApply,'className' = MSFT_DSCLocalConfigurationManager,'namespaceName'
+ = root/Microsoft/Windows/DesiredStateConfiguration' を使用して操作 'CimMethod の呼び出し' を実行します。
+詳細: コンピューター CI、ユーザー SID S-1-5-21-4139987786-1045363327-4167258072-500 から LCM メソッドが呼び出されました。
+詳細: [CI]: LCM:  [ 開始     設定       ]
+詳細: [CI]: LCM:  [ 開始     リソース     ]  [[cWebPI]fuga]
+詳細: [CI]: LCM:  [ 開始     テスト      ]  [[cWebPI]fuga]
+詳細: [CI]: LCM:  [ 終了     テスト      ]  [[cWebPI]fuga]  3.6880 秒かかりました。
+詳細: [CI]: LCM:  [ スキップ   設定       ]  [[cWebPI]fuga]
+詳細: [CI]: LCM:  [ 終了     リソース     ]  [[cWebPI]fuga]
+詳細: [CI]: LCM:  [ 終了     設定       ]
+詳細: [CI]: LCM:  [ 終了     設定       ]    (3.7190 秒)。
+詳細: 操作 'CimMethod の呼び出し' が完了しました。
+詳細: 構成ジョブが完了するまでにかかった時間は 3.736 秒です

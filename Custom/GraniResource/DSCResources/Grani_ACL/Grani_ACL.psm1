@@ -1,0 +1,235 @@
+function Set-TargetResource
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Path,
+
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Account,
+
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
+        [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
+
+        [Parameter(Mandatory = 0)]
+        [ValidateSet("Present", "Absent")]
+        [ValidateNotNullOrEmpty()]
+        [String]$Ensure = "Present",
+        
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("Allow", "Deny")]
+        [System.Security.AccessControl.AccessControlType]$Access = "Allow",
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Inherit = $false,
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Recurse = $false
+    )
+
+    $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
+    $currentACL = (Get-Item $Path).GetAccessControl("Access")
+    $currentRules = $currentACL.GetAccessRules($true, $true, [System.Security.Principal.NTAccount])
+    $match = IsDesiredRuleAndCurrentRuleSame -DesiredRule $desiredRule -CurrentRules $currentRules
+
+    if ($Ensure -eq "Present")
+    {
+        $CurrentACL.AddAccessRule($DesiredRule)
+        $CurrentACL | Set-Acl -Path $Path 
+    }
+    elseif ($Ensure -eq "Absent")
+    {
+        $CurrentACL.RemoveAccessRule($DesiredRule) > $null
+        $CurrentACL | Set-Acl -Path $Path 
+    }
+}
+
+
+function Get-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([Hashtable])]
+    param
+    (
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Path,
+
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Account,
+
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
+        [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
+
+        [Parameter(Mandatory = 0)]
+        [ValidateSet("Present", "Absent")]
+        [ValidateNotNullOrEmpty()]
+        [String]$Ensure = "Present",
+        
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("Allow", "Deny")]
+        [System.Security.AccessControl.AccessControlType]$Access = "Allow",
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Inherit = $false,
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Recurse = $false
+    )
+
+    $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
+    $currentACL = (Get-Item $Path).GetAccessControl("Access")
+    $currentRules = $currentACL.GetAccessRules($true, $true, [System.Security.Principal.NTAccount])
+    $match = IsDesiredRuleAndCurrentRuleSame -DesiredRule $desiredRule -CurrentRules $currentRules
+    
+    $presence = if ($true -eq $match)
+    {
+        "Present"
+    }
+    else
+    {
+        "Absent"
+    }
+
+    return @{
+        Ensure    = $presence
+        Path      = $Path
+        Account   = $Account
+        Rights    = $Rights
+        Access    = $Access
+        Inherit   = $Inherit
+        Recurse   = $Recurse
+    }
+}
+
+function Test-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Path,
+
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Account,
+
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
+        [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
+
+        [Parameter(Mandatory = 0)]
+        [ValidateSet("Present", "Absent")]
+        [ValidateNotNullOrEmpty()]
+        [String]$Ensure = "Present",
+        
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("Allow", "Deny")]
+        [System.Security.AccessControl.AccessControlType]$Access = "Allow",
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Inherit = $false,
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Recurse = $false
+    )
+
+    $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
+    $currentACL = (Get-Item $Path).GetAccessControl("Access")
+    $currentRules = $currentACL.GetAccessRules($true, $true, [System.Security.Principal.NTAccount])
+    $match = IsDesiredRuleAndCurrentRuleSame -DesiredRule $desiredRule -CurrentRules $currentRules
+    
+    $presence = if ($true -eq $match)
+    {
+        "Present"
+    }
+    else
+    {
+        "Absent"
+    }
+    return $presence -eq $Ensure
+}
+
+function GetDesiredRule
+{
+    [OutputType([System.Security.AccessControl.FileSystemAccessRule])]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Path,
+
+        [Parameter(Mandatory = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Account,
+
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
+        [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
+
+        [Parameter(Mandatory = 0)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("Allow", "Deny")]
+        [System.Security.AccessControl.AccessControlType]$Access = "Allow",
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Inherit = $false,
+
+        [Parameter(Mandatory = 0)]
+        [Bool]$Recurse = $false
+    )
+
+    $InheritFlag = if ($Inherit)
+    {
+        "{0}, {1}" -f [System.Security.AccessControl.InheritanceFlags]::ContainerInherit, [System.Security.AccessControl.InheritanceFlags]::ObjectInherit
+    }
+    elseif ($Recurse)
+    {
+        "{0}, {1}" -f [System.Security.AccessControl.InheritanceFlags]::ContainerInherit, [System.Security.AccessControl.InheritanceFlags]::ObjectInherit
+    }
+    else
+    {
+        [System.Security.AccessControl.InheritanceFlags]::None
+    }
+
+    $desiredRule = New-Object System.Security.AccessControl.FileSystemAccessRule($Account, $Rights, $InheritFlag, "None", $Access)
+    return $desiredRule
+}
+
+function IsDesiredRuleAndCurrentRuleSame
+{
+    [OutputType([Bool])]
+    [CmdletBinding()]
+    param
+    (
+        [System.Security.AccessControl.FileSystemAccessRule]$DesiredRule,
+        [System.Security.AccessControl.AuthorizationRuleCollection]$CurrentRules
+    )
+
+    $match = $currentRules `
+    | where {$_.IdentityReference.Value.Split("\")[1] -eq $DesiredRule.IdentityReference.Value} `
+    | where FileSystemRights -eq $DesiredRule.FileSystemRights `
+    | where AccessControlType -eq $DesiredRule.AccessControlType `
+    | where Inherit -eq $_.InheritanceFlags `
+    | measure
+
+    return $match.Count -ge 1
+}
+
+Export-ModuleMember -Function *-TargetResource
