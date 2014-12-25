@@ -1,0 +1,18 @@
+    ディレクトリ: C:\Users\Administrator\test
+
+
+Mode                LastWriteTime     Length Name                                                                                                                                         
+----                -------------     ------ ----                                                                                                                                         
+-a---        2014/12/25     17:42       1024 localhost.mof                                                                                                                                
+詳細: パラメーター ''methodName' = SendConfigurationApply,'className' = MSFT_DSCLocalConfigurationManager,'namespaceName' = root/Microsoft/Windows/DesiredStateConfiguration' を使用して操作 'CimMethod の呼
+び出し' を実行します。
+詳細: コンピューター DSC、ユーザー SID S-1-5-21-2785304160-1992332465-3396756753-500 から LCM メソッドが呼び出されました。
+詳細: [DSC]: LCM:  [ 開始     設定       ]
+詳細: [DSC]: LCM:  [ 開始     リソース     ]  [[cTCPAckFrequency]test]
+詳細: [DSC]: LCM:  [ 開始     テスト      ]  [[cTCPAckFrequency]test]
+詳細: [DSC]: LCM:  [ 終了     テスト      ]  [[cTCPAckFrequency]test]  0.9250 秒かかりました。
+詳細: [DSC]: LCM:  [ スキップ   設定       ]  [[cTCPAckFrequency]test]
+詳細: [DSC]: LCM:  [ 終了     リソース     ]  [[cTCPAckFrequency]test]
+詳細: [DSC]: LCM:  [ 終了     設定       ]    (2.3088 秒)。
+詳細: 操作 'CimMethod の呼び出し' が完了しました。
+詳細: 構成ジョブが完了するまでにかかった時間は 2.62 秒です
