@@ -33,8 +33,8 @@ function Set-TargetResource
         [Bool]$Recurse = $false,
 
         [Parameter(Mandatory = 0)]
-		[System.Boolean]
-		$Strict = $false
+        [System.Boolean]
+        $Strict = $false
     )
 
     $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
@@ -91,8 +91,8 @@ function Get-TargetResource
         [Bool]$Recurse = $false,
 
         [Parameter(Mandatory = 0)]
-		[System.Boolean]
-		$Strict = $false
+        [System.Boolean]
+        $Strict = $false
     )
 
     $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
@@ -157,8 +157,8 @@ function Test-TargetResource
         [Bool]$Recurse = $false,
 
         [Parameter(Mandatory = 0)]
-		[System.Boolean]
-		$Strict = $false
+        [System.Boolean]
+        $Strict = $false
     )
 
     $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
