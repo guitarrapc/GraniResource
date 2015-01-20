@@ -12,12 +12,12 @@ Describe "Test-TargetResource" {
 
     Context "Test-TargetResource should return boolean" {
 
-	    It "Test-TargetResource should return $true for Enable : '$Enable'" {
-    	    $testEnable | Should be $true
-	    }
+        It "Test-TargetResource should return $true for Enable : '$Enable'" {
+            $testEnable | Should be $true
+        }
 
-	    It "Test-TargetResource should return $false for Enable : '$Disable'" {
-    	    $testDisable | Should be $false
-	    }
+        It "Test-TargetResource should return $false for Enable : '$Disable'" {
+            $testDisable | Should be $false
+        }
     }
 }
