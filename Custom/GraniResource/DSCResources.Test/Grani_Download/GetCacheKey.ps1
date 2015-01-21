@@ -12,7 +12,10 @@ function Initialize
     }
 
     # cache Location Variable
-    $script:cacheLocation = "$env:ProgramData\Microsoft\Windows\PowerShell\Configuration\BuiltinProvCache\Grani_Download"
+    # MSFT using this path, but this always clear when LCM runs. It means whenever you run "Get" you can't refer cache. 
+    # => need to change to persistence path to match with cache.
+    # $script:cacheLocation = "$env:ProgramData\Microsoft\Windows\PowerShell\Configuration\BuiltinProvCache\Grani_Download"
+    $script:cacheLocation = "$env:ProgramData\Microsoft\Windows\PowerShell\Configuration\CustomProvCache\Grani_Download"
 
     # Enum for Item Type
     Add-Type -TypeDefinition @"
@@ -38,7 +41,6 @@ $debugMessage = DATA {
         AddContentType = Adding ContentType : '{0}'
         AddUserAgent = Adding UserAgent : '{0}'
         AddCredential = Adding Network Credential for Basic Authentication. UserName : '{0}'
-        DownloadStream = Status Code returns '{0}'. Start download stream from uri : '{1}'
         DownloadComplete = Download content complete.
         IsDestinationPathExist = Checking Destination Path is existing and Valid as a FileInfo
         IsDestinationPathAlreadyUpToDate = Matching FileHash to verify file is already exist/Up-To-Date or not.
@@ -48,6 +50,7 @@ $debugMessage = DATA {
         ItemTypeWasDirectory = Destination Path found but was Directory : '{0}'
         ItemTypeWasOther = Destination Path found but was neither File nor Directory: '{0}'
         ItemTypeWasNotExists = Destination Path not found : '{0}'
+        SetCacheLocationPath = CacheLocation Value detected. Setting Custom CacheLocation Path : '{0}'
         TestUriConnection = Testing connection to the uri : {0}
         UpdateFileHashCache = Updating cache path '{1}' for current Filehash SHA256 '{0}'.
         ValidateUri = Cast uri string '{0}' to System.Uri.
@@ -56,6 +59,13 @@ $debugMessage = DATA {
     "
 }
 
+$verboseMessage = DATA {
+    ConvertFrom-StringData -StringData "
+        alreadyUpToDate = Current DestinationPath FileHash and Cache FileHash matched. File already Up-To-Date.
+        DownloadStream = Status Code returns '{0}'. Start download stream from uri : '{1}'
+        notUpToDate = Current DestinationPath FileHash and Cache FileHash not matched. Need to download latest file.
+    "
+}
 $exceptionMessage = DATA {
     ConvertFrom-StringData -StringData "
         InvalidCastURI = Uri : '{0}' casted to [System.Uri] but was invalid string for uri. Make sure you have passed valid uri string.
@@ -79,9 +89,52 @@ function Get-TargetResource
         [System.String]$Uri,
 
         [parameter(Mandatory = $true)]
-        [System.String]$DestinationPath
+        [System.String]$DestinationPath,
+
+        [parameter(Mandatory = $false)]
+        [Microsoft.Management.Infrastructure.CimInstance[]]$Header = $null,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$ContentType = "application/json",
+
+        [parameter(Mandatory = $false)]
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
+
+        [parameter(Mandatory = $false)]
+        [System.Boolean]$AllowRedirect = $true,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$CacheLocation = [string]::Empty
     )
 
+    # Set Custom Cache Location
+    if ($CacheLocation -ne [string]::Empty)
+    {
+        Write-Debug -Message ($debugMessage.SetCacheLocationPath -f $CacheLocation)
+        $script:cacheLocation = $CacheLocation
+    }
+
+    # Initialize return values
+    $returnHash = 
+    @{
+        Uri = $Uri
+        DestinationPath = $DestinationPath
+        ContentType = $ContentType
+        UserAgent = $UserAgent
+        AllowRedirect = $AllowRedirect
+        Ensure = "Absent"
+
+    }
+
+    if ($null -ne $Heaer)
+    {
+        $returnHash.Header = $Header.GetEnumerator()
+    }
+
+    # Destination Path check
     Write-Debug -Message $debugMessage.IsDestinationPathExist
     $itemType = GetPathItemType -Path $DestinationPath
 
@@ -107,8 +160,8 @@ function Get-TargetResource
         }
     }
 
+    # Already Up-to-date Check
     Write-Debug -Message $debugMessage.IsDestinationPathAlreadyUpToDate
-    $ensure = "Absent"
     if ($fileExists -eq $true)
     {
         Write-Debug -Message $debugMessage.IsFileExists
@@ -118,15 +171,16 @@ function Get-TargetResource
         Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $cachedFileHash)
         if ($currentFileHash -eq $cachedFileHash)
         {
-            $ensure = "Present"
+            Write-Verbose -Message $verboseMessage.alreadyUpToDate
+            $returnHash.Ensure = "Present"
+        }
+        else
+        {
+            Write-Verbose -Message $verboseMessage.notUpToDate
         }
     }
 
-    return @{
-        Ensure = $ensure
-        DestinationPath = $DestinationPath
-        Uri = $Uri
-    }
+    return $returnHash
 }
 
 
@@ -143,7 +197,7 @@ function Set-TargetResource
         [System.String]$DestinationPath,
 
         [parameter(Mandatory = $false)]
-        [System.Collections.Hashtable]$Header = @{},
+        [Microsoft.Management.Infrastructure.CimInstance[]]$Header = $null,
 
         [parameter(Mandatory = $false)]
         [System.String]$ContentType = "application/json",
@@ -155,8 +209,18 @@ function Set-TargetResource
         [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
 
         [parameter(Mandatory = $false)]
-        [System.Boolean]$AllowRedirect = $true
+        [System.Boolean]$AllowRedirect = $true,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$CacheLocation = [string]::Empty
     )
+
+    # Set Custom Cache Location
+    if ($CacheLocation -ne [string]::Empty)
+    {
+        Write-Debug -Message ($debugMessage.SetCacheLocationPath -f $CacheLocation)
+        $script:cacheLocation = $CacheLocation
+    }
 
     # validate Uri can be parse to [uri] and Schema is http|https|file
     $validUri = ValidateUri -Uri $Uri
@@ -164,8 +228,11 @@ function Set-TargetResource
     # validate DestinationPath is valid
     ValidateFilePath -Path $DestinationPath
 
+    # Convert CimInstance to HashTable
+    $headerHashtable = ConvertKCimInstanceToHashtable -CimInstance $Header
+
     # Start Download
-    Invoke-HttpClient -Uri $validUri -Path $DestinationPath -Header $Header -ContentType $ContentType -UserAgent $UserAgent -Credential $Credential
+    Invoke-HttpClient -Uri $validUri -Path $DestinationPath -Header $headerHashtable -ContentType $ContentType -UserAgent $UserAgent -Credential $Credential
 
     # Update Cache for FileHash
     UpdateCache -DestinationPath $DestinationPath -Uri $validUri
@@ -185,7 +252,7 @@ function Test-TargetResource
         [System.String]$DestinationPath,
 
         [parameter(Mandatory = $false)]
-        [System.Collections.Hashtable]$Header = @{},
+        [Microsoft.Management.Infrastructure.CimInstance[]]$Header = $null,
 
         [parameter(Mandatory = $false)]
         [System.String]$ContentType = "application/json",
@@ -197,7 +264,10 @@ function Test-TargetResource
         [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
 
         [parameter(Mandatory = $false)]
-        [System.Boolean]$AllowRedirect = $true
+        [System.Boolean]$AllowRedirect = $true,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$CacheLocation = [string]::Empty
     )
 
     return (Get-TargetResource -DestinationPath $DestinationPath -Uri $Uri).Ensure -eq "Present"
@@ -305,7 +375,7 @@ function Invoke-HttpClient
 
             #region Execute Download
 
-            Write-Debug -Message ($debugMessage.DownloadStream -f $res.Result.StatusCode.value__, $Uri)
+            Write-Verbose -Message ($verboseMessage.DownloadStream -f $res.Result.StatusCode.value__, $Uri)
             [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = $httpClient.GetStreamAsync($Uri)
             $stream.ConfigureAwait($false) > $null
             if ($stream.Exception -ne $null){ throw $stream.Exception }
@@ -582,6 +652,35 @@ function GetPathItemType
 
 #endregion
 
+#region Converter from Microsoft.Management.Infrastructure.CimInstance[] (KeyValuePair) to HashTable
+
+function ConvertKCimInstanceToHashtable
+{
+    [OutputType([hashtable[]])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $false)]
+        [AllowNull()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]$CimInstance
+    )
+
+    if ($null -eq $CimInstance)
+    {
+        return @{}
+    }
+
+    $hashtable = New-Object System.Collections.Generic.List[hashtable]
+    foreach($item in $CimInstance.GetEnumerator())
+    {
+        $hashtable.Add(@{$item.Key = $item.Value})
+    }
+
+    return $hashtable
+}
+
+#endregion
+
 #region Exception Helper
 
 function ThrowInvalidDataException
@@ -602,5 +701,3 @@ function ThrowInvalidDataException
     $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $errorCategory, $null
     throw $errorRecord
 }
-
-#endregion
