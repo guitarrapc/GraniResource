@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Test-TargetResource" {
+Describe "Grani_TCPAckFrequency : Test-TargetResource" {
 
     $Enable = $true
     $Disable = $false
