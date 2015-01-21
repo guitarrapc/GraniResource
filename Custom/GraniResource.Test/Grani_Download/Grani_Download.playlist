@@ -1,0 +1,1 @@
+<Playlist Version="1.0"><Add Test="Grani_Download : ValidationHelper" /><Add Test="Grani_Download : Invoke-HttpClient" /><Add Test="Grani_Download : GetPathItemType" /><Add Test="Grani_Download : GetCacheKey" /><Add Test="Grani_Download : *-TargetResource" /><Add Test="Grani_Download : CacheHelper" /></Playlist>

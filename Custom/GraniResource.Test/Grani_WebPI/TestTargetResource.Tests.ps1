@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Test-TargetResource" {
+Describe "Grani_WebPI : Test-TargetResource" {
 
     $availableName = "WordPress"
     $installedName = "PowerShell4"
@@ -12,12 +12,12 @@ Describe "Test-TargetResource" {
 
     Context "Test-TargetResource should return boolean" {
 
-	    It "Test-TargetResource should return $true with '$installedName'" {
-    	    $TestTargetResourceInstall | Should be $true
-	    }
+        It "Test-TargetResource should return $true with '$installedName'" {
+            $TestTargetResourceInstall | Should be $true
+        }
 
-	    It "Test-TargetResource should return $false with '$availableName'" {
-    	    $TestTargetResourceAvailable | Should be $false
-	    }
+        It "Test-TargetResource should return $false with '$availableName'" {
+            $TestTargetResourceAvailable | Should be $false
+        }
     }
 }
