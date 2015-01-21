@@ -1,0 +1,14 @@
+﻿<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Object</T>
+    </TN>
+    <MS>
+      <S N="FileHash">F53C273BFC27562EA94E39D66B4360B899349D6E81B8BD26B78DF915923A831D</S>
+      <S N="Path">C:\Tools\README.md</S>
+      <DT N="WriteTime">2015-01-21T20:50:37.9865728Z</DT>
+      <S N="Uri">https://raw.githubusercontent.com/guitarrapc/DSCResources/master/README.md</S>
+    </MS>
+  </Obj>
+</Objs>

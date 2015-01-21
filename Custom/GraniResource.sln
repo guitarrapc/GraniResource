@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "GraniResource", "GraniResource\GraniResource.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
+EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "GraniRssource.Test", "GraniREsource.Test\GraniRssource.Test.pssproj", "{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}"
+EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "GraniResource.Designer", "GraniResource.Designer\GraniResource.Designer.pssproj", "{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

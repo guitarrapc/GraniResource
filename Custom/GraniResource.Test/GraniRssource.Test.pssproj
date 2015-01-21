@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{a54df4a1-7fee-4e95-a67c-f19e2a52f7fb}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>GraniRssource.Test</Name>
+    <ProjectHome />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="cWebPILauncher\" />
+    <Folder Include="cWebPILauncher\cWebPILauncher\" />
+    <Folder Include="Grani_ACL\" />
+    <Folder Include="Grani_ACL\Absent\" />
+    <Folder Include="Grani_ACL\Absent\ACLChange\" />
+    <Folder Include="Grani_ACL\Present\" />
+    <Folder Include="Grani_ACL\Present\ACLChange\" />
+    <Folder Include="Grani_Download\" />
+    <Folder Include="Grani_Download\Configuration\" />
+    <Folder Include="Grani_Download\Configuration\mof\" />
+    <Folder Include="Grani_Download\Configuration\cache\" />
+    <Folder Include="Grani_ScheduledTaskLog\" />
+    <Folder Include="Grani_ScheduledTaskLog\Disabled\" />
+    <Folder Include="Grani_ScheduledTaskLog\Enabled\" />
+    <Folder Include="Grani_ScheduleTask\" />
+    <Folder Include="Grani_ScheduleTask\Absent\" />
+    <Folder Include="Grani_ScheduleTask\Absent\absent\" />
+    <Folder Include="Grani_ScheduleTask\Present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Compatibility\" />
+    <Folder Include="Grani_ScheduleTask\Present\Compatibility\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Daily\" />
+    <Folder Include="Grani_ScheduleTask\Present\Daily\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Default-Repetention\" />
+    <Folder Include="Grani_ScheduleTask\Present\Default-Repetention\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\DisableTask\" />
+    <Folder Include="Grani_ScheduleTask\Present\DisableTask\DisableCleanupTask\" />
+    <Folder Include="Grani_ScheduleTask\Present\EnableTask\" />
+    <Folder Include="Grani_ScheduleTask\Present\EnableTask\EnableCleanupTask\" />
+    <Folder Include="Grani_ScheduleTask\Present\ExecutionTimeLimit\" />
+    <Folder Include="Grani_ScheduleTask\Present\ExecutionTimeLimit\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Fix_RemediateDriverIssue_AWS_EC2_WindowsServer2012R2\" />
+    <Folder Include="Grani_ScheduleTask\Present\Hide\" />
+    <Folder Include="Grani_ScheduleTask\Present\Hide\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Multiple-Daily\" />
+    <Folder Include="Grani_ScheduleTask\Present\Multiple-Daily\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Multiple-Once\" />
+    <Folder Include="Grani_ScheduleTask\Present\Multiple-Once\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Multiple-Repetention\" />
+    <Folder Include="Grani_ScheduleTask\Present\Multiple-Repetention\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Once\" />
+    <Folder Include="Grani_ScheduleTask\Present\Once\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Repetention\" />
+    <Folder Include="Grani_ScheduleTask\Present\Repetention\present\" />
+    <Folder Include="Grani_ScheduleTask\Present\Runlevel\" />
+    <Folder Include="Grani_ScheduleTask\Present\Runlevel\present\" />
+    <Folder Include="Grani_TCPAckFrequency\" />
+    <Folder Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\" />
+    <Folder Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\" />
+    <Folder Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\mof\" />
+    <Folder Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\" />
+    <Folder Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\mof\" />
+    <Folder Include="Grani_WebPI\" />
+    <Folder Include="Grani_WebPI\WAP_PowerShellAPI\" />
+    <Folder Include="Grani_WebPI\WAP_PowerShellAPI\mof\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="cWebPILauncher\cWebPILauncher.ps1" />
+    <Content Include="cWebPILauncher\cWebPILauncher.txt" />
+    <Content Include="cWebPILauncher\cWebPILauncher\Localhost.mof" />
+    <Content Include="Grani_ACL\Absent\ACLChange\Localhost.mof" />
+    <Content Include="Grani_ACL\Absent\cACLResource.ps1" />
+    <Content Include="Grani_ACL\Absent\cACLResource.txt" />
+    <Content Include="Grani_ACL\Present\ACLChange\Localhost.mof" />
+    <Content Include="Grani_ACL\Present\cACLResource.ps1" />
+    <Content Include="Grani_ACL\Present\cACLResource.txt" />
+    <Content Include="Grani_Download\CacheHelper.ps1" />
+    <Content Include="Grani_Download\CacheHelper.Tests.ps1" />
+    <Content Include="Grani_Download\Configuration\cache\-448662428" />
+    <Content Include="Grani_Download\Configuration\ConfigurationSample.ps1" />
+    <Content Include="Grani_Download\Configuration\InstallDebug.log" />
+    <Content Include="Grani_Download\Configuration\InstallVerbose.log" />
+    <Content Include="Grani_Download\Configuration\mof\localhost.mof" />
+    <Content Include="Grani_Download\Configuration\SkipDebug.log" />
+    <Content Include="Grani_Download\Configuration\SkipVerbose.log" />
+    <Content Include="Grani_Download\GetCacheKey.ps1" />
+    <Content Include="Grani_Download\GetCacheKey.Tests.ps1" />
+    <Content Include="Grani_Download\GetPathItemType.ps1" />
+    <Content Include="Grani_Download\GetPathItemType.Tests.ps1" />
+    <Content Include="Grani_Download\Invoke-HttpClient.ps1" />
+    <Content Include="Grani_Download\Invoke-HttpClient.Tests.ps1" />
+    <Content Include="Grani_Download\TargetResource.ps1" />
+    <Content Include="Grani_Download\TargetResource.Tests.ps1" />
+    <Content Include="Grani_Download\ValidationHelper.ps1" />
+    <Content Include="Grani_Download\ValidationHelper.Tests.ps1" />
+    <Content Include="Grani_ScheduledTaskLog\Disabled.ps1" />
+    <Content Include="Grani_ScheduledTaskLog\Disabled.txt" />
+    <Content Include="Grani_ScheduledTaskLog\Disabled\localhost.mof" />
+    <Content Include="Grani_ScheduledTaskLog\Enabled.ps1" />
+    <Content Include="Grani_ScheduledTaskLog\Enabled.txt" />
+    <Content Include="Grani_ScheduledTaskLog\Enabled\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Absent\absent\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Absent\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Absent\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Compatibility\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Compatibility\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Compatibility\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Daily\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Daily\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Daily\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Default-Repetention\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Default-Repetention\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Default-Repetention\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\DisableTask\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\DisableTask\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\DisableTask\DisableCleanupTask\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\EnableTask\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\EnableTask\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\EnableTask\EnableCleanupTask\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\ExecutionTimeLimit\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\ExecutionTimeLimit\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\ExecutionTimeLimit\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Fix_RemediateDriverIssue_AWS_EC2_WindowsServer2012R2\FixRemediateDriverIssue.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Fix_RemediateDriverIssue_AWS_EC2_WindowsServer2012R2\README.md" />
+    <Content Include="Grani_ScheduleTask\Present\Hide\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Hide\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Hide\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Daily\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Daily\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Daily\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Once\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Once\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Once\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Repetention\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Repetention\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Multiple-Repetention\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Once\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Once\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Once\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Repetention\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Repetention\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Repetention\present\localhost.mof" />
+    <Content Include="Grani_ScheduleTask\Present\Runlevel\cScheduleTask.ps1" />
+    <Content Include="Grani_ScheduleTask\Present\Runlevel\cScheduleTask.txt" />
+    <Content Include="Grani_ScheduleTask\Present\Runlevel\present\localhost.mof" />
+    <Content Include="Grani_TCPAckFrequency\GetTargetResource.ps1" />
+    <Content Include="Grani_TCPAckFrequency\GetTargetResource.Tests.ps1" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\cTCPAckFrequency.ps1" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\Install.txt" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\mof\localhost.mof" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\Skip.txt" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\cTCPAckFrequency.ps1" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\Install.txt" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\mof\localhost.mof" />
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\Skip.txt" />
+    <Content Include="Grani_TCPAckFrequency\SetTargetResource.ps1" />
+    <Content Include="Grani_TCPAckFrequency\SetTargetResource.Tests.ps1" />
+    <Content Include="Grani_TCPAckFrequency\TestTargetResource.ps1" />
+    <Content Include="Grani_TCPAckFrequency\TestTargetResource.Tests.ps1" />
+    <Content Include="Grani_WebPI\GetTargetResource.ps1" />
+    <Content Include="Grani_WebPI\GetTargetResource.Tests.ps1" />
+    <Content Include="Grani_WebPI\SetTargetResource.ps1" />
+    <Content Include="Grani_WebPI\SetTargetResource.Tests.ps1" />
+    <Content Include="Grani_WebPI\TestTargetResource.ps1" />
+    <Content Include="Grani_WebPI\TestTargetResource.Tests.ps1" />
+    <Content Include="Grani_WebPI\WAP_PowerShellAPI\cWebPi.ps1" />
+    <Content Include="Grani_WebPI\WAP_PowerShellAPI\Install.txt" />
+    <Content Include="Grani_WebPI\WAP_PowerShellAPI\mof\localhost.mof" />
+    <Content Include="Grani_WebPI\WAP_PowerShellAPI\Skip.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="Build" />
+</Project>
