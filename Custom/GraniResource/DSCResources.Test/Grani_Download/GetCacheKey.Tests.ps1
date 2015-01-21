@@ -10,6 +10,9 @@ Describe "Grani_Download : GetCacheKey" {
     $path2 = "d:\hoge\ReadMe2.md"
     $uri2 = "https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README2.md"
 
+    $parent = Split-Path -Path $path -Parent
+    New-Item -Path $parent -ItemType Directory -Force > $null
+
     New-Item -Path $path -ItemType File -Force > $null
     New-Item -Path $path2 -ItemType File -Force > $null
     1..100 | Get-Random -Count 10 | Out-File -FilePath $path

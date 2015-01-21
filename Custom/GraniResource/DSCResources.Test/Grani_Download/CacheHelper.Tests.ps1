@@ -9,9 +9,12 @@ Describe "Grani_Download : CacheHelper" {
     $script:cacheLocation = "d:\hoge\cache"
 
     $path = "d:\hoge\ReadMe.md"
+    $parent = Split-Path -Path $path -Parent
     $uri = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
     
-    Remove-Item -Path $script:cacheLocation -Force -Recurse
+    
+    New-Item -Path $parent -ItemType Directory -Force > $null
+    Remove-Item -Path $script:cacheLocation -Force -Recurse -ErrorAction SilentlyContinue
 
     Context "CacheLocation should swap for test" {
         It "cacheLocation should swapped." {
@@ -108,6 +111,8 @@ Describe "Grani_Download : CacheHelper" {
         }
     }
 
-    Remove-Item -Path $path -Force
+    Remove-Item -Path $script:cacheLocation -Force -Recurse
+    Remove-Item -Path $parent -Recurse -Force
+
     $script:cacheLocation = $prev
 }

@@ -32,7 +32,6 @@ Initialize
 
 #region Message Definition
 
-# Debug Message
 $debugMessage = DATA {
     ConvertFrom-StringData -StringData "
         AddRequestHeader = Adding Request Header. Key : '{0}', Value : '{1}'
@@ -41,6 +40,10 @@ $debugMessage = DATA {
         AddCredential = Adding Network Credential for Basic Authentication. UserName : '{0}'
         DownloadStream = Status Code returns '{0}'. Start download stream from uri : '{1}'
         DownloadComplete = Download content complete.
+        IsDestinationPathExist = Checking Destination Path is existing and Valid as a FileInfo
+        IsDestinationPathAlreadyUpToDate = Matching FileHash to verify file is already exist/Up-To-Date or not.
+        IsFileAlreadyUpToDate = CurrentFileHash : CachedFileHash -> {0} : {1}
+        IsFileExists = File found from DestinationPath. Checking already up-to-date.
         ItemTypeWasFile = Destination Path found as File : '{0}'
         ItemTypeWasDirectory = Destination Path found but was Directory : '{0}'
         ItemTypeWasOther = Destination Path found but was neither File nor Directory: '{0}'
@@ -48,23 +51,24 @@ $debugMessage = DATA {
         TestUriConnection = Testing connection to the uri : {0}
         UpdateFileHashCache = Updating cache path '{1}' for current Filehash SHA256 '{0}'.
         ValidateUri = Cast uri string '{0}' to System.Uri.
-        ValidateFilePath = Check DestinationPath '{0}' and Parent Directory already exist.
+        ValidateFilePath = Check DestinationPath '{0}' is FileInfo and Parent Directory already exist.
         WriteStream = Start writing downloaded stream to File Path : '{0}'
     "
 }
 
-# Throw Message
 $exceptionMessage = DATA {
     ConvertFrom-StringData -StringData "
         InvalidCastURI = Uri : '{0}' casted to [System.Uri] but was invalid string for uri. Make sure you have passed valid uri string.
         InvalidUriSchema = Specified URI is not valid: '{0}'. Only http|https|file are accepted.
         InvalidResponce = Status Code returns '{0}'. Stop download stream from uri : '{1}'
+        DestinationPathAlreadyExistAsNotFile = Destination Path '{0}' already exist but not a file. Found itemType is {1}. Windows not allowed exist same name item.
     "
 }
 
 #endregion
 
 #region *-Resource
+
 function Get-TargetResource
 {
     [OutputType([System.Collections.Hashtable])]
@@ -78,37 +82,40 @@ function Get-TargetResource
         [System.String]$DestinationPath
     )
 
-    # Checking Destination Path is existing and Valid as a FileInfo
-    $itemType = Get-ChildItem -Path $DestinationPath -File | GetPathItemType
+    Write-Debug -Message $debugMessage.IsDestinationPathExist
+    $itemType = GetPathItemType -Path $DestinationPath
+
     $fileExists = $false
-    switch ($itemType)
+    switch ($itemType.ToString())
     {
-        [GraniDonwloadItemTypeEx]::FileInfo
+        ([GraniDonwloadItemTypeEx]::FileInfo.ToString())
         {
             Write-Debug -Message ($debugMessage.ItemTypeWasFile -f $DestinationPath)
             $fileExists = $true
         }
-        [GraniDonwloadItemTypeEx]::DirectoryInfo
+        ([GraniDonwloadItemTypeEx]::DirectoryInfo.ToString())
         {
             Write-Debug -Message ($debugMessage.ItemTypeWasDirectory -f $DestinationPath)
         }
-        [GraniDonwloadItemTypeEx]::Other
+        ([GraniDonwloadItemTypeEx]::Other.ToString())
         {
             Write-Debug -Message ($debugMessage.ItemTypeWasOther -f $DestinationPath)
         }
-        [GraniDonwloadItemTypeEx]::NotExists
+        ([GraniDonwloadItemTypeEx]::NotExists.ToString())
         {
             Write-Debug -Message ($debugMessage.ItemTypeWasNotExists -f $DestinationPath)
         }
     }
 
-    # Matching FileHash to verify file is already exist/Up-To-Date or not.
+    Write-Debug -Message $debugMessage.IsDestinationPathAlreadyUpToDate
     $ensure = "Absent"
     if ($fileExists -eq $true)
     {
+        Write-Debug -Message $debugMessage.IsFileExists
         $currentFileHash = GetFileHash -Path $DestinationPath
         $cachedFileHash = GetCache -DestinationPath $DestinationPath -Uri $Uri
 
+        Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $cachedFileHash)
         if ($currentFileHash -eq $cachedFileHash)
         {
             $ensure = "Present"
@@ -307,14 +314,11 @@ function Invoke-HttpClient
 
             #region Write Stream to the file
 
-            Write-Debug -Message ($debugMessage.WriteStream -f $Path)
-            $fileStream = [System.IO.File]::Create($Path)
-            $stream.Result.CopyTo($fileStream)
-
-            Write-Debug -Message ($debugMessage.DownloadComplete)
-
+            WriteStream -Path $Path -Stream $stream
+            
             #endregion
 
+            Write-Debug -Message ($debugMessage.DownloadComplete)
         }
         catch [System.Exception]
         {
@@ -323,11 +327,36 @@ function Invoke-HttpClient
         finally
         {
             if (($null -ne $res) -and ($res.IsCompleted -eq $true)){ $res.Dispose() }
-            if (($null -ne $stream) -and ($stream.IsCompleted -eq $true)){ $stream.Dispose() }
-            if ($null -ne $fileStream){ $fileStream.Dispose() }
             if ($null -ne $httpClient){ $httpClient.Dispose() }
             if ($null -ne $httpClientHandler){ $httpClientHandler.Dispose() }
         }
+    }
+}
+
+function WriteStream
+{
+    [OutputType([void])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [parameter(Mandatory = $true)]
+        [System.Threading.Tasks.Task`1[System.IO.Stream]]$Stream
+    )
+
+    try
+    {
+        # Write stream to the File
+        Write-Debug -Message ($debugMessage.WriteStream -f $Path)
+        $fileStream = [System.IO.File]::Create($Path)
+        $Stream.Result.CopyTo($fileStream)
+    }
+    finally
+    {
+        if ($null -ne $fileStream){ $fileStream.Dispose() }
+        if (($null -ne $Stream) -and ($Stream.IsCompleted -eq $true)){ $Stream.Dispose() }
     }
 }
 
@@ -350,10 +379,9 @@ function ValidateUri
     if ($result.AbsolutePath -eq $null){ throw New-Object System.NullReferenceException ($exceptionMessage.InvalidCastURI -f $Uri)}
     if ($result.Scheme -notin "http", "https", "file")
     {
-        $errorId = "UriValidationFailure"; 
+        $errorId = "UriValidationFailure";
         $errorMessage = $exceptionMessage.InvalidUriSchema -f ${Uri}
         ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
-        
     }
     return $result
 }
@@ -369,17 +397,30 @@ function ValidateFilePath
     )
     
     Write-Debug -Message ($debugMessage.ValidateFilePath -f $Path)
-    if (Test-Path -Path $Path)
+    $itemType = GetPathItemType -Path $Path
+    switch ($itemType.ToString())
     {
-        return;
+        ([GraniDonwloadItemTypeEx]::FileInfo.ToString())
+        {
+            return;
+        }
+        ([GraniDonwloadItemTypeEx]::NotExists.ToString())
+        {
+            # Create Parent Directory check
+            $parentPath = Split-Path $Path -Parent
+            if (-not (Test-Path -Path $parentPath))
+            {
+                [System.IO.Directory]::CreateDirectory($parentPath) > $null
+            }
+        }
+        Default
+        {
+            $errorId = "FileValudationFailure"
+            $errorMessage = $exceptionMessage.DestinationPathAlreadyExistAsNotFile -f $Path, $itemType.ToString()
+            ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
+        }
     }
 
-    # Create Parent Directory check
-    $parentPath = Split-Path $Path -Parent
-    if (-not (Test-Path -Path $parentPath))
-    {
-        [System.IO.Directory]::CreateDirectory($parentPath) > $null
-    }
 }
 
 #endregion
@@ -507,7 +548,7 @@ function GetPathItemType
     (
         [parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias("FullName", "LiteralPath", "PSPath")]
-        [System.String]$Path
+        [System.String]$Path = [string]::Empty
     )
 
     $type = [string]::Empty
@@ -520,17 +561,20 @@ function GetPathItemType
     
     $pathItem = Get-Item -Path $path
     $pathItemType = $pathItem.GetType().FullName
-    $type = if ($pathItemType -eq "System.IO.FileInfo")
+    $type = switch ($pathItemType)
     {
-        [GraniDonwloadItemTypeEx]::FileInfo
-    }
-    elseif ($pathItemType -eq "System.IO.DirectoryInfo")
-    {
-        [GraniDonwloadItemTypeEx]::DirectoryInfo
-    }
-    else
-    {
-        [GraniDonwloadItemTypeEx]::Other
+        "System.IO.FileInfo"
+        {
+            [GraniDonwloadItemTypeEx]::FileInfo
+        }
+        "System.IO.DirectoryInfo"
+        {
+            [GraniDonwloadItemTypeEx]::DirectoryInfo
+        }
+        Default
+        {
+            [GraniDonwloadItemTypeEx]::Other
+        }
     }
 
     return $type
@@ -558,4 +602,5 @@ function ThrowInvalidDataException
     $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $errorCategory, $null
     throw $errorRecord
 }
+
 #endregion

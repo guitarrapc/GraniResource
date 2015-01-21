@@ -7,6 +7,9 @@ Describe "Grani_Download : GetPathItemType" {
     $pathF = "d:\hoge\ReadMe.md"
     $pathD = "d:\hoge\ReadMe"
 
+    $parent = Split-Path -Path $pathF -Parent
+    New-Item -Path $parent -ItemType Directory -Force > $null
+
     New-Item -Path $pathF -ItemType File -Force > $null
     New-Item -Path $pathD -ItemType Directory -Force > $null
 
