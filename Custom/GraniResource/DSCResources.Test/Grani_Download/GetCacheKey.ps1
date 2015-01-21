@@ -79,7 +79,7 @@ function Get-TargetResource
     )
 
     # Checking Destination Path is existing and Valid as a FileInfo
-    $itemType = GetPathItemType -Path $DestinationPath
+    $itemType = Get-ChildItem -Path $DestinationPath -File | GetPathItemType
     $fileExists = $false
     switch ($itemType)
     {
@@ -505,7 +505,8 @@ function GetPathItemType
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Alias("FullName", "LiteralPath", "PSPath")]
         [System.String]$Path
     )
 

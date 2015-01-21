@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Set-TargetResource" {
+Describe "Grani_Download : Set-TargetResource" {
 
     Context "All test must return valid value" {
     }

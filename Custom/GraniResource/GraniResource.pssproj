@@ -127,9 +127,9 @@
     <Content Include="DSCResources.Test\Grani_ACL\Present\cACLResource.ps1" />
     <Content Include="DSCResources.Test\Grani_ACL\Present\cACLResource.txt" />
     <Content Include="DSCResources.Test\Grani_Download\GetCacheKey.ps1" />
-    <Content Include="DSCResources.Test\Grani_Download\GetFileHash.ps1" />
+    <Content Include="DSCResources.Test\Grani_Download\CacheHelper.Tests.ps1" />
+    <Content Include="DSCResources.Test\Grani_Download\CacheHelper.ps1" />
     <Content Include="DSCResources.Test\Grani_Download\GetCacheKey.Tests.ps1" />
-    <Content Include="DSCResources.Test\Grani_Download\GetFileHash.Tests.ps1" />
     <Content Include="DSCResources.Test\Grani_Download\GetTargetResource.ps1" />
     <Content Include="DSCResources.Test\Grani_Download\GetTargetResource.Tests.ps1" />
     <Content Include="DSCResources.Test\Grani_Download\SetTargetResource.ps1" />
