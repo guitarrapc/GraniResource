@@ -31,6 +31,7 @@
     <Folder Include="DSCResources\cWebPILauncher\" />
     <Folder Include="DSCResources\Grani_ACL\" />
     <Folder Include="DSCResources\Grani_Download\" />
+    <Folder Include="DSCResources\Grani_GitHubApiContent\" />
     <Folder Include="DSCResources\Grani_ScheduleTaskLog\" />
     <Folder Include="DSCResources\Grani_ScheduleTask\" />
     <Folder Include="DSCResources\Grani_TCPAckFrequency\" />
@@ -53,6 +54,10 @@
     <Compile Include="DSCResources\Grani_WebPI\Grani_WebPI.schema.mof" />
     <Compile Include="GraniResource.psd1" />
     <Compile Include="New-GraniResourceManufest.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.schema.mof" />
+    <Content Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.psm1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />

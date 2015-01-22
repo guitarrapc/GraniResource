@@ -28,6 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Grani_ACL.ps1" />
+    <Content Include="Grani_GitHubApiContent.ps1" />
     <Content Include="Grani_Download.ps1" />
     <Content Include="Grani_ScheduleTask.ps1" />
     <Content Include="Grani_ScheduleTaskLog.ps1" />
