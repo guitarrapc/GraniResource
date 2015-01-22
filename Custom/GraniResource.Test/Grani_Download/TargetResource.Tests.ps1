@@ -14,6 +14,8 @@ Describe "Grani_Download : *-TargetResource" {
     $userAgent = "hoge"
     $contentType = "application/vnd.github+json"
     $invalidContentType = "hoge"
+    $allowRedirect = $false
+    $userAgent = "hoge"
 
     Context "Scratch environment. " {
         It "Get-TargetResource should not throw" {
@@ -30,6 +32,22 @@ Describe "Grani_Download : *-TargetResource" {
 
         It "Get-TargetResource should return Uri : $uri" {
             (Get-TargetResource -Uri $uri -DestinationPath $path).Uri | should be $uri
+        }
+
+        It "Get-TargetResource should return ContentType" {
+            (Get-TargetResource -Uri $uri -DestinationPath $path -ContentType $contentType).ContentType | should be $contentType
+        }
+
+        It "Get-TargetResource should return UserAgent" {
+            (Get-TargetResource -Uri $uri -DestinationPath $path -UserAgent $userAgent).UserAgent | should be $userAgent
+        }
+
+        It "Get-TargetResource should return AllowRedirect" {
+            (Get-TargetResource -Uri $uri -DestinationPath $path -AllowRedirect $allowRedirect).AllowRedirect | should be $allowRedirect
+        }
+
+        It "Get-TargetResource should return CacheLocation" {
+            (Get-TargetResource -Uri $uri -DestinationPath $path -CacheLocation $script:cacheLocation).CacheLocation | should be $script:cacheLocation
         }
 
         It "Test-TargetResource should return false" {

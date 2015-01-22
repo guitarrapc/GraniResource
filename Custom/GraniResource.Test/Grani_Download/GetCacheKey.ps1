@@ -39,6 +39,7 @@ $debugMessage = DATA {
     ConvertFrom-StringData -StringData "
         AddRequestHeader = Adding Request Header. Key : '{0}', Value : '{1}'
         AddContentType = Adding ContentType : '{0}'
+        AddKeepAliveToRequestHeader = Adding Keep-Alive as true to the Request Header.
         AddUserAgent = Adding UserAgent : '{0}'
         AddCredential = Adding Network Credential for Basic Authentication. UserName : '{0}'
         DownloadComplete = Download content complete.
@@ -77,7 +78,7 @@ $exceptionMessage = DATA {
 
 #endregion
 
-#region *-Resource
+#region *-TargetResource
 
 function Get-TargetResource
 {
@@ -126,7 +127,7 @@ function Get-TargetResource
         UserAgent = $UserAgent
         AllowRedirect = $AllowRedirect
         Ensure = "Absent"
-
+        CacheLocation = $CacheLocation
     }
 
     if ($null -ne $Heaer)
@@ -326,7 +327,12 @@ function Invoke-HttpClient
                 $httpClient.DefaultRequestHeaders.Add($item.Key, $item.Value)
             }
             
-            # Keep-Alive
+        }
+
+        # Request Header : Keep-Alive
+        if (($httpClient.DefaultRequestHeaders.GetEnumerator() | where Key -eq "Keep-Alive" | measure).Count -eq 0)
+        {
+            Write-Debug -Message ($debugMessage.AddKeepAliveToRequestHeader)
             $httpClient.DefaultRequestHeaders.Add("Keep-Alive", "true")
         }
 
@@ -348,12 +354,15 @@ function Invoke-HttpClient
         # Credential
         if ($Credential -ne [PSCredential]::Empty)
         {
-            # Credential on Handler does not work with Basic Authentication : http://stackoverflow.com/questions/25761214/why-would-my-rest-service-net-clients-send-every-request-without-authentication
-            # $httpClientHandler.Credential = $Credential
+            if ($Credential.GetNetworkCredential().Password -ne [string]::Empty)
+            {
+                # Credential on Handler does not work with Basic Authentication : http://stackoverflow.com/questions/25761214/why-would-my-rest-service-net-clients-send-every-request-without-authentication
+                # $httpClientHandler.Credential = $Credential
 
-            Write-Debug -Message ($debugMessage.AddCredential -f $Credential.UserName)
-            $encoded = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes([String]::Format( "{0}:{1}", $Credential.UserName, $Credential.GetNetworkCredential().Password)));
-            $httpClient.DefaultRequestHeaders.Authorization = New-Object System.Net.Http.Headers.AuthenticationHeaderValue ("Basic", $encoded) # Basic Authentication Only
+                Write-Debug -Message ($debugMessage.AddCredential -f $Credential.UserName)
+                $encoded = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes([String]::Format( "{0}:{1}", $Credential.UserName, $Credential.GetNetworkCredential().Password)));
+                $httpClient.DefaultRequestHeaders.Authorization = New-Object System.Net.Http.Headers.AuthenticationHeaderValue ("Basic", $encoded) # Basic Authentication Only
+            }
         }
 
         #endregion
@@ -701,3 +710,5 @@ function ThrowInvalidDataException
     $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $errorCategory, $null
     throw $errorRecord
 }
+
+#endregion
