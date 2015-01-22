@@ -118,7 +118,11 @@ function Get-TargetResource
         $script:cacheLocation = $CacheLocation
     }
 
+    # validate Uri can be parse to [uri] and Schema is http|https|file
+    $validUri = ValidateUri -Uri $Uri
+
     # Initialize return values
+    # Header and Credential will never return as TypeConversion problem
     $returnHash = 
     @{
         Uri = $Uri
@@ -128,11 +132,6 @@ function Get-TargetResource
         AllowRedirect = $AllowRedirect
         Ensure = "Absent"
         CacheLocation = $CacheLocation
-    }
-
-    if ($null -ne $Heaer)
-    {
-        $returnHash.Header = $Header.GetEnumerator()
     }
 
     # Destination Path check
@@ -167,7 +166,7 @@ function Get-TargetResource
     {
         Write-Debug -Message $debugMessage.IsFileExists
         $currentFileHash = GetFileHash -Path $DestinationPath
-        $cachedFileHash = GetCache -DestinationPath $DestinationPath -Uri $Uri
+        $cachedFileHash = GetCache -DestinationPath $DestinationPath -Uri $validUri
 
         Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $cachedFileHash)
         if ($currentFileHash -eq $cachedFileHash)
@@ -529,10 +528,10 @@ function GetCacheKey
         [string]$DestinationPath,
 
         [parameter(Mandatory = $true)]
-        [string]$Uri
+        [uri]$Uri
     )
 
-    $key = [string]::Join("", @($DestinationPath, $Uri)).GetHashCode().ToString()
+    $key = [string]::Join("", @($DestinationPath, $Uri.AbsoluteUri.ToString())).GetHashCode().ToString()
     return $key
 }
 
@@ -546,7 +545,7 @@ function GetCache
         [string]$DestinationPath,
 
         [parameter(Mandatory = $true)]
-        [string]$Uri
+        [uri]$Uri
     )
 
     $cacheKey = GetCacheKey -DestinationPath $DestinationPath -Uri $Uri
@@ -570,7 +569,7 @@ function UpdateCache
         [string]$DestinationPath,
 
         [parameter(Mandatory = $true)]
-        [string]$Uri
+        [uri]$Uri
     )
 
     $cacheKey = GetCacheKey -DestinationPath $DestinationPath -Uri $Uri
