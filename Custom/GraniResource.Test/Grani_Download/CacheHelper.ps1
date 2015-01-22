@@ -270,6 +270,17 @@ function Test-TargetResource
         [System.String]$CacheLocation = [string]::Empty
     )
 
+    $param = @{
+        Uri = $Uri
+        DestinationPath = $DestinationPath
+        Header = $Header
+        ContentType = $ContentPath
+        Credential = $Credential
+        UserAgent = $UserAgent
+        AllowRedirect = $AllowRedirect
+        CacheLocation = $CacheLocation
+    }
+
     return (Get-TargetResource -DestinationPath $DestinationPath -Uri $Uri).Ensure -eq "Present"
 }
 

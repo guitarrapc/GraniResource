@@ -97,11 +97,11 @@
     <Content Include="Grani_Download\CacheHelper.Tests.ps1" />
     <Content Include="Grani_Download\Configuration\cache\-448662428" />
     <Content Include="Grani_Download\Configuration\ConfigurationSample.ps1" />
-    <Content Include="Grani_Download\Configuration\InstallDebug.log" />
-    <Content Include="Grani_Download\Configuration\InstallVerbose.log" />
+    <Content Include="Grani_Download\Configuration\SkipDebug.ps1" />
+    <Content Include="Grani_Download\Configuration\SkipVerbose.ps1" />
+    <Content Include="Grani_Download\Configuration\InstallVerbose.ps1" />
     <Content Include="Grani_Download\Configuration\mof\localhost.mof" />
-    <Content Include="Grani_Download\Configuration\SkipDebug.log" />
-    <Content Include="Grani_Download\Configuration\SkipVerbose.log" />
+    <Content Include="Grani_Download\Configuration\InstallDebug.ps1" />
     <Content Include="Grani_Download\GetCacheKey.ps1" />
     <Content Include="Grani_Download\GetCacheKey.Tests.ps1" />
     <Content Include="Grani_Download\GetPathItemType.ps1" />
