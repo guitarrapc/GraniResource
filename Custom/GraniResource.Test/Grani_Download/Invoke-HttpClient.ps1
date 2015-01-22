@@ -232,7 +232,7 @@ function Set-TargetResource
     $headerHashtable = ConvertKCimInstanceToHashtable -CimInstance $Header
 
     # Start Download
-    Invoke-HttpClient -Uri $validUri -Path $DestinationPath -Header $headerHashtable -ContentType $ContentType -UserAgent $UserAgent -Credential $Credential
+    Invoke-HttpClient -Uri $validUri -Path $DestinationPath -Header $headerHashtable -ContentType $ContentType -UserAgent $UserAgent -Credential $Credential -AllowRedirect $AllowRedirect
 
     # Update Cache for FileHash
     UpdateCache -DestinationPath $DestinationPath -Uri $validUri
