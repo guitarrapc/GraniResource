@@ -22,8 +22,11 @@ You can manage followings.
 ResourceName|FriendlyName|Description
 ----|----|----
 Grani_ACL|cACL|ACL Resource make you ability to manage ACL through easy configuration.
+Grani_Download|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
+Grani_GitHubApiContent|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
 Grani_ScheduleTask|cScheduledTask|Enable you to configure Schedule Task detail as like cmdlet. (not all but quiet lot.)
 Grani_ScheduleTaskLog|cScheduledTaskLog|Enable/Disable Scheduled Task Log
+Grani_TCPAckFrequency|cTCPAckFrequency|Enable/Disable TCPAckFrequency
 Grani_WebPI|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)
 cWebPILauncher|cWebPILauncher|Install WebPlatformInstaller itself
 
@@ -43,8 +46,8 @@ This Repogitry keeps to some version and rename Resource Prefix from x to c as P
 PowerShellOrgDSC
 ----
 
-Submodule from PowerShellOrg/DSC. There are several brilliant resource created by PowerShell.Org and StackExchange.
+PowerShellOrg is community DSC Repository. Hope we can share Resources.
 
-You should check them as they already prepare several resource to open source.
+This include PowerShellOrg Resource which needed. 
 
-However some resource are bit weak to use in production. (Like TaskScheduler)  GraniResource include much more powerfull resource to use in production.
+However some resource are too norty to use in production. (Like TaskScheduler / Choco Resource)  GraniResource include much more powerfull resource which already fully use in production for hundreds of Windows Server 2012 R2.
