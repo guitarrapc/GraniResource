@@ -10,7 +10,7 @@ Directory|ResourceName
 ----|----
 Custom|GraniResource
 MicrosoftScriptCenter|MSFT Resource
-PowerShellOrgDSC|PowerShell Org & StackExchange Resource
+PowerShellOrg|PowerShell Org DSC Resource
 
 GraniResource
 ----
