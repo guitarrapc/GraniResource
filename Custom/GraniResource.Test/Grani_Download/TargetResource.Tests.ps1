@@ -10,26 +10,45 @@ Describe "Grani_Download : *-TargetResource" {
     $path = "d:\hoge\ReadMe.md"
     $parent = Split-Path -Path $path -Parent
     $uri = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $hader = @{hoge = "hoge"}
+
     $userAgent = "hoge"
     $contentType = "application/vnd.github+json"
     $invalidContentType = "hoge"
+    $allowRedirect = $false
+    $userAgent = "hoge"
 
     Context "Scratch environment. " {
         It "Get-TargetResource should not throw" {
             {Get-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
         }
 
+        $result = Get-TargetResource -Uri $uri -DestinationPath $path -ContentType $contentType -UserAgent $userAgent -AllowRedirect $allowRedirect -CacheLocation $cacheLocation
         It "Get-TargetResource should return Ensure : Absent" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Absent"
+            $result.Ensure | should be "Absent"
         }
 
         It "Get-TargetResource should return DestinationPath : $path" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).DestinationPath | should be $path
+            $result.DestinationPath | should be $path
         }
 
         It "Get-TargetResource should return Uri : $uri" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Uri | should be $uri
+            $result.Uri | should be $uri
+        }
+
+        It "Get-TargetResource should return ContentType : $contentType" {
+            $result.ContentType | should be $contentType
+        }
+
+        It "Get-TargetResource should return UserAgent" {
+            $result.UserAgent | should be $userAgent
+        }
+
+        It "Get-TargetResource should return AllowRedirect : $allowRedirect" {
+            $result.AllowRedirect | should be $allowRedirect
+        }
+
+        It "Get-TargetResource should return CacheLocation : $cacheLocation" {
+            $result.CacheLocation | should be $script:cacheLocation
         }
 
         It "Test-TargetResource should return false" {
@@ -60,20 +79,6 @@ Describe "Grani_Download : *-TargetResource" {
 
         It "Test-TargetResource should return true" {
             Test-TargetResource -Uri $uri -DestinationPath $path | should be $true
-        }
-    }
-
-    Context "Already configured environment. Same Uri / same file update. Added Header." {
-        It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path -Header $header} | should not Throw
-        }
-
-        It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -Header $header).Ensure | should be "Present"
-        }
-
-        It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path -Header $header | should be $true
         }
     }
 

@@ -2,13 +2,19 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Grani_Download : GetCacheKey" {
+Describe "Grani_GitHubApiContent : GetCacheKey" {
 
     $path = "d:\hoge\ReadMe.md"
-    $uri = "https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-
     $path2 = "d:\hoge\ReadMe2.md"
-    $uri2 = "https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README2.md"
+
+    $Repository = "DSCResources"
+    $Repository2 = "valentia"
+    $RepositoryOwner = "guitarrapc"
+    $ContentPath = "README.md"
+    $Branch = "master"
+
+    [uri]$uri = ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository -ContentPath $ContentPath -Branch $Branch
+    [uri]$uri2 = ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository2 -ContentPath $ContentPath -Branch $Branch
 
     $parent = Split-Path -Path $path -Parent
     New-Item -Path $parent -ItemType Directory -Force > $null
