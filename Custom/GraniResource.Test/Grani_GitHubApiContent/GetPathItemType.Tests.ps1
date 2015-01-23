@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Grani_Download : GetPathItemType" {
+Describe "Grani_GitHubApiContent : GetPathItemType" {
 
     $pathF = "d:\hoge\ReadMe.md"
     $pathD = "d:\hoge\ReadMe"

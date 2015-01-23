@@ -2,13 +2,19 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Grani_Download : GetCacheKey" {
+Describe "Grani_GitHubApiContent : GetCacheKey" {
 
     $path = "d:\hoge\ReadMe.md"
-    $uri = "https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-
     $path2 = "d:\hoge\ReadMe2.md"
-    $uri2 = "https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README2.md"
+
+    $Repository = "DSCResources"
+    $Repository2 = "valentia"
+    $RepositoryOwner = "guitarrapc"
+    $ContentPath = "README.md"
+    $Branch = "master"
+
+    [uri]$uri = ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository -ContentPath $ContentPath -Branch $Branch
+    [uri]$uri2 = ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository2 -ContentPath $ContentPath -Branch $Branch
 
     $parent = Split-Path -Path $path -Parent
     New-Item -Path $parent -ItemType Directory -Force > $null
@@ -19,7 +25,6 @@ Describe "Grani_Download : GetCacheKey" {
     1..100 | Get-Random -Count 10 | Out-File -FilePath $path2
 
     Context "GetCacheKey should return hash string from FileName and Url" {
-
 
         It "GetCacheKey should not BeNullOrEmpty" {
             GetCacheKey -DestinationPath $path -Uri $Uri | Should not BeNullOrEmpty
@@ -46,6 +51,5 @@ Describe "Grani_Download : GetCacheKey" {
         }
     }
 
-    Remove-Item -Path $path -Force
-    Remove-Item -Path $path2 -Force
+    Remove-Item -Path $parent -Force -Recurse
 }

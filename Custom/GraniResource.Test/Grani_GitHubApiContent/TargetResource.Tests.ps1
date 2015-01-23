@@ -2,128 +2,135 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Grani_Download : *-TargetResource" {
+Describe "Grani_GitHubApiContent : *-TargetResource" {
 
     $prev = $script:cacheLocation
     $script:cacheLocation = "d:\hoge\cache"
 
     $path = "d:\hoge\ReadMe.md"
     $parent = Split-Path -Path $path -Parent
-    $uri = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $hader = @{hoge = "hoge"}
+
+    $repository = "DSCResources"
+    $repositoryOwner = "guitarrapc"
+    $contentPath = "README.md"
+    $branch = "master"
+    $oAuth2Token = Get-Credential
+
     $userAgent = "hoge"
     $contentType = "application/vnd.github+json"
     $invalidContentType = "hoge"
     $allowRedirect = $false
-    $userAgent = "hoge"
 
     Context "Scratch environment. " {
         It "Get-TargetResource should not throw" {
-            {Get-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
+            {Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
+        $result = Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token -ContentType $contentType -UserAgent $userAgent -AllowRedirect $allowRedirect -CacheLocation $cacheLocation
         It "Get-TargetResource should return Ensure : Absent" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Absent"
+            $result.Ensure | should be "Absent"
         }
 
         It "Get-TargetResource should return DestinationPath : $path" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).DestinationPath | should be $path
+            $result.DestinationPath | should be $path
+        }
+
+        It "Get-TargetResource should return Repository : $repository" {
+            $result.Repository | should be $repository
+        }
+
+        It "Get-TargetResource should return Repository : $repositoryOwner" {
+            $result.RepositoryOwner | should be $repositoryowner
         }
 
         It "Get-TargetResource should return Uri : $uri" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Uri | should be $uri
+            $result.Repository | should be $repository
         }
 
-        It "Get-TargetResource should return ContentType" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -ContentType $contentType).ContentType | should be $contentType
+        It "Get-TargetResource should return ContentPath : $contentPath" {
+            $result.ContentPath | should be $contentPath
         }
 
-        It "Get-TargetResource should return UserAgent" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -UserAgent $userAgent).UserAgent | should be $userAgent
+        It "Get-TargetResource should return Branch : $branch" {
+            $result.Branch | should be $branch
         }
 
-        It "Get-TargetResource should return AllowRedirect" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -AllowRedirect $allowRedirect).AllowRedirect | should be $allowRedirect
+        It "Get-TargetResource should return ContentType : $contentType" {
+            $result.ContentType | should be $contentType
         }
 
-        It "Get-TargetResource should return CacheLocation" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -CacheLocation $script:cacheLocation).CacheLocation | should be $script:cacheLocation
+        It "Get-TargetResource should return UserAgent : $userAgent" {
+            $result.UserAgent | should be $userAgent
+        }
+
+        It "Get-TargetResource should return AllowRedirect : $allowRedirect" {
+            $result.AllowRedirect | should be $allowRedirect
+        }
+
+        It "Get-TargetResource should return CacheLocation : $cacheLocation" {
+            $result.CacheLocation | should be $script:cacheLocation
         }
 
         It "Test-TargetResource should return false" {
-            Test-TargetResource -Uri $uri -DestinationPath $path | should be $false
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $false
         }
 
         It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Present"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Present"
         }
 
         It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path | should be $true
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $true
         }
     }
 
     Context "Already configured environment. Same Uri / same file update." {
         It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Present"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Present"
         }
 
         It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path | should be $true
-        }
-    }
-
-    Context "Already configured environment. Same Uri / same file update. Added Header." {
-        It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path -Header $header} | should not Throw
-        }
-
-        It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -Header $header).Ensure | should be "Present"
-        }
-
-        It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path -Header $header | should be $true
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $true
         }
     }
 
     Context "Already configured environment. Same Uri / same file update. Added UserAgent." {
         It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path -UserAgent $userAgent} | should not Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -UserAgent $userAgent).Ensure | should be "Present"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Present"
         }
 
         It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path -UserAgent $userAgent | should be $true
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $true
         }
     }
 
     Context "Already configured environment. Same Uri / same file update. Added ContentType." {
         It "Set-TargetResource should Throw with invalid ContentType" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path -ContentType $invalidContentType} | should Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token -ContentType $invalidContentType} | should Throw
         }
 
         It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path -ContentType $contentType} | should not Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path -ContentType $contentType).Ensure | should be "Present"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Present"
         }
 
         It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path -ContentType $contentType | should be $true
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $true
         }
     }
 
@@ -131,27 +138,27 @@ Describe "Grani_Download : *-TargetResource" {
         Remove-Item -Path $path -Force
 
         It "Get-TargetResource should not throw" {
-            {Get-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
+            {Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Absent" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Absent"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Absent"
         }
 
         It "Test-TargetResource should return false" {
-            Test-TargetResource -Uri $uri -DestinationPath $path | should be $false
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $false
         }
 
         It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Present" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Present"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Present"
         }
 
         It "Test-TargetResource should return true" {
-            Test-TargetResource -Uri $uri -DestinationPath $path | should be $true
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $true
         }
     }
 
@@ -160,19 +167,19 @@ Describe "Grani_Download : *-TargetResource" {
         New-Item -Path $path -ItemType Directory > $null
 
         It "Get-TargetResource should not throw" {
-            {Get-TargetResource -Uri $uri -DestinationPath $path} | should not Throw
+            {Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should not Throw
         }
 
         It "Get-TargetResource should return Ensure : Absent" {
-            (Get-TargetResource -Uri $uri -DestinationPath $path).Ensure | should be "Absent"
+            (Get-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token).Ensure | should be "Absent"
         }
 
         It "Test-TargetResource should return false" {
-            Test-TargetResource -Uri $uri -DestinationPath $path | should be $false
+            Test-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token | should be $false
         }
 
         It "Set-TargetResource should Throw" {
-            {Set-TargetResource -Uri $uri -DestinationPath $path} | should Throw
+            {Set-TargetResource -DestinationPath $path -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch -OAuth2Token $OAuth2Token} | should Throw
         }
 
         Remove-Item -Path $path -Force -Recurse

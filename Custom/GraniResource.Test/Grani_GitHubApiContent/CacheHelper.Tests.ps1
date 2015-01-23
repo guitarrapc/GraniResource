@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Grani_Download : CacheHelper" {
+Describe "Grani_GitHubApiContent : CacheHelper" {
 
     # swap cache control path for test
     $prev = $script:cacheLocation
@@ -10,8 +10,13 @@ Describe "Grani_Download : CacheHelper" {
 
     $path = "d:\hoge\ReadMe.md"
     $parent = Split-Path -Path $path -Parent
-    $uri = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    
+
+    $Repository = "DSCResources"
+    $RepositoryOwner = "guitarrapc"
+    $ContentPath = "README.md"
+    $Branch = "master"
+
+    [uri]$uri = ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository -ContentPath $ContentPath -Branch $Branch
     
     New-Item -Path $parent -ItemType Directory -Force > $null
     Remove-Item -Path $script:cacheLocation -Force -Recurse -ErrorAction SilentlyContinue
@@ -41,7 +46,7 @@ Describe "Grani_Download : CacheHelper" {
         Remove-Item -Path $path -Force > $null
     }
 
-    Invoke-HttpClient -Uri $uri -Path $path
+    New-Item -Path $path -ItemType File > $null
     $fileHash = GetFileHash -Path $path
 
     Context "NewXmlObject" {

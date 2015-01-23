@@ -1,4 +1,4 @@
-﻿configuration DownloadGitHubContentFromAPI
+﻿configuration DownloadGitHubRawContentFromAPI
 {
     param
     (
@@ -11,11 +11,12 @@
     {
         cGitHubApiContent hoge
         {
-            DestinationPath = "C:\Tools\README.md"
+            DestinationPath = "C:\Tools\xDscResourceDesigner.zip"
             Repository = "DSCResources"
             RepositoryOwner = "guitarrapc"
-            ContentPath = "README.md"
+            ContentPath = "MicrosoftScriptCenter/xDSCResourceDesigner.zip"
             OAuth2Token = $Credential
+            ContentType = "application/vnd.github.v3.raw"
         }
     }
 }
@@ -32,5 +33,5 @@ $configurationData = @{
         }
     )
 }
-DownloadGitHubContentFromAPI -Credential (Get-Credential) -ConfigurationData $configurationData
-Start-DscConfiguration -Wait -Verbose -Force -Path DownloadGitHubContentFromAPI
+DownloadGitHubRawContentFromAPI -Credential (Get-Credential) -ConfigurationData $configurationData
+Start-DscConfiguration -Wait -Verbose -Force -Path DownloadGitHubRawContentFromAPI

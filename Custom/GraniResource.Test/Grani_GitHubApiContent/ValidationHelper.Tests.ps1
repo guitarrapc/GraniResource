@@ -2,33 +2,48 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
-Describe "Grani_Download : ValidationHelper" {
+Describe "Grani_GitHubApiContent : ValidationHelper" {
 
-    $http = [uri]"http://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $https = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $file = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $unc = [uri]"c:\raw.githubusercontent.com\guitarrapc\WindowsCredentialVault\master\README.md"
-    $invalid = [uri]"httttp://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $other = [uri]"//raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
+    $Repository = "DSCResources"
+    $RepositoryOwner = "guitarrapc"
+    $ContentPath = "README.md"
+    $Branch = "master"
+
+    $http = [uri]"http://hogemoge.dummy.com"
+    $https = [uri]"https://hogemoge.dummy.com"
+    $file = [uri]"file://hogemoge.dummy.com"
+    $unc = [uri]"c:\hogemoge.dummy.com"
+    $invalid = [uri]"httttp://hogemoge.dummy.com"
+    $other = [uri]"//hogemoge.dummy.com"
     
     $path = "d:\hoge\ReadMe.md"
     $parent = Split-Path -Path $path -Parent
 
-    Context "ValidateUri test" {
-        It "http scheme should not be null." {
-            ValidateUri -Uri $http | Should Not Be $null
+    Context "ParseGitHubApiUri test" {
+        It "ParseGitHubApiUri should not Throw." {
+            {ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository -ContentPath $ContentPath -Branch $Branch } | Should not Throw
         }
 
+        It "ParseGitHubApiUri should return github api url string." {
+            ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository -ContentPath $ContentPath -Branch $Branch | Should be ($script:githubApiString -f $RepositoryOwner, $Repository, $ContentPath, $Branch)
+        }
+    }
+
+    Context "ValidateUri test" {
         It "https scheme should not be null." {
             ValidateUri -Uri $https | Should Not Be $null
         }
 
-        It "file scheme should not be null." {
-            ValidateUri -Uri $file | Should Not Be $null
+        It "http scheme should be fail." {
+            {ValidateUri -Uri $http} | Should Throw
+        }
+
+        It "file scheme should be fail." {
+            {ValidateUri -Uri $file} | Should Throw
         }
 
         It "UNC scheme format should be fail." {
-            {ValidateUri -Uri $unc} | Should Not Be $null
+            {ValidateUri -Uri $unc} | Should Throw
         }
 
         It "invalid scheme format should be fail." {

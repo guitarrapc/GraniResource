@@ -17,7 +17,7 @@ function Initialize
     # $script:cacheLocation = "$env:ProgramData\Microsoft\Windows\PowerShell\Configuration\BuiltinProvCache\Grani_Download"
     $script:cacheLocation = "$env:ProgramData\Microsoft\Windows\PowerShell\Configuration\CustomProvCache\Grani_GitHubApiContent"
 
-    # GitHub Api template string : RepositoryOwner / Repository / ContentPath / Branch
+    # GitHub API template string : RepositoryOwner / Repository / ContentPath / Branch
     $script:githubApiString = "https://api.github.com/repos/{0}/{1}/contents/{2}?ref={3}"
 
     # Enum for Item Type
@@ -45,9 +45,13 @@ $debugMessage = DATA {
         AddKeepAliveToRequestHeader = Adding Keep-Alive as true to the Request Header.
         AddOAuth2Token = Adding OAuth2Token for Basic Authentication.
         AddUserAgent = Adding UserAgent : '{0}'
+        ContentTypeDetectedAsJson = ContentType passed to Request header as '{0}'. Treat response as JSON, content encoded as base64.
+        ContentTypeDetectedAsRaw = ContentType passed to Request header as '{0}'. Treat response as RAW, content directly pick from result.
+        ContentTypeDetectedAsHtml = ContentType passed to Request header as '{0}'. Treat response as HTML, content directly pick from result.
         ConvertBase64String = Convert base64 string to UTF8 string.
         ConvertstringToJsonAndGetContent = Convert json string to PSCustomObject, then picking up base64 encoded string from content property.
         DownloadComplete = Download content complete.
+        GetRawContent = Getting raw content from response result
         IsDestinationPathExist = Checking Destination Path is existing and Valid as a FileInfo
         IsDestinationPathAlreadyUpToDate = Matching FileHash to verify file is already exist/Up-To-Date or not.
         IsFileAlreadyUpToDate = CurrentFileHash : CachedFileHash -> {0} : {1}
@@ -57,9 +61,9 @@ $debugMessage = DATA {
         ItemTypeWasOther = Destination Path found but was neither File nor Directory: '{0}'
         ItemTypeWasNotExists = Destination Path not found : '{0}'
         SetCacheLocationPath = CacheLocation Value detected. Setting Custom CacheLocation Path : '{0}'
-        TestUriConnection = Testing connection to the uri : {0}
-        UpdateFileHashCache = Updating cache path '{1}' for current Filehash SHA256 '{0}'.
-        ValidateUri = Cast uri string '{0}' to System.Uri.
+        TestUriConnection = Testing connection to the URI : {0}
+        UpdateFileHashCache = Updating cache path '{1}' for current File hash SHA256 '{0}'.
+        ValidateUri = Cast URI string '{0}' to System.Uri.
         ValidateFilePath = Check DestinationPath '{0}' is FileInfo and Parent Directory already exist.
         WriteStream = Start writing downloaded string to File Path : '{0}'
     "
@@ -68,16 +72,18 @@ $debugMessage = DATA {
 $verboseMessage = DATA {
     ConvertFrom-StringData -StringData "
         alreadyUpToDate = Current DestinationPath FileHash and Cache FileHash matched. File already Up-To-Date.
-        DownloadString = Status Code returns '{0}'. Start download string from uri : '{1}'
+        DownloadStream = Status Code returns '{0}'. Start download stream from URI : '{1}'
+        DownloadString = Status Code returns '{0}'. Start download string from URI : '{1}'
         notUpToDate = Current DestinationPath FileHash and Cache FileHash not matched. Need to download latest file.
     "
 }
 $exceptionMessage = DATA {
     ConvertFrom-StringData -StringData "
-        ContentNotFountFromResponce = Content not exist in GitHub API response json string.
-        InvalidCastURI = Uri : '{0}' casted to [System.Uri] but was invalid string for uri. Make sure you have passed valid uri string.
+        ContentNotFoundFromResponce = Content not exist in GitHub API response json string.
+        ResultNotFountFromResponce = Result not exist in GitHub API response raw string.
+        InvalidCastURI = Uri : '{0}' casted to [System.Uri] but was invalid string for URI. Make sure you have passed valid URI string.
         InvalidUriSchema = Specified URI is not valid: '{0}'. Only https is accepted.
-        InvalidResponce = Status Code returns '{0}'. Stop download stream from uri : '{1}'
+        InvalidResponce = Status Code returns '{0}'. Stop download content from URI : '{1}'
         DestinationPathAlreadyExistAsNotFile = Destination Path '{0}' already exist but not a file. Found itemType is {1}. Windows not allowed exist same name item.
     "
 }
@@ -107,14 +113,14 @@ function Get-TargetResource
         [parameter(Mandatory = $false)]
         [System.String]$Branch = "master",
 
-        [parameter(Mandatory = $false)]
+        [parameter(Mandatory = $true)]
         [System.Management.Automation.PSCredential]$OAuth2Token = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
         [Microsoft.Management.Infrastructure.CimInstance[]]$Header = $null,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("application/json","application/vnd.github+json")]
+        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -135,10 +141,10 @@ function Get-TargetResource
         $script:cacheLocation = $CacheLocation
     }
 
-    # Setup GitHub Api Uri string from GitHub parameters
-    $uri = ParseGitHubApiUri -Repository $Repository -RepositoryOwver $RepositoryOwner -ContentPath $ContentPath -Branch $Branch
+    # Setup GitHub API Uri string from GitHub parameters
+    $uri = ParseGitHubApiUri -RepositoryOwner $RepositoryOwner -Repository $Repository -ContentPath $ContentPath -Branch $Branch
 
-    # validate Uri can be parse to [uri] and Schema is http|https|file
+    # validate Uri can be parse to [URI] and Schema is http|https|file
     $validUri = ValidateUri -Uri $uri
 
     # Initialize return values
@@ -227,7 +233,7 @@ function Set-TargetResource
         [parameter(Mandatory = $false)]
         [System.String]$Branch = "master",
 
-        [parameter(Mandatory = $false)]
+        [parameter(Mandatory = $true)]
         [System.Management.Automation.PSCredential]$OAuth2Token = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
@@ -235,7 +241,7 @@ function Set-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("application/json","application/vnd.github+json")]
+        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -256,10 +262,10 @@ function Set-TargetResource
         $script:cacheLocation = $CacheLocation
     }
 
-    # Setup GitHub Api Uri string from GitHub parameters
-    $uri = ParseGitHubApiUri -Repository $Repository -RepositoryOwver $RepositoryOwner -ContentPath $ContentPath -Branch $Branch
+    # Setup GitHub API Uri string from GitHub parameters
+    $uri = ParseGitHubApiUri -Repository $Repository -RepositoryOwner $RepositoryOwner -ContentPath $ContentPath -Branch $Branch
 
-    # validate Uri can be parse to [uri] and Schema is http|https|file
+    # validate Uri can be parse to [URI] and Schema is http|https|file
     $validUri = ValidateUri -Uri $Uri
 
     # validate DestinationPath is valid
@@ -297,7 +303,7 @@ function Test-TargetResource
         [parameter(Mandatory = $false)]
         [System.String]$Branch = "master",
 
-        [parameter(Mandatory = $false)]
+        [parameter(Mandatory = $true)]
         [System.Management.Automation.PSCredential]$OAuth2Token = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
@@ -305,7 +311,7 @@ function Test-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("application/json","application/vnd.github+json")]
+        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -327,7 +333,7 @@ function Test-TargetResource
         Branch = $Branch
         OAuth2Token = $OAuth2Token
         Header = $Header
-        ContentType = $ContentPath
+        ContentType = $ContentType
         UserAgent = $UserAgent
         AllowRedirect = $AllowRedirect
         CacheLocation = $CacheLocation
@@ -352,7 +358,7 @@ function Invoke-HttpClient
         [parameter(Mandatory = $true)]
         [string]$Path,
 
-        [parameter(Mandatory = $false)]
+        [parameter(Mandatory = $true)]
         [System.Management.Automation.PSCredential]$OAuth2Token = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
@@ -360,7 +366,7 @@ function Invoke-HttpClient
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("application/json","application/vnd.github+json")]
+        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -374,9 +380,6 @@ function Invoke-HttpClient
     begin
     {
         #region Initialize
-
-        $private:authorizationHeaderKey = "Authorization"
-        $private:authorizationHeaderValue = "token '{0}'"
 
         # Should support Timeout? : Default -> 1:40 min
         # Should support MaxResponseContentBufferSize? : Default -> 2147483647
@@ -419,17 +422,16 @@ function Invoke-HttpClient
         }
 
         # Credential
-        if ($OAuth2Token -ne [PSCredential]::Empty)
+        if ($OAuth2Token.GetNetworkCredential().Password -ne [string]::Empty)
         {
-            if ($OAuth2Token.GetNetworkCredential().Password -ne [string]::Empty)
-            {
-                # Credential on Handler does not work with Basic Authentication : http://stackoverflow.com/questions/25761214/why-would-my-rest-service-net-clients-send-every-request-without-authentication
-                # $httpClientHandler.Credential = $Credential
+            # Credential on Handler does not work with Basic Authentication : http://stackoverflow.com/questions/25761214/why-would-my-rest-service-net-clients-send-every-request-without-authentication
+            # $httpClientHandler.Credential = $Credential
 
-                Write-Debug -Message ($debugMessage.AddOAuth2Token)
-                $tokenValue = $private:authorizationHeaderValue -f $OAuth2Token.GetNetworkCredential().Password
-                $httpClient.DefaultRequestHeaders.Authorization = New-Object System.Net.Http.Headers.AuthenticationHeaderValue ($private:authorizationHeaderKey, $tokenValue) # Basic Authentication Only
-            }
+            $private:authorizationHeaderKey = "Authorization"
+            $private:authorizationHeaderValue = "token {0}" -f $OAuth2Token.GetNetworkCredential().Password
+
+            Write-Debug -Message ($debugMessage.AddOAuth2Token)
+            $httpClient.DefaultRequestHeaders.Add($private:authorizationHeaderKey, $private:authorizationHeaderValue) # Basic Authentication Only
         }
 
         #endregion
@@ -451,20 +453,45 @@ function Invoke-HttpClient
 
             #region Execute Download
 
-            Write-Verbose -Message ($verboseMessage.DownloadString -f $res.Result.StatusCode.value__, $Uri)
-            [System.Threading.Tasks.Task`1[string]]$requestResult = $httpClient.GetStreamAsync($Uri)
-            $requestResult.ConfigureAwait($false) > $null
-            if ($requestResult.Exception -ne $null){ throw $requestResult.Exception }
+            switch ($ContentType)
+            {
+                "application/json"
+                {
+                    Write-Verbose -Message ($verboseMessage.DownloadString -f $res.Result.StatusCode.value__, $Uri)
+                    [System.Threading.Tasks.Task`1[string]]$requestResult = GetStringAsync -Uri $Uri
 
+                    Write-Debug -Message $debugMessage.ContentTypeDetectedAsJson
+                    WriteJson -Path $Path -RequestResult $requestResult
+                }
+                "application/vnd.github+json"
+                {
+                    Write-Verbose -Message ($verboseMessage.DownloadString -f $res.Result.StatusCode.value__, $Uri)
+                    [System.Threading.Tasks.Task`1[string]]$requestResult = GetStringAsync -Uri $Uri
+                    
+                    Write-Debug -Message $debugMessage.ContentTypeDetectedAsJson
+                    WriteJson -Path $Path -RequestResult $requestResult
+                }
+                "application/vnd.github.v3.raw"
+                {
+                    Write-Verbose -Message ($verboseMessage.DownloadStream -f $res.Result.StatusCode.value__, $Uri)
+                    [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = GetStreamAsync -Uri $Uri
+
+                    Write-Debug -Message $debugMessage.ContentTypeDetectedAsRaw
+                    WriteStream -Path $Path -Stream $stream
+                }
+                "application/vnd.github.v3.html"
+                {
+                    Write-Verbose -Message ($verboseMessage.DownloadStream -f $res.Result.StatusCode.value__, $Uri)
+                    [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = GetStreamAsync -Uri $Uri
+
+                    Write-Debug -Message $debugMessage.ContentTypeDetectedAsHtml
+                    WriteStream -Path $Path -Stream $stream
+                }
+            }
+                        
             #endregion
-
-            #region Write Stream to the file
-
-            WriteJson -Path $Path -RequestResult $requestResult
             
-            #endregion
-
-            Write-Debug -Message ($debugMessage.DownloadComplete)
+            Write-Verbose -Message ($debugMessage.DownloadComplete)
         }
         catch [System.Exception]
         {
@@ -477,6 +504,38 @@ function Invoke-HttpClient
             if ($null -ne $httpClientHandler){ $httpClientHandler.Dispose() }
         }
     }
+}
+
+function GetStringAsync
+{
+    [OutputType([System.Threading.Tasks.Task`1[string]])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [uri]$Uri
+    )
+
+    [System.Threading.Tasks.Task`1[string]]$requestResult = $httpClient.GetStringAsync($Uri)
+    $requestResult.ConfigureAwait($false) > $null
+    if ($requestResult.Exception -ne $null){ throw $requestResult.Exception }
+    return $requestResult
+}
+
+function GetStreamAsync
+{
+    [OutputType([System.Threading.Tasks.Task`1[System.IO.Stream]])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [uri]$Uri
+    )
+
+    [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = $httpClient.GetStreamAsync($Uri)
+    $stream.ConfigureAwait($false) > $null
+    if ($stream.Exception -ne $null){ throw $stream.Exception }
+    return $stream
 }
 
 function WriteJson
@@ -492,63 +551,95 @@ function WriteJson
         [System.Threading.Tasks.Task`1[string]]$RequestResult
     )
 
+    begin
+    {
+        function GetContentBase64String
+        {
+            [OutputType([string])]
+            [CmdletBinding()]
+            param
+            (
+                [parameter(Mandatory = $true)]
+                [System.Threading.Tasks.Task`1[string]]$RequestResult
+            )
+
+            # Get Content base64 string
+            Write-Debug -Message $debugMessage.ConvertstringToJsonAndGetContent
+            $content = ($RequestResult.Result | ConvertFrom-Json).Content
+
+            if ($content -eq [string]::Empty){ throw New-Object System.NullReferenceException $exceptionMessage.ContentNotFoundFromResponce }
+            return $content
+        }
+
+        function ConvertFromBase64ToUTF8
+        {
+            [OutputType([string])]
+            [CmdletBinding()]
+            param
+            (
+                [parameter(Mandatory = $true)]
+                [string]$String
+            )
+
+            try
+            {
+                # convert bse64 to UTF8
+                Write-Debug -Message $debugMessage.ConvertBase64String
+                $utf8String = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($String))
+                return $utf8String
+            }
+            catch
+            {
+                throw $_
+            }
+        }
+    }
+
+    process
+    {
+        try
+        {
+            # Get base64 string from Content Property of response json
+            $content = GetContentBase64String -RequestResult $RequestResult
+        
+            # decode base64 to utf8 string
+            $decodedString = ConvertFromBase64ToUTF8 -String $Content
+
+            # Write content to the file.
+            [System.IO.File]::WriteAllText($Path, $decodedString, [System.Text.Encoding]::UTF8)
+            
+        }
+        finally
+        {
+            if (($null -ne $RequestResult) -and ($RequestResult.IsCompleted -eq $true)){ $RequestResult.Dispose() }
+        }
+    }
+}
+
+function WriteStream
+{
+    [OutputType([void])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [parameter(Mandatory = $true)]
+        [System.Threading.Tasks.Task`1[System.IO.Stream]]$Stream
+    )
+
     try
     {
-        # Get base64 string from Content Property of response json
-        $content = GetContentBase64String -RequestResult $RequestResult
-        
-        # decode base64 to utf8 string
-        $decodedString = ConvertFromBase64String -String $Content
-
-        # Write content to the file.
+        # Write stream to the File
         Write-Debug -Message ($debugMessage.WriteStream -f $Path)
-        [System.IO.File]::WriteAllText($path, $decodedString, [System.Text.Encoding]::UTF8)
+        $fileStream = [System.IO.File]::Create($Path)
+        $Stream.Result.CopyTo($fileStream)
     }
     finally
     {
         if ($null -ne $fileStream){ $fileStream.Dispose() }
-        if (($null -ne $RequestResult) -and ($RequestResult.IsCompleted -eq $true)){ $RequestResult.Dispose() }
-    }
-}
-
-function GetContentBase64String
-{
-    [OutputType([string])]
-    [CmdletBinding()]
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [System.Threading.Tasks.Task`1[string]]$RequestResult
-    )
-
-    # Get Content base64 string
-    Write-Debug -Message $debugMessage.ConvertstringToJsonAndGetContent
-    $content = ($RequestResult.Result | ConvertFrom-Json).Content
-
-    if ($content -eq [string]::Empty){ throw New-Object System.NullReferenceException $exceptionMessage.ContentNotFountFromResponce }
-    return $content
-}
-
-function ConvertFromBase64String
-{
-    [OutputType([string])]
-    [CmdletBinding()]
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [string]$String
-    )
-
-    try
-    {
-        # convert bse64 to UTF8
-        Write-Debug -Message $debugMessage.ConvertBase64String
-        $utf8String = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($String))
-        return $utf8String
-    }
-    catch
-    {
-        throw $_
+        if (($null -ne $Stream) -and ($Stream.IsCompleted -eq $true)){ $Stream.Dispose() }
     }
 }
 
@@ -563,10 +654,10 @@ function ParseGitHubApiUri
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]$Repository,
+        [System.String]$RepositoryOwner,
 
         [parameter(Mandatory = $true)]
-        [System.String]$RepositoryOwner,
+        [System.String]$Repository,
 
         [parameter(Mandatory = $true)]
         [System.String]$ContentPath,
