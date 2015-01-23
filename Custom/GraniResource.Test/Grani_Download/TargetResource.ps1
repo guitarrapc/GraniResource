@@ -52,9 +52,9 @@ $debugMessage = DATA {
         ItemTypeWasOther = Destination Path found but was neither File nor Directory: '{0}'
         ItemTypeWasNotExists = Destination Path not found : '{0}'
         SetCacheLocationPath = CacheLocation Value detected. Setting Custom CacheLocation Path : '{0}'
-        TestUriConnection = Testing connection to the uri : {0}
-        UpdateFileHashCache = Updating cache path '{1}' for current Filehash SHA256 '{0}'.
-        ValidateUri = Cast uri string '{0}' to System.Uri.
+        TestUriConnection = Testing connection to the URI : {0}
+        UpdateFileHashCache = Updating cache path '{1}' for current File hash SHA256 '{0}'.
+        ValidateUri = Cast URI string '{0}' to System.Uri.
         ValidateFilePath = Check DestinationPath '{0}' is FileInfo and Parent Directory already exist.
         WriteStream = Start writing downloaded stream to File Path : '{0}'
     "
@@ -63,15 +63,15 @@ $debugMessage = DATA {
 $verboseMessage = DATA {
     ConvertFrom-StringData -StringData "
         alreadyUpToDate = Current DestinationPath FileHash and Cache FileHash matched. File already Up-To-Date.
-        DownloadStream = Status Code returns '{0}'. Start download stream from uri : '{1}'
+        DownloadStream = Status Code returns '{0}'. Start download stream from URI : '{1}'
         notUpToDate = Current DestinationPath FileHash and Cache FileHash not matched. Need to download latest file.
     "
 }
 $exceptionMessage = DATA {
     ConvertFrom-StringData -StringData "
-        InvalidCastURI = Uri : '{0}' casted to [System.Uri] but was invalid string for uri. Make sure you have passed valid uri string.
+        InvalidCastURI = Uri : '{0}' casted to [System.Uri] but was invalid string for URI. Make sure you have passed valid URI string.
         InvalidUriSchema = Specified URI is not valid: '{0}'. Only http|https|file are accepted.
-        InvalidResponce = Status Code returns '{0}'. Stop download stream from uri : '{1}'
+        InvalidResponce = Status Code returns '{0}'. Stop download stream from URI : '{1}'
         DestinationPathAlreadyExistAsNotFile = Destination Path '{0}' already exist but not a file. Found itemType is {1}. Windows not allowed exist same name item.
     "
 }
@@ -118,7 +118,7 @@ function Get-TargetResource
         $script:cacheLocation = $CacheLocation
     }
 
-    # validate Uri can be parse to [uri] and Schema is http|https|file
+    # validate Uri can be parse to [URI] and Schema is http|https|file
     $validUri = ValidateUri -Uri $Uri
 
     # Initialize return values
@@ -222,7 +222,7 @@ function Set-TargetResource
         $script:cacheLocation = $CacheLocation
     }
 
-    # validate Uri can be parse to [uri] and Schema is http|https|file
+    # validate Uri can be parse to [URI] and Schema is http|https|file
     $validUri = ValidateUri -Uri $Uri
 
     # validate DestinationPath is valid
@@ -407,7 +407,7 @@ function Invoke-HttpClient
             
             #endregion
 
-            Write-Debug -Message ($debugMessage.DownloadComplete)
+            Write-Verbose -Message ($debugMessage.DownloadComplete)
         }
         catch [System.Exception]
         {

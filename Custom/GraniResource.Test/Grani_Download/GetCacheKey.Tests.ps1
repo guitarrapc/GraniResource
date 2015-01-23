@@ -20,7 +20,6 @@ Describe "Grani_Download : GetCacheKey" {
 
     Context "GetCacheKey should return hash string from FileName and Url" {
 
-
         It "GetCacheKey should not BeNullOrEmpty" {
             GetCacheKey -DestinationPath $path -Uri $Uri | Should not BeNullOrEmpty
         }
@@ -46,6 +45,5 @@ Describe "Grani_Download : GetCacheKey" {
         }
     }
 
-    Remove-Item -Path $path -Force
-    Remove-Item -Path $path2 -Force
+    Remove-Item -Path $parent -Force -Recurse
 }

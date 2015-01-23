@@ -6,7 +6,7 @@ Describe "Grani_Download : ValidationHelper" {
 
     $http = [uri]"http://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
     $https = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
-    $file = [uri]"https://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
+    $file = [uri]"file://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
     $unc = [uri]"c:\raw.githubusercontent.com\guitarrapc\WindowsCredentialVault\master\README.md"
     $invalid = [uri]"httttp://raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
     $other = [uri]"//raw.githubusercontent.com/guitarrapc/WindowsCredentialVault/master/README.md"
