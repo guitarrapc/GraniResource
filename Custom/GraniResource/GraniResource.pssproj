@@ -46,6 +46,7 @@
     <Compile Include="DSCResources\Grani_Download\Grani_Download.schema.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.psm1" />
     <Compile Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.schema.mof" />
+    <Compile Include="DSCResources\Grani_ScheduleTask\cScheduleTask.png" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.psm1" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.schema.mof" />
     <Compile Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.psm1" />
@@ -56,8 +57,23 @@
     <Compile Include="New-GraniResourceManufest.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.md" />
+    <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
+    <Content Include="DSCResources\Grani_ACL\README.md" />
+    <Content Include="DSCResources\Grani_ACL\cACL.png" />
+    <Content Include="DSCResources\Grani_Download\cDownload.png" />
+    <Content Include="DSCResources\Grani_Download\README.md" />
     <Content Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.schema.mof" />
     <Content Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.psm1" />
+    <Content Include="DSCResources\Grani_GitHubApiContent\README.md" />
+    <Content Include="DSCResources\Grani_GitHubApiContent\cGitHubApiContent.png" />
+    <Content Include="DSCResources\Grani_ScheduleTaskLog\README.md" />
+    <Content Include="DSCResources\Grani_ScheduleTaskLog\cScheduleTaskLog.png" />
+    <Content Include="DSCResources\Grani_ScheduleTask\README.md" />
+    <Content Include="DSCResources\Grani_TCPAckFrequency\README.md" />
+    <Content Include="DSCResources\Grani_TCPAckFrequency\cTCPAckFrequency.png" />
+    <Content Include="DSCResources\Grani_WebPI\README.md" />
+    <Content Include="DSCResources\Grani_WebPI\cWebPI.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
