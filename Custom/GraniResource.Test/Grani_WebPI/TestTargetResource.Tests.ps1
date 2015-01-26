@@ -5,7 +5,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 Describe "Grani_WebPI : Test-TargetResource" {
 
     $availableName = "WordPress"
-    $installedName = "PowerShell4"
+    $installedName = "PowerShell3"
 
     $TestTargetResourceInstall = Test-TargetResource -Name $installedName
     $TestTargetResourceAvailable = Test-TargetResource -Name $availableName
