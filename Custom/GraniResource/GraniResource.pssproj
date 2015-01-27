@@ -30,6 +30,7 @@
     <Folder Include="DSCResources\" />
     <Folder Include="DSCResources\cWebPILauncher\" />
     <Folder Include="DSCResources\Grani_ACL\" />
+    <Folder Include="DSCResources\Grani_S3Content\" />
     <Folder Include="DSCResources\Grani_Download\" />
     <Folder Include="DSCResources\Grani_GitHubApiContent\" />
     <Folder Include="DSCResources\Grani_ScheduleTaskLog\" />
@@ -61,12 +62,16 @@
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
     <Content Include="DSCResources\Grani_ACL\README.md" />
     <Content Include="DSCResources\Grani_ACL\cACL.png" />
+    <Content Include="DSCResources\Grani_S3Content\Grani_S3Content.psm1" />
     <Content Include="DSCResources\Grani_Download\cDownload.png" />
     <Content Include="DSCResources\Grani_Download\README.md" />
+    <Content Include="DSCResources\Grani_S3Content\Grani_S3Content.schema.mof" />
     <Content Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.schema.mof" />
     <Content Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.psm1" />
     <Content Include="DSCResources\Grani_GitHubApiContent\README.md" />
     <Content Include="DSCResources\Grani_GitHubApiContent\cGitHubApiContent.png" />
+    <Content Include="DSCResources\Grani_S3Content\README.md" />
+    <Content Include="DSCResources\Grani_S3Content\cS3Content.png" />
     <Content Include="DSCResources\Grani_ScheduleTaskLog\README.md" />
     <Content Include="DSCResources\Grani_ScheduleTaskLog\cScheduleTaskLog.png" />
     <Content Include="DSCResources\Grani_ScheduleTask\README.md" />
