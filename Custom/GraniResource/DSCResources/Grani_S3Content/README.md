@@ -46,3 +46,19 @@ configuration DownloadS3Object
     }
 }
 ```
+
+Dependancy
+----
+
+- [AWSpowerShell](http://aws.amazon.com/powershell/) 
+
+You will find it already install by default at Windows EC2 Instance.
+
+- [IAM Role](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
+
+This is the best standard for AWS. Don't manage credential by your own, but pass it to IAM.
+
+When IAM Role is attached to your instance, S3 Bucket policy can control Where / What / How to access it's object.
+
+
+
