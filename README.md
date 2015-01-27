@@ -24,14 +24,16 @@ ResourceName|FriendlyName|Description
 Grani_ACL|cACL|ACL Resource make you ability to manage ACL through easy configuration.
 Grani_Download|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
 Grani_GitHubApiContent|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
+Grani_S3Content|cS3Content|Download and track change with S3 Object and Local File.
 Grani_ScheduleTask|cScheduledTask|Enable you to configure Schedule Task detail as like cmdlet. (not all but quiet lot.)
 Grani_ScheduleTaskLog|cScheduledTaskLog|Enable/Disable Scheduled Task Log
 Grani_TCPAckFrequency|cTCPAckFrequency|Enable/Disable TCPAckFrequency
 Grani_WebPI|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)
 cWebPILauncher|cWebPILauncher|Install WebPlatformInstaller itself
 
-Check [Test](https://github.com/guitarrapc/DSCResources/tree/master/Custom/Test) for sample usage.
+Check [GraniResurce.Test](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource.Test) for GraniResource sample usage.
 
+All Resource have it's README.md inside [DSCResouce](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources).
 
 MicrosoftScriptCenter
 ----

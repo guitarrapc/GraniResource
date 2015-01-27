@@ -1,7 +1,7 @@
 ﻿$moduleName = 'GraniResource'
 $script:moduleManufest = @{
     Path              = ".\$ModuleName.psd1"
-    ModuleVersion     = '2.6'
+    ModuleVersion     = '2.7'
     Author            = 'guitarrapc'
     CompanyName       = 'Grani'
     Description       = 'DSC Resource for Windows Configuration Management.'
