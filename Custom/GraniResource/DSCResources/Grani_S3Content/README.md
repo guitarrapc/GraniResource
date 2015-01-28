@@ -87,7 +87,7 @@ function Write-S3ObjectSinglePart
         [parameter(Mandatory = $true, Position = 2)]
         [string]$FilePath,
 
-        [parameter(Mandatory = $false, Position = 2)]
+        [parameter(Mandatory = $false, Position = 3)]
         [Amazon.RegionEndpoint]$Endpoint = [Amazon.RegionEndpoint]::APNortheast1
     )
 
