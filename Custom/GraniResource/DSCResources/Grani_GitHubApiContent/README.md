@@ -124,6 +124,14 @@ Why resource using ```PSCredential```? Because DSC have mechanism of Encrypt you
 
 See detail about securing mof at  [Windows PowerShell Blog](http://blogs.msdn.com/b/powershell/archive/2014/01/31/want-to-secure-credentials-in-windows-powershell-desired-state-configuration.aspx)
 
+**Treat with CRLF problem**
+
+As you are familiar with, Windows string files are used to be CRLF besides Linux/Unix using LF.
+
+Think about GitHub, there are ```autocrlf``` and you will find difficulty with downloaded content was broken with BOM or CRLF.
+
+I recommend use ContentType ```application/vnd.github.v3.raw``` for these not controllable string data file or RAW files.
+
 **Trace Remote file change**
 
 Grani_Download will not trace remote file change in default.
