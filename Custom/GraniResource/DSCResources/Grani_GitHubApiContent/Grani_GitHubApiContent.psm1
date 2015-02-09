@@ -125,7 +125,7 @@ function Get-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
+        [System.String]$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::InternetExplorer,
 
         [parameter(Mandatory = $false)]
         [System.Boolean]$AllowRedirect = $true,
@@ -246,7 +246,7 @@ function Set-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
+        [System.String]$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::InternetExplorer,
 
         [parameter(Mandatory = $false)]
         [System.Boolean]$AllowRedirect = $true,
@@ -316,7 +316,7 @@ function Test-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
+        [System.String]$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::InternetExplorer,
 
         [parameter(Mandatory = $false)]
         [System.Boolean]$AllowRedirect = $true,
@@ -371,7 +371,7 @@ function Invoke-HttpClient
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$UserAgent = "Mozilla/5.0 (Windows NT; Windows NT 6.3; en-US) WindowsPowerShell/{0}" -f $PSVersionTable.PSVersion.ToString(),
+        [System.String]$UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::InternetExplorer,
 
         [parameter(Mandatory = $false)]
         [System.Boolean]$AllowRedirect = $true
