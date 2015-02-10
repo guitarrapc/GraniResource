@@ -28,6 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Grani_ACL.ps1" />
+    <Content Include="Grani_PfxImport.ps1" />
     <Content Include="Grani_DownloadS3Content.ps1" />
     <Content Include="Grani_GitHubApiContent.ps1" />
     <Content Include="Grani_Download.ps1" />
