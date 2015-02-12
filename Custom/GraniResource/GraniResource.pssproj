@@ -65,6 +65,8 @@
     <Content Include="DSCResources\Grani_ACL\cACL.png" />
     <Content Include="DSCResources\Grani_PfxImport\Grani_PfxImport.psm1" />
     <Content Include="DSCResources\Grani_PfxImport\Grani_PfxImport.schema.mof" />
+    <Content Include="DSCResources\Grani_PfxImport\README.md" />
+    <Content Include="DSCResources\Grani_PfxImport\cPfxImport.png" />
     <Content Include="DSCResources\Grani_S3Content\Grani_S3Content.psm1" />
     <Content Include="DSCResources\Grani_Download\cDownload.png" />
     <Content Include="DSCResources\Grani_Download\README.md" />
