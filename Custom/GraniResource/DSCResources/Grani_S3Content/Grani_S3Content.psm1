@@ -31,6 +31,8 @@ Initialize
 
 $debugMessage = DATA {
     ConvertFrom-StringData -StringData "
+        ExecuteScriptBlock = Execute ScriptBlock without Credential. '{0}'
+        ExecuteScriptBlockWithCredential = Execute ScriptBlock with Credential. '{0}'
         IsDestinationPathExist = Checking Destination Path is existing and Valid as a FileInfo
         IsDestinationPathAlreadyUpToDate = Matching FileHash to verify file is already exist/Up-To-Date or not.
         IsFileAlreadyUpToDate = CurrentFileHash : S3 FileHash -> {0} : {1}
@@ -50,6 +52,7 @@ $verboseMessage = DATA {
     ConvertFrom-StringData -StringData "
         alreadyUpToDate = Current DestinationPath FileHash and S3 FileHash matched. File already Up-To-Date.
         notUpToDate = Current DestinationPath FileHash and S3 FileHash not matched. Need to download latest file.
+        StartS3Download = Downloading S3 Object.
     "
 }
 $exceptionMessage = DATA {
@@ -57,6 +60,7 @@ $exceptionMessage = DATA {
         DestinationPathAlreadyExistAsNotFile = Destination Path '{0}' already exist but not a file. Found itemType is {1}. Windows not allowed exist same name item.
         S3BucketNotExistEXception = Desired S3 Bucket not found exception. : '{0}'
         S3ObjectNotExistEXception = Desired S3 Object not found in S3Bucket exception. : '{0}'
+        ScriptBlockException = Error thrown on ScriptBlock '{0}'
     "
 }
 
@@ -77,7 +81,16 @@ function Get-TargetResource
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
-        [System.String]$DestinationPath
+        [System.String]$DestinationPath,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$PreAction = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$PostAction = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
     )
 
 
@@ -93,6 +106,8 @@ function Get-TargetResource
         Key = $Key
         DestinationPath = $DestinationPath
         Ensure = [GraniDonwloadEnsuretype]::Absent.ToString()
+        PreAction = $PreAction
+        PostAction = $PostAction
     }
 
     # Destination Path check
@@ -158,7 +173,16 @@ function Set-TargetResource
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
-        [System.String]$DestinationPath
+        [System.String]$DestinationPath,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$PreAction = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$PostAction = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
     )
 
     # validate S3 Bucket is exist
@@ -168,8 +192,15 @@ function Set-TargetResource
     # validate DestinationPath is valid
     ValidateFilePath -Path $DestinationPath
 
+    # PreAction
+    ExecuteScriptBlock -ScriptBlockString $PreAction -Credential $Credential
+
     # Start Download
+    Write-Verbose $verboseMessage.StartS3Download
     Read-S3Object -BucketName $S3BucketName -Key $Key -File $DestinationPath
+
+    # PostAction
+    ExecuteScriptBlock -ScriptBlockString $PostAction -Credential $Credential
 }
 
 
@@ -186,13 +217,24 @@ function Test-TargetResource
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
-        [System.String]$DestinationPath
+        [System.String]$DestinationPath,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$PreAction = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.String]$PostAction = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
     )
 
     $param = @{
         S3BucketName = $S3BucketName
         Key = $Key
         DestinationPath = $DestinationPath
+        PreAction = $PreAction
+        PostAction = $PostAction
     }
     return (Get-TargetResource @param).Ensure -eq [GraniDonwloadEnsuretype]::Present.ToString()
 }
@@ -377,6 +419,46 @@ function GetPathItemType
     }
 
     return $type
+}
+
+#endregion
+
+#region ScriptBlock Execute Helper
+
+function ExecuteScriptBlock
+{
+    [OutputType([Void])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $false)]
+        [System.String]$ScriptBlockString = [string]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
+    )
+
+    if ($ScriptBlockString -eq [string]::Empty){ return; }
+
+    try
+    {
+        $scriptBlock = [ScriptBlock]::Create($ScriptBlockString).GetNewClosure();
+        if ($Credential -eq [PSCredential]::Empty)
+        {
+            Write-Debug ($debugMessage.ExecuteScriptBlock -f $ScriptBlockString)
+            $scriptBlock.Invoke() | Out-String -Stream | Write-Debug
+        }
+        else
+        {
+            Write-Debug ($debugMessage.ExecuteScriptBlockWithCredential -f $ScriptBlockString)
+            Invoke-Command -ScriptBlock $scriptBlock -Credential $Credential -ComputerName . | Out-String -Stream | Write-Debug
+        }
+    }
+    catch
+    {
+        Write-Debug ($exceptionMessage.ScriptBlockException -f $ScriptBlockString)
+        throw $_;
+    }
 }
 
 #endregion

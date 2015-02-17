@@ -27,6 +27,7 @@ Intellisense
 
 ![](cS3Content.png)
 
+
 Sample
 ----
 
@@ -47,6 +48,26 @@ configuration DownloadS3Object
 }
 ```
 
+- Download S3Object from Desired S3Bucket with Execute PreAction and PostAction of Download.
+
+This sample shows how to run PreAction for Download, and PostAction for Download.
+You may find Stanrd Output with Debug mode.
+
+```powershell
+configuration DownloadS3Object
+{
+    Import-DscResource -ModuleName GraniResource
+    cS3Content Download
+    {
+        S3BucketName = "YourBucketName"
+        Key = "ObjectName"
+        DestinationPath = "c:\Path\To\Save\Content"
+        PreAction = {"PreAction : {0}" -f (Get-Date)}
+        PostAction = {"PostAction : {0}" -f (Get-Date)}
+    }
+}
+```
+
 Dependancy
 ----
 
@@ -63,7 +84,7 @@ When IAM Role is attached to your instance, S3 Bucket policy can control Where /
 Tips
 ----
 
-**FileHash and ETag not maching**
+**FileHash and ETag maching**
 
 S3Conten matching MD5 file hash and Etag on S3 for file version validation. However S3 content Etag (MD5) will be changed when content upload by MultiPart Upload. This cause unmatching of MD5 FileHash between S3 Content and Downloaded File.
 
