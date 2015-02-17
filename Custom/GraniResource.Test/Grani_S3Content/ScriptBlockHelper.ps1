@@ -11,7 +11,7 @@ function Initialize
             Other,
             NotExists
         }
-"@
+"@ -ErrorAction SilentlyContinue
 
     # Enum for Ensure
     Add-Type -TypeDefinition @"
@@ -20,7 +20,16 @@ function Initialize
             Present,
             Absent
         }
-"@
+"@ -ErrorAction SilentlyContinue
+
+    # Enum for CheckSum
+    Add-Type -TypeDefinition @"
+        public enum GraniDonwloadCheckSumtype
+        {
+            FileHash,
+            FileName
+        }
+"@ -ErrorAction SilentlyContinue
 }
 
 Initialize
@@ -33,10 +42,10 @@ $debugMessage = DATA {
     ConvertFrom-StringData -StringData "
         ExecuteScriptBlock = Execute ScriptBlock without Credential. '{0}'
         ExecuteScriptBlockWithCredential = Execute ScriptBlock with Credential. '{0}'
+        FileExists = File found from DestinationPath.
         IsDestinationPathExist = Checking Destination Path is existing and Valid as a FileInfo
         IsDestinationPathAlreadyUpToDate = Matching FileHash to verify file is already exist/Up-To-Date or not.
         IsFileAlreadyUpToDate = CurrentFileHash : S3 FileHash -> {0} : {1}
-        IsFileExists = File found from DestinationPath. Checking already up-to-date.
         IsS3ObjectExist = Testing S3 Object is exist or not.
         ItemTypeWasFile = Destination Path found as File : '{0}'
         ItemTypeWasDirectory = Destination Path found but was Directory : '{0}'
@@ -52,6 +61,7 @@ $verboseMessage = DATA {
     ConvertFrom-StringData -StringData "
         alreadyUpToDate = Current DestinationPath FileHash and S3 FileHash matched. File already Up-To-Date.
         notUpToDate = Current DestinationPath FileHash and S3 FileHash not matched. Need to download latest file.
+        StartS3Download = Downloading S3 Object.
     "
 }
 $exceptionMessage = DATA {
@@ -89,7 +99,11 @@ function Get-TargetResource
         [System.String]$PostAction = [string]::Empty,
 
         [parameter(Mandatory = $false)]
-        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [ValidateSet("FileHash","FileName")]
+        [System.String]$CheckSum = "FileHash"
     )
 
 
@@ -107,6 +121,7 @@ function Get-TargetResource
         Ensure = [GraniDonwloadEnsuretype]::Absent.ToString()
         PreAction = $PreAction
         PostAction = $PostAction
+        CheckSum = $CheckSum
     }
 
     # Destination Path check
@@ -139,19 +154,30 @@ function Get-TargetResource
     Write-Debug -Message $debugMessage.IsDestinationPathAlreadyUpToDate
     if ($fileExists -eq $true)
     {
-        Write-Debug -Message $debugMessage.IsFileExists
-        $currentFileHash = GetFileHash -Path $DestinationPath
-        $s3ObjectCache = GetS3ObjectHash -BucketName $S3BucketName -Key $Key
+        Write-Debug -Message $debugMessage.FileExists
+        switch ($CheckSum)
+        {
+            ([GraniDonwloadCheckSumtype]::FileHash.ToString())
+            {
+                $currentFileHash = GetFileHash -Path $DestinationPath
+                $s3ObjectCache = GetS3ObjectHash -BucketName $S3BucketName -Key $Key
 
-        Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $s3ObjectCache)
-        if ($currentFileHash -eq $s3ObjectCache)
-        {
-            Write-Verbose -Message $verboseMessage.alreadyUpToDate
-            $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
-        }
-        else
-        {
-            Write-Verbose -Message $verboseMessage.notUpToDate
+                Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $s3ObjectCache)
+                if ($currentFileHash -eq $s3ObjectCache)
+                {
+                    Write-Verbose -Message $verboseMessage.alreadyUpToDate
+                    $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
+                }
+                else
+                {
+                    Write-Verbose -Message $verboseMessage.notUpToDate
+                }
+            }
+            ([GraniDonwloadCheckSumtype]::FileName.ToString())
+            {
+                # only checking destination is file exists or not.
+                $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
+            }
         }
     }
 
@@ -181,7 +207,11 @@ function Set-TargetResource
         [System.String]$PostAction = [string]::Empty,
 
         [parameter(Mandatory = $false)]
-        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [ValidateSet("FileHash","FileName")]
+        [System.String]$CheckSum = "FileHash"
     )
 
     # validate S3 Bucket is exist
@@ -195,6 +225,7 @@ function Set-TargetResource
     ExecuteScriptBlock -ScriptBlockString $PreAction -Credential $Credential
 
     # Start Download
+    Write-Verbose $verboseMessage.StartS3Download
     Read-S3Object -BucketName $S3BucketName -Key $Key -File $DestinationPath
 
     # PostAction
@@ -224,7 +255,11 @@ function Test-TargetResource
         [System.String]$PostAction = [string]::Empty,
 
         [parameter(Mandatory = $false)]
-        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
+
+        [parameter(Mandatory = $false)]
+        [ValidateSet("FileHash","FileName")]
+        [System.String]$CheckSum = "FileHash"
     )
 
     $param = @{
@@ -233,6 +268,7 @@ function Test-TargetResource
         DestinationPath = $DestinationPath
         PreAction = $PreAction
         PostAction = $PostAction
+        CheckSum = $CheckSum
     }
     return (Get-TargetResource @param).Ensure -eq [GraniDonwloadEnsuretype]::Present.ToString()
 }
@@ -334,7 +370,7 @@ function ValidateFilePath
         }
         Default
         {
-            $errorId = "FileValudationFailure"
+            $errorId = "FileValidationFailure"
             $errorMessage = $exceptionMessage.DestinationPathAlreadyExistAsNotFile -f $Path, $itemType.ToString()
             ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
         }
@@ -430,7 +466,7 @@ function ExecuteScriptBlock
     param
     (
         [parameter(Mandatory = $false)]
-        [System.String]$ScriptBlockString,
+        [System.String]$ScriptBlockString = [string]::Empty,
 
         [parameter(Mandatory = $false)]
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty

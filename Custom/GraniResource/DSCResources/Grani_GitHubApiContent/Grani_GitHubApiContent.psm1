@@ -725,7 +725,7 @@ function ValidateFilePath
         }
         Default
         {
-            $errorId = "FileValudationFailure"
+            $errorId = "FileValidationFailure"
             $errorMessage = $exceptionMessage.DestinationPathAlreadyExistAsNotFile -f $Path, $itemType.ToString()
             ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
         }
