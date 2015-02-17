@@ -53,6 +53,8 @@
     <Folder Include="Grani_Download\Configuration\cache\" />
     <Folder Include="Grani_S3Content\Configuration\withAction\" />
     <Folder Include="Grani_S3Content\Configuration\withAction\mof\" />
+    <Folder Include="Grani_S3Content\Configuration\CheckSumFileName\" />
+    <Folder Include="Grani_S3Content\Configuration\CheckSumFileName\mof\" />
     <Folder Include="Grani_S3Content\Configuration\withoutAction\" />
     <Folder Include="Grani_S3Content\Configuration\withoutAction\mof\" />
     <Folder Include="Grani_ScheduleTaskLog\" />
@@ -131,6 +133,10 @@
     <Content Include="Grani_S3Content\Configuration\withAction\DownloadVerbose.log" />
     <Content Include="Grani_S3Content\Configuration\withAction\mof\localhost.mof" />
     <Content Include="Grani_S3Content\Configuration\withAction\SkipVerbose.log" />
+    <Content Include="Grani_S3Content\Configuration\CheckSumFileName\ConfigurationSample.ps1" />
+    <Content Include="Grani_S3Content\Configuration\CheckSumFileName\DownloadVerbose.log" />
+    <Content Include="Grani_S3Content\Configuration\CheckSumFileName\mof\localhost.mof" />
+    <Content Include="Grani_S3Content\Configuration\CheckSumFileName\SkipVerbose.log" />
     <Content Include="Grani_S3Content\Configuration\withoutAction\ConfigurationSample.ps1" />
     <Content Include="Grani_S3Content\Configuration\withoutAction\DownloadVerbose.log" />
     <Content Include="Grani_S3Content\Configuration\withoutAction\mof\localhost.mof" />
