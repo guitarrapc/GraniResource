@@ -33,7 +33,7 @@ Sample
 
 - Download S3Object from Desired S3Bucket.
 
-You may use it for code or any string items.
+Checking LocalFileHash and s3Content ETag Hash is equal. (CheckSum = "FileHash")  
 
 ```powershell
 configuration DownloadS3Object
@@ -47,6 +47,23 @@ configuration DownloadS3Object
     }
 }
 ```
+
+Checking only DestinationPath is exist. It means not verifying filehash, but only checking FileName (CheckSum = "FileName")  
+
+```powershell
+configuration DownloadS3Object
+{
+    Import-DscResource -ModuleName GraniResource
+    cS3Content Download
+    {
+        S3BucketName = "YourBucketName"
+        Key = "ObjectName"
+        DestinationPath = "c:\Path\To\Save\Content"
+        CheckSum = "FileName"
+    }
+}
+```
+
 
 - Download S3Object from Desired S3Bucket with Execute PreAction and PostAction of Download.
 
@@ -86,7 +103,7 @@ Tips
 
 **FileHash and ETag maching**
 
-S3Conten matching MD5 file hash and Etag on S3 for file version validation. However S3 content Etag (MD5) will be changed when content upload by MultiPart Upload. This cause unmatching of MD5 FileHash between S3 Content and Downloaded File.
+In default, S3Conten matching MD5 file hash and Etag on S3 for file version validation. However S3 content Etag (MD5) will be changed when content upload by MultiPart Upload. This cause unmatching of MD5 FileHash between S3 Content and Downloaded File.
 
 Therefore you can use following function to upload content to s3 by SinglePart upload.
 
@@ -138,3 +155,5 @@ function Write-S3ObjectSinglePart
     }
 }
 ``` 
+
+If you want not validate FileHash but only with FileName, then use ```CheckSum``` property as "FileName". 
