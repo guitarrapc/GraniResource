@@ -12,15 +12,15 @@ Describe "Grani_S3Content : ScriptBlockHelper" {
     Context "ScriptBlockExecute Helper test" {
         
         It "ScriptBlock without Credential should not throw." {
-            {ExecuteScriptBlock -ScriptBlockString $scriptString -debug} | Should not Throw
+            {ExecuteScriptBlock -ScriptBlockString $scriptString} | Should not Throw
         }
 
         It "ScriptBlock with Credential should not throw." {
-            {ExecuteScriptBlock -ScriptBlockString $scriptString -Credential $credential -debug} | Should not Throw
+            {ExecuteScriptBlock -ScriptBlockString $scriptString -Credential $credential} | Should not Throw
         }
 
         It "ScriptBlock void return should not throw." {
-            {ExecuteScriptBlock -ScriptBlockString $noReturnScriptString -debug} | Should not Throw
+            {ExecuteScriptBlock -ScriptBlockString $noReturnScriptString} | Should not Throw
         }
     }
 }
