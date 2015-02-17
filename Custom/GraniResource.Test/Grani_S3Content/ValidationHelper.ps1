@@ -43,8 +43,9 @@ $debugMessage = DATA {
         ExecuteScriptBlock = Execute ScriptBlock without Credential. '{0}'
         ExecuteScriptBlockWithCredential = Execute ScriptBlock with Credential. '{0}'
         FileExists = File found from DestinationPath.
+        IsCheckSumFileName = CheckSum was '{0}', File already exist in destination path. Complete file checking.
         IsDestinationPathExist = Checking Destination Path is existing and Valid as a FileInfo
-        IsDestinationPathAlreadyUpToDate = Matching FileHash to verify file is already exist/Up-To-Date or not.
+        IsDestinationPathAlreadyUpToDate = CheckSum was '{0}', matching FileHash to verify file is already Up-To-Date.
         IsFileAlreadyUpToDate = CurrentFileHash : S3 FileHash -> {0} : {1}
         IsS3ObjectExist = Testing S3 Object is exist or not.
         ItemTypeWasFile = Destination Path found as File : '{0}'
@@ -59,8 +60,8 @@ $debugMessage = DATA {
 
 $verboseMessage = DATA {
     ConvertFrom-StringData -StringData "
-        alreadyUpToDate = Current DestinationPath FileHash and S3 FileHash matched. File already Up-To-Date.
-        notUpToDate = Current DestinationPath FileHash and S3 FileHash not matched. Need to download latest file.
+        AlreadyUpToDate = Current DestinationPath FileHash and S3 FileHash matched. File already Up-To-Date.
+        NotUpToDate = Current DestinationPath FileHash and S3 FileHash not matched. Need to download latest file.
         StartS3Download = Downloading S3 Object.
     "
 }
@@ -86,7 +87,7 @@ function Get-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $false)]
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
@@ -103,7 +104,7 @@ function Get-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateSet("FileHash","FileName")]
-        [System.String]$CheckSum = "FileHash"
+        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
     )
 
 
@@ -151,7 +152,6 @@ function Get-TargetResource
     }
 
     # Already Up-to-date Check
-    Write-Debug -Message $debugMessage.IsDestinationPathAlreadyUpToDate
     if ($fileExists -eq $true)
     {
         Write-Debug -Message $debugMessage.FileExists
@@ -159,23 +159,25 @@ function Get-TargetResource
         {
             ([GraniDonwloadCheckSumtype]::FileHash.ToString())
             {
+                Write-Debug -Message ($debugMessage.IsDestinationPathAlreadyUpToDate -f $CheckSum)
                 $currentFileHash = GetFileHash -Path $DestinationPath
                 $s3ObjectCache = GetS3ObjectHash -BucketName $S3BucketName -Key $Key
 
                 Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $s3ObjectCache)
                 if ($currentFileHash -eq $s3ObjectCache)
                 {
-                    Write-Verbose -Message $verboseMessage.alreadyUpToDate
+                    Write-Verbose -Message $verboseMessage.AlreadyUpToDate
                     $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
                 }
                 else
                 {
-                    Write-Verbose -Message $verboseMessage.notUpToDate
+                    Write-Verbose -Message $verboseMessage.NotUpToDate
                 }
             }
             ([GraniDonwloadCheckSumtype]::FileName.ToString())
             {
-                # only checking destination is file exists or not.
+                # FileName only check : Is destination file exists or not.
+                Write-Debug -Message ($debugMessage.IsCheckSumFileName -f $CheckSum)
                 $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
             }
         }
@@ -194,7 +196,7 @@ function Set-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $false)]
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
@@ -211,7 +213,7 @@ function Set-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateSet("FileHash","FileName")]
-        [System.String]$CheckSum = "FileHash"
+        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
     )
 
     # validate S3 Bucket is exist
@@ -242,7 +244,7 @@ function Test-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $false)]
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
@@ -259,7 +261,7 @@ function Test-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateSet("FileHash","FileName")]
-        [System.String]$CheckSum = "FileHash"
+        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
     )
 
     $param = @{

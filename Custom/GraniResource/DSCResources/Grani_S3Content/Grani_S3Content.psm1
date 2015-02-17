@@ -87,7 +87,7 @@ function Get-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $false)]
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
@@ -196,7 +196,7 @@ function Set-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $false)]
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
@@ -244,7 +244,7 @@ function Test-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
-        [parameter(Mandatory = $true)]
+        [parameter(Mandatory = $false)]
         [System.String]$Key,
 
         [parameter(Mandatory = $true)]
