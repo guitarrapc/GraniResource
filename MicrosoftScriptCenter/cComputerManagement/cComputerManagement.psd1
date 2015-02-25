@@ -1,12 +1,12 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.0'
+ModuleVersion = '1.2'
 
 # ID used to uniquely identify this module
 GUID = '41c83857-b8c6-43a2-8568-1b155cddcb85'
 
 # Author of this module
-Author = 'Grani'
+Author = 'Microsoft Corporation'
 
 # Company or vendor of this module
 CompanyName = 'Microsoft Corporation'

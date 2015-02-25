@@ -67,13 +67,13 @@ function Get-TargetResource
         [string]$DomainName,
 
         [parameter(Mandatory = $false)]
+        [string]$WorkGroupName,
+
+        [parameter(Mandatory = $false)]
         [PSCredential]$Credential,
 
         [parameter(Mandatory = $false)]
-        [PSCredential]$UnjoinCredential,
-
-        [parameter(Mandatory = $false)]
-        [string]$WorkGroupName
+        [PSCredential]$UnjoinCredential
     )
 
     # validating DomainName and WorkGroupName not in use at once
@@ -98,7 +98,7 @@ function Get-TargetResource
         if(!($Credential)){ throw New-Object System.NullReferenceException ($exceptionMessage.NoCredentialWithDomain) }
 
         Write-Verbose -Message ($verboseMessage.DomainNameCheck -f $DomainName)
-        $ensure = if ($DomainName.ToLower() -eq $computerSystem.Domain.ToLower())
+        $ensure = if ($DomainName -eq $computerSystem.Domain)
         {
             [EnsureType]::Present.ToString()
         }
@@ -110,7 +110,7 @@ function Get-TargetResource
     elseif(-not [string]::IsNullOrEmpty($WorkGroupName))
     {
         Write-Verbose -Message ($verboseMessage.WorkGroupNameCheck -f $WorkGroupName)
-        $ensure = if ($WorkGroupName.ToLower() -eq $computerSystem.WorkGroup.ToLower())
+        $ensure = if ($WorkGroupName -eq $computerSystem.WorkGroup)
         {
             [EnsureType]::Present.ToString()
         }
@@ -137,13 +137,13 @@ function Set-TargetResource
         [string]$DomainName,
 
         [parameter(Mandatory = $false)]
+        [string]$WorkGroupName,
+
+        [parameter(Mandatory = $false)]
         [PSCredential]$Credential,
 
         [parameter(Mandatory = $false)]
-        [PSCredential]$UnjoinCredential,
-
-        [parameter(Mandatory = $false)]
-        [string]$WorkGroupName
+        [PSCredential]$UnjoinCredential
     )
 
     ValidateDomainWorkGroup -DomainName $DomainName -WorkGroupName $WorkGroupName
@@ -161,14 +161,14 @@ function Set-TargetResource
                 if ($UnjoinCredential)
                 {
                     # unjoin and re-join to other domain
-                    Write-Debug $debugMessage.UnJoinDomain
+                    Write-Debug ($debugMessage.UnJoinDomain -f $WorkGroupName)
                     Add-Computer -DomainName $DomainName -Credential $Credential -UnjoinDomainCredential $UnjoinCredential -Force
                     Write-Verbose -Message ($verboseMessage.UnJoinDomain -f $DomainName)
                 }
                 else
                 {
                     # join Domain
-                    Write-Debug $debugMessage.JoinDomain
+                    Write-Debug ($debugMessage.JoinDomain -f $WorkGroupName)
                     Add-Computer -DomainName $DomainName -Credential $Credential -Force
                     Write-Verbose -Message ($verboseMessage.JoinDomain -f $DomainName)
                 }
@@ -179,7 +179,7 @@ function Set-TargetResource
             if($WorkGroupName -ne $computerSystem.WorkGroup)
             {
                 # Join to workgroup
-                Write-Debug $debugMessage.JoinWorkGroup
+                Write-Debug ($debugMessage.JoinWorkGroup -f $WorkGroupName)
                 Add-Computer -WorkGroupName $WorkGroupName -Credential $Credential -Force    
                 Write-Verbose -Message ($verboseMessage.JoinWorkGroup -f $WorkGroupName)
             }
@@ -219,13 +219,13 @@ function Test-TargetResource
         [string]$DomainName,
 
         [parameter(Mandatory = $false)]
+        [string]$WorkGroupName,
+
+        [parameter(Mandatory = $false)]
         [PSCredential]$Credential,
 
         [parameter(Mandatory = $false)]
-        [PSCredential]$UnjoinCredential,
-
-        [parameter(Mandatory = $false)]
-        [string]$WorkGroupName
+        [PSCredential]$UnjoinCredential
     )
     
     return (Get-TargetResource -Identifier $Identifier -DomainName $DomainName -Credential $Credential -UnjoinCredential $UnjoinCredential -WorkGroupName $WorkGroupName).Ensure -eq [EnsureType]::Present.ToString()
