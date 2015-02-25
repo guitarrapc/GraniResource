@@ -159,6 +159,7 @@ function Get-TargetResource
         ContentType = $ContentType
         UserAgent = $UserAgent
         AllowRedirect = $AllowRedirect
+        OAuth2Token = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$OAuth2Token.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
         CacheLocation = $CacheLocation
         Ensure = "Absent"
     }

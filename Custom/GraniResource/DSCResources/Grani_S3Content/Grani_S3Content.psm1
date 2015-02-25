@@ -122,6 +122,7 @@ function Get-TargetResource
         Ensure = [GraniDonwloadEnsuretype]::Absent.ToString()
         PreAction = $PreAction
         PostAction = $PostAction
+        Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
         CheckSum = $CheckSum
     }
 
