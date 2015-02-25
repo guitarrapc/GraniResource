@@ -27,6 +27,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Grani_DomainJoin.ps1" />
     <Content Include="Grani_ACL.ps1" />
     <Content Include="Grani_PfxImport.ps1" />
     <Content Include="Grani_S3Content.ps1" />
