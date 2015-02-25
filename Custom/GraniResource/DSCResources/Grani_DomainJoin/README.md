@@ -1,4 +1,4 @@
-Grani_Download
+Grani_DomainJoin
 ============
 
 DSC Resource to download content from remote uri.
