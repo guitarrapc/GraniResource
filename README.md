@@ -22,7 +22,7 @@ You can manage followings.
 ResourceName|FriendlyName|Description
 ----|----|----
 Grani_ACL|cACL|ACL Resource make you ability to manage ACL through easy configuration.
-Grani_DomainJoin|cDomainJoin|Join/Unjoin Resource free you from xComputerManagement resource force yyou specify Name.
+Grani_DomainJoin|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
 Grani_Download|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
 Grani_GitHubApiContent|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
 Grani_PfxImport|cPfxImport|Import Pfx file into desired CertStore / or Remove pfx from CertStore.
