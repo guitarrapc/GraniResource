@@ -158,15 +158,16 @@ function Set-TargetResource
         {
             if($DomainName -ne $computerSystem.Domain)
             {
-                #Same computer name, join to domain
                 if ($UnjoinCredential)
-                {                    
+                {
+                    # unjoin and re-join to other domain
                     Write-Debug $debugMessage.UnJoinDomain
                     Add-Computer -DomainName $DomainName -Credential $Credential -UnjoinDomainCredential $UnjoinCredential -Force
                     Write-Verbose -Message ($verboseMessage.UnJoinDomain -f $DomainName)
                 }
                 else
                 {
+                    # join Domain
                     Write-Debug $debugMessage.JoinDomain
                     Add-Computer -DomainName $DomainName -Credential $Credential -Force
                     Write-Verbose -Message ($verboseMessage.JoinDomain -f $DomainName)
@@ -177,7 +178,7 @@ function Set-TargetResource
         {
             if($WorkGroupName -ne $computerSystem.WorkGroup)
             {
-                #Join to workgroup
+                # Join to workgroup
                 Write-Debug $debugMessage.JoinWorkGroup
                 Add-Computer -WorkGroupName $WorkGroupName -Credential $Credential -Force    
                 Write-Verbose -Message ($verboseMessage.JoinWorkGroup -f $WorkGroupName)
@@ -249,5 +250,3 @@ function ValidateDomainWorkGroup
 }
 
 #endregion
-
-Export-ModuleMember -Function *-TargetResource

@@ -30,6 +30,7 @@
     <Folder Include="DSCResources\" />
     <Folder Include="DSCResources\cWebPILauncher\" />
     <Folder Include="DSCResources\Grani_ACL\" />
+    <Folder Include="DSCResources\Grani_Computer\" />
     <Folder Include="DSCResources\Grani_PfxImport\" />
     <Folder Include="DSCResources\Grani_S3Content\" />
     <Folder Include="DSCResources\Grani_Download\" />
@@ -59,6 +60,8 @@
     <Compile Include="New-GraniResourceManufest.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DSCResources\Grani_Computer\Grani_Computer.psm1" />
+    <Content Include="DSCResources\Grani_Computer\Grani_Computer.schema.mof" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.md" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
     <Content Include="DSCResources\Grani_ACL\README.md" />
