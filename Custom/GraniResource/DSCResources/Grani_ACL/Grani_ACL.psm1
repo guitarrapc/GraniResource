@@ -3,38 +3,37 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Path,
 
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Account,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
         [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet("Present", "Absent")]
         [ValidateNotNullOrEmpty()]
         [String]$Ensure = "Present",
         
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [System.Security.AccessControl.AccessControlType]$Access = "Allow",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Inherit = $false,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Recurse = $false,
 
-        [Parameter(Mandatory = 0)]
-        [System.Boolean]
-        $Strict = $false
+        [Parameter(Mandatory = $false)]
+        [System.Boolean]$Strict = $false
     )
 
     $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
@@ -61,38 +60,37 @@ function Get-TargetResource
     [OutputType([Hashtable])]
     param
     (
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Path,
 
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Account,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
         [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet("Present", "Absent")]
         [ValidateNotNullOrEmpty()]
         [String]$Ensure = "Present",
         
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [System.Security.AccessControl.AccessControlType]$Access = "Allow",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Inherit = $false,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Recurse = $false,
 
-        [Parameter(Mandatory = 0)]
-        [System.Boolean]
-        $Strict = $false
+        [Parameter(Mandatory = $false)]
+        [System.Boolean]$Strict = $false
     )
 
     $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
@@ -127,38 +125,37 @@ function Test-TargetResource
     [OutputType([Boolean])]
     param
     (
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Path,
 
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Account,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
         [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet("Present", "Absent")]
         [ValidateNotNullOrEmpty()]
         [String]$Ensure = "Present",
         
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [System.Security.AccessControl.AccessControlType]$Access = "Allow",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Inherit = $false,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Recurse = $false,
 
-        [Parameter(Mandatory = 0)]
-        [System.Boolean]
-        $Strict = $false
+        [Parameter(Mandatory = $false)]
+        [System.Boolean]$Strict = $false
     )
 
     $desiredRule = GetDesiredRule -Path $Path -Account $Account -Rights $Rights -Access $Access -Inherit $Inherit -Recurse $Recurse
@@ -183,28 +180,28 @@ function GetDesiredRule
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Path,
 
-        [Parameter(Mandatory = 1)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$Account,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("ReadAndExecute", "Modify", "FullControl")]
         [System.Security.AccessControl.FileSystemRights]$Rights = "ReadAndExecute",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [System.Security.AccessControl.AccessControlType]$Access = "Allow",
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Inherit = $false,
 
-        [Parameter(Mandatory = 0)]
+        [Parameter(Mandatory = $false)]
         [Bool]$Recurse = $false
     )
 
