@@ -55,6 +55,7 @@ $debugMessages = Data {
 
 function Get-TargetResource
 {
+    [OutputType([HashTable])]
     [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
     param
     (
@@ -224,6 +225,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    [OutputType([Void])]
     [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
     param
     (
@@ -241,60 +243,60 @@ function Set-TargetResource
         [System.String]$Description,
 
         [parameter(Mandatory = $false)]
-        [System.String]$Execute,
+        [System.String]$Execute = [string]::Empty,
 
         [parameter(Mandatory = $false)]
-        [System.String]$Argument,
+        [System.String]$Argument = [string]::Empty,
 
         [parameter(Mandatory = $false)]
-        [System.String]$WorkingDirectory,
+        [System.String]$WorkingDirectory = [string]::Empty,
 
         [parameter(Mandatory = $false)]
-        [System.Management.Automation.PSCredential]$Credential,
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
         [ValidateSet("Highest","Limited")]
-        [System.String]$Runlevel,
+        [System.String]$Runlevel = "Limited",
 
         [parameter(Mandatory = $false)]
         [ValidateSet("At","Win8","Win7","Vista","V1")]
-        [System.String]$Compatibility,
+        [System.String]$Compatibility = "Win8",
 
         [parameter(Mandatory = $false)]
         [System.Int64]$ExecuteTimeLimitTicks = [TimeSpan]::FromDays(3).Ticks,
 
         [parameter(Mandatory = $false)]
-        [System.Boolean]$Hidden,
+        [System.Boolean]$Hidden = $true,
 
         [parameter(Mandatory = $true)]
-        [System.Boolean]$Disable,
+        [System.Boolean]$Disable = $false,
 
         [parameter(Mandatory = $false)]
         [System.DateTime[]]$ScheduledAt,
 
         [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanDay,
+        [System.Int32[]]$ScheduledTimeSpanDay = 0,
 
         [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanHour,
+        [System.Int32[]]$ScheduledTimeSpanHour = 1,
 
         [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanMin,
+        [System.Int32[]]$ScheduledTimeSpanMin = 0,
 
         [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationDay,
+        [System.Int32[]]$ScheduledDurationDay = 1,
 
         [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationHour,
+        [System.Int32[]]$ScheduledDurationHour = 0,
 
         [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationMin,
+        [System.Int32[]]$ScheduledDurationMin = 0,
 
         [parameter(Mandatory = $false, parameterSetName = "Daily")]
-        [System.Boolean]$Daily,
+        [System.Boolean]$Daily = $false,
 
         [parameter(Mandatory = $false, parameterSetName = "Once")]
-        [System.Boolean]$Once
+        [System.Boolean]$Once = $false
 
     )
     
@@ -305,86 +307,62 @@ function Set-TargetResource
         TaskPath = ValidateTaskPathLastChar -taskPath $taskPath
     }
 
-#region Absent
+    #region Absent
 
     if ($Ensure -eq "Absent")
     {
-        GetExistingTaskScheduler @existingTaskParam | Unregister-ScheduledTask -PassThru;
+        GetExistingTaskScheduler @existingTaskParam | Unregister-ScheduledTask > $null;
         RemoveScheduledTaskEmptyDirectoryPath
         return;
     }
 
-#endregion
+    #endregion
 
-#region Present
+    #region Present
     
-    #region Exclude Action Change : Only Disable / Enable Task
-
-    if (($Execute -eq "") -and ($null -ne (GetExistingTaskScheduler @existingTaskParam)))
+    # Enable/Disable
+    if ($null -ne (GetExistingTaskScheduler @existingTaskParam))
     {
         switch ($Disable)
         {
             $true {
                 GetExistingTaskScheduler @existingTaskParam | Disable-ScheduledTask
-                return;
             }
             $false {
                 GetExistingTaskScheduler @existingTaskParam | Enable-ScheduledTask
-                return;
             }
-        }
-    }
-
-    #endregion
-
-    #region Include Action Change
-
-    # Credential
-    if($Credential -ne $null)
-    {
-        # Credential
-        $credentialParam = @{
-            User = $Credential.UserName
-            Password = $Credential.GetNetworkCredential().Password
-        }
-
-        # Principal
-        $principalParam = 
-        @{
-            UserId = $Credential.UserName
-            RunLevel = $Runlevel
-            LogOnType = "InteractiveOrPassword"
         }
     }
 
     # validation
-    if ($execute -eq ""){ throw New-Object System.InvalidOperationException ($errorMessages.ExecuteBrank) }
-    if (TestExistingTaskSchedulerWithPath @existingTaskParam){ throw New-Object System.InvalidOperationException ($errorMessages.SameNameFolderFound -f $taskName) }
+    ValidateSameFolderNotExist @existingTaskParam
+    
+    $scheduleTaskParam = @{}
+
+    # description
+    if (-not [string]::IsNullOrWhiteSpace($Description))
+    {
+        $scheduleTaskParam.description = $Description
+    }
 
     # action
     $actionParam = 
     @{
-        argument = $argument
-        execute = $execute
+        Argument = $Argument
+        Execute = $Execute
+        WorkingDirectory = $WorkingDirectory
     }
+    $scheduleTaskParam.action = CreateTaskSchedulerAction @actionParam
 
     # trigger
-    $scheduledTimeSpan = if ($Daily -or $Once)
+    if ($Daily -or $Once)
     {
-        $null
+        $scheduledTimeSpan = $scheduledDuration = $null
     }
     else
     {
-        CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
-    }
-
-    $scheduledDuration = if ($Daily -or $Once)
-    {
-        $null
-    }
-    else
-    {
-        CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+        $scheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
+        $scheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
     }
     
     $triggerParam =
@@ -395,59 +373,21 @@ function Set-TargetResource
         Daily = $Daily
         Once = $Once
     }
+    $scheduleTaskParam.trigger = CreateTaskSchedulerTrigger @triggerParam
 
-    if ($Description -eq ""){ $Description = "No Description" }
-    
-    # Setup Task items
-    $action = CreateTaskSchedulerAction @actionParam
-    $trigger = CreateTaskSchedulerTrigger @triggerParam
-    $settings = New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (TicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
-    $registerParam = if ($null -ne $Credential)
-    {
-        Write-Debug $debugMessages.UsePrincipal
-        $principal = New-ScheduledTaskPrincipal @principalParam
-        $scheduledTask = New-ScheduledTask -Description $Description -Action $action -Settings $settings -Trigger $trigger -Principal $principal
-        @{
-            InputObject = $scheduledTask
-            TaskName = $taskName
-            TaskPath = $taskPath
-            Force = $true
-        }
-    }
-    else
-    {
-        Write-Debug $debugMessages.SkipPrincipal
-        @{
-            Action = $action
-            Settings = $settings
-            Trigger = $trigger
-            Description = $Description
-            TaskName = $taskName
-            TaskPath = $taskPath
-            Runlevel = $Runlevel
-            Force = $true
-        }
-    }
+    # settings
+    $scheduleTaskParam.settings = New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (TicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
 
-    if ($force -or -not(GetExistingTaskScheduler @existingTaskParam))
-    {
-        if ($null -ne $Credential)
-        {
-            Register-ScheduledTask @registerParam @credentialParam
-        }
-        else
-        {
-            Register-ScheduledTask @registerParam
-        }
-    }
+    # Register ScheduledTask
+    $registerParam = GetRegisterParam -Credential $Credential -Runlevel $Runlevel -TaskName $TaskName -TaskPath $TaskPath -scheduleTaskParam $scheduleTaskParam
+    Register-ScheduledTask @registerParam > $null
 
     #endregion
-
-#endregion
 }
 
 function Test-TargetResource
 {
+    [OutputType([Bool])]
     [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
     param
     (
@@ -566,21 +506,24 @@ function ValidateTaskPathLastChar ($taskPath)
     return $taskPath
 }
 
+function ValidateSameFolderNotExist ($TaskName, $TaskPath)
+{
+    if (TestExistingTaskSchedulerWithPath -TaskName $TaskName -TaskPath $TaskPath){ throw New-Object System.InvalidOperationException ($errorMessages.SameNameFolderFound -f $taskName) }
+}
+
 #endregion
 
 #region Create Helper
 
-function CreateTaskSchedulerAction ($argument, $execute)
+function CreateTaskSchedulerAction ($Argument, $Execute, $WorkingDirectory)
 {
-    $action = if ($argument -ne "")
-    {
-        New-ScheduledTaskAction -Execute $execute -Argument $Argument
-    }
-    else
-    {
-        New-ScheduledTaskAction -Execute $execute
-    }
-    return $action
+    if ($Execute -eq [string]::Empty){ throw New-Object System.InvalidOperationException ($errorMessages.ExecuteBrank) }
+
+    $param = @{}
+    $param.Execute = $Execute
+    if ($Argument -ne [string]::Empty){ $param.Argument = $Argument }
+    if ($WorkingDirectory -ne [string]::Empty){ $param.WorkingDirectory = $WorkingDirectory }
+    return New-ScheduledTaskAction @param
 }
 
 function CreateTimeSpan
@@ -656,6 +599,43 @@ function TicksToTimeSpan ([System.Int64]$Ticks)
 function GetExistingTaskScheduler ($TaskName, $TaskPath)
 {
     return Get-ScheduledTask | where TaskName -eq $taskName | where TaskPath -eq $taskPath
+}
+
+function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $scheduleTaskParam)
+{
+    if ([PSCredential]::Empty -ne $Credential)
+    {
+        Write-Debug $debugMessages.UsePrincipal
+        # Principal
+        $principalParam = 
+        @{
+            UserId = $Credential.UserName
+            RunLevel = $Runlevel
+            LogOnType = "InteractiveOrPassword"
+        }
+        $scheduleTaskParam.principal = New-ScheduledTaskPrincipal @principalParam
+
+        # return
+        return @{
+            InputObject = New-ScheduledTask @scheduleTaskParam
+            TaskName = $TaskName
+            TaskPath = $TaskPath
+            User = $Credential.UserName
+            Password = $Credential.GetNetworkCredential().Password
+            Force = $true
+        }
+    }
+    else
+    {
+        Write-Debug $debugMessages.SkipPrincipal
+        $scheduleTaskParam.TaskName = $TaskName
+        $scheduleTaskParam.TaskPath = $TaskPath
+        $scheduleTaskParam.Runlevel = $Runlevel
+        $scheduleTaskParam.Force = $true
+
+        # return
+        return $scheduleTaskParam
+    }
 }
 
 #endregion

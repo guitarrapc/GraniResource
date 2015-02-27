@@ -278,8 +278,8 @@
     <Compile Include="Grani_ScheduleTask\Configuration\Present\Runlevel\cScheduleTask.ps1" />
     <Compile Include="Grani_ScheduleTask\Configuration\Present\Runlevel\cScheduleTask.txt" />
     <Compile Include="Grani_ScheduleTask\Configuration\Present\Runlevel\present\localhost.mof" />
-    <Compile Include="Grani_ScheduleTask\GetPathItemType.ps1" />
-    <Compile Include="Grani_ScheduleTask\GetPathItemType.Tests.ps1" />
+    <Compile Include="Grani_ScheduleTask\ValidateTaskPathLastChar.ps1" />
+    <Compile Include="Grani_ScheduleTask\ValidateTaskPathLastChar.Tests.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
