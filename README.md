@@ -27,7 +27,7 @@ Grani_Download|cDownload|Download Remote file to local. This include file hash c
 Grani_GitHubApiContent|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
 Grani_PfxImport|cPfxImport|Import Pfx file into desired CertStore / or Remove pfx from CertStore.
 Grani_S3Content|cS3Content|Download and track change with S3 Object and Local File.
-Grani_ScheduleTask|cScheduledTask|Enable you to configure Schedule Task detail as like cmdlet. (not all but quiet lot.)
+Grani_ScheduleTask|cScheduledTask|Enable you to configure Schedule Task. (Not all property supported, but quiet a lot.)
 Grani_ScheduleTaskLog|cScheduledTaskLog|Enable/Disable Scheduled Task Log
 Grani_TCPAckFrequency|cTCPAckFrequency|Enable/Disable TCPAckFrequency
 Grani_WebPI|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)

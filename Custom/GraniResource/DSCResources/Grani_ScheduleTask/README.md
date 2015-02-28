@@ -17,7 +17,7 @@ See GraniResource.Test for the detail.
 
 Method | Result
 ----|----
-Pester| not yet
+Pester| pass
 Configuration| pass
 Get-DSCConfiguration| pass
 Test-DSCConfiguration| pass
@@ -36,11 +36,33 @@ Sample
 configuration ScheduleTask
 {
     Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "\"
+        ScheduledAt = [datetime]"00:00:00"
+        Daily = $true
+        Compatibility = "Win8"
+        Disable = $false
+    }
+}
+```
+
+- Create ScheduleTask with Specific account.
+
+```powershell
+configuration ScheduleTask
+{
+    param([PSCredential]$Credential)
+    Import-DscResource -Modulename GraniResource
     Node $AllNodes.Where{$_.Role -eq "localhost"}.NodeName
     {
         cScheduleTask ScheduleTask
         {
-            Ensure = "present"
+            Ensure = "Present"
             Execute = "powershell.exe"
             Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
             TaskName = "hoge"
@@ -48,6 +70,8 @@ configuration ScheduleTask
             ScheduledAt = [datetime]"00:00:00"
             Daily = $true
             Compatibility = "Win8"
+            Disable = $false
+            Credential = $Credential
         }
     }
 }
@@ -66,11 +90,36 @@ $ConfigurationData = @{
 }
 ```
 
+- Remove ScheduleTask.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Absent"
+        TaskName = "hoge"
+        TaskPath = "\"
+        Disable = $false
+    }
+}
+```
+
+
 Tips
 ----
 
 **Work on specific user**
 
-Defaul of Resource creating schedule task user is SYSTEM.
+If you didn't specify Credential Property, resource creates schedule task as SYSTEM account.
 
-If you want to run Schedule Task as a specific user, then pass ```Credential``` to the configuration. Resource will try to create Schedule task by passed credential.
+You can set ScheduledTask with Specific UserAccount, only when you passed Valid user account. Otherwise you will get following errors.
+
+```
+完全修飾エラー ID は HRESULT 0x80070534,Register-ScheduledTask です。エラー メッセージは アカウント名とセキュリティ ID の間のマッピングは実行されませんでした。
+```
+
+```
+no mapping between account names and security IDs was done. (Exception from HRESULT:0x80070534)
+```
