@@ -271,6 +271,29 @@ Describe "Grani_ScheduleTask : TargetResource" {
         }
     }
 
+    Context "Overwrite Credential ScheduleTask with non Credential ScheduleTask." {
+        It "Test-TargetResource should return false for removeing Credential parameter." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+        }
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, ScheduledAt : $scheduledAt" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute} | should not Throw
+        }
+
+        It "Test-TargetResource should return true." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute | should be $true
+        }
+
+        It "Get-TargetResource should not throw" {
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute} | should not Throw
+        }
+
+        $result = Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute
+
+        It "Get-TargetResource should return Credential : SYSTEM" {
+            $result.Credential | should be "SYSTEM"
+        }
+    }
+
     Context "Remove existing Settings." {
         It "Set-TargetResource Absent should not Throw." {
             {Set-TargetResource -Ensure Absent -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin} | should not Throw

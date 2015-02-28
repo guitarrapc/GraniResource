@@ -34,10 +34,7 @@ Initialize
 $verboseMessages = Data {
     ConvertFrom-StringData -StringData @"
         EnsureDetectAbsent = Ensure detected as Absent. Removing existing ScheduledTask for TaskPath '{0}', TaskName '{1}'.
-        EnsureDetectPresent = Ensure detected as Present. Setting existing ScheduledTask for TaskPath '{0}', TaskName '{1}'.
-        ScheduleTaskResult = {0} : {1} ({2})
-        ScheduleTaskTimeSpanResult = {0} : {1} ({2}min)
-        CreateTask = Creating Task Scheduler Name '{0}', Path '{1}'
+        EnsureDetectPresent = Ensure detected as Present. Setting ScheduledTask for TaskPath '{0}', TaskName '{1}'.
 "@
 }
 
@@ -48,13 +45,16 @@ $debugMessages = Data {
         CheckScheduleTaskExist = Checking {0} is exists with : {1}
         CheckScheduleTaskParameter = Checking {0} is match with : {1}
         CheckScheduleTaskParameterTimeSpan = Checking {0} is match with : {1}min
+        CreateTask = Creating Task Scheduler Name '{0}', Path '{1}'
+        ScheduleTaskResult = {0} : {1} ({2})
+        ScheduleTaskTimeSpanResult = {0} : {1} ({2}min)
         SetAction = Setting Action Execute : '{0}', Argument : '{1}', WorkingDirectory : '{2}'.
         SetDescription = Setting Description : '{0}'.
         SetDisable = Setting ScheduledTask Disable : '{0}'.
         SetTrigger = Setting Trigger ScheduledTimeSpan : '{0}', ScheduledDuration : '{1}', ScheduledAt : '{2}', Daily : '{3}', Once : '{4}'.
         SkipNoneUseParameter = Skipping {0} as value not passed to function.
         SkipNullPassedParameter = Skipping {0} as passed value is null.
-        SkipPrincipal = Skip Principal and Credential. Runlevel Highest requires elevated.
+        SkipPrincipal = Skip Credential. Using System for Principal.
         UsePrincipal = Using principal with Credential. Execution will be fail if not elevated.
 "@
 }
@@ -64,7 +64,7 @@ $errorMessages = Data {
         InvalidTrigger = Invalid Operation detected, you can't set same or greater timespan for RepetitionInterval '{0}' than RepetitionDuration '{1}'.
         ExecuteBrank = Invalid Operation detected, Execute detected as blank. You must set executable string.
         SchedulerArgumentLength = Argument length not match with current ScheduledAt {0} and passed ScheduledAt {1}.
-        ScheduleAtNullException = ScheduledAt detected as null. You must set at least ScheduledAt to set ScheduledTask as Present.
+        ScheduleAtNullException = ScheduledAt detected as null. You must set at least 1 ScheduledAt to set ScheduledTask as Present.
 "@
 }
 
@@ -153,6 +153,12 @@ function Get-TargetResource
     # Task Path validation
     $param.TaskPath = ValidateTaskPathLastChar -taskPath $taskPath
 
+    # Credential param
+    if ((-not $PSBoundParameters.ContainsKey("Credential")) -or ([PSCredential]::Empty -eq $Credential))
+    {
+        $param.Credential = New-Object System.Management.Automation.PSCredential ("SYSTEM", (New-Object System.Security.SecureString))
+    }
+
     # Trigger param
     if ($PSBoundParameters.ContainsKey("Once"))
     {
@@ -216,7 +222,7 @@ function Get-TargetResource
         'WorkingDirectory', 
 
         # Principal
-        'Credential', 
+        'Credential',
         'Runlevel',
 
         # settings
@@ -658,7 +664,7 @@ function GetExistingTaskScheduler ($TaskName, $TaskPath)
 
 function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $scheduleTaskParam)
 {
-    if ([PSCredential]::Empty -ne $Credential)
+    if (([PSCredential]::Empty -ne $Credential) -and ("SYSTEM" -ne $Credential.UserName))
     {
         Write-Debug $debugMessages.UsePrincipal
         # Principal
@@ -683,13 +689,24 @@ function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $schedu
     else
     {
         Write-Debug $debugMessages.SkipPrincipal
-        $scheduleTaskParam.TaskName = $TaskName
-        $scheduleTaskParam.TaskPath = $TaskPath
-        $scheduleTaskParam.Runlevel = $Runlevel
-        $scheduleTaskParam.Force = $true
+        $principalParam = 
+        @{
+            Id = "Author"
+            UserId = "SYSTEM"
+            RunLevel = $Runlevel
+            LogOnType = "ServiceAccount"
+            ProcessTokenSidType = "Default"
+        }
+        $scheduleTaskParam.principal = New-ScheduledTaskPrincipal @principalParam 
 
         # return
-        return $scheduleTaskParam
+        return @{
+            InputObject = New-ScheduledTask @scheduleTaskParam
+            TaskName = $TaskName
+            TaskPath = $TaskPath
+            Force = $true
+        }
+
     }
 }
 
@@ -800,7 +817,7 @@ function TestScheduledTaskStatus
             $task = $ScheduledTask | where $Parameter -eq $Value
             $uniqueValue = $task.$Parameter | sort -Unique
             $result = $uniqueValue -eq $Value
-            Write-Verbose ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $uniqueValue)
+            Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $uniqueValue)
             return @{
                 task = $task
                 target = $uniqueValue
@@ -882,13 +899,13 @@ function TestScheduledTaskStatus
                         target = $target
                         result = $true
                     }
-                    Write-Verbose ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+                    Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $target)
                 }
             }
 
             # value check
             $result = $target -eq $Value
-            Write-Verbose ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+            Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $target)
             return @{
                 target = $target
                 result = $result
@@ -923,7 +940,7 @@ function TestScheduledTaskStatus
             Write-Debug ($debugMessages.CheckScheduleTaskParameterTimeSpan -f $parameter, $Value.TotalMinutes)
             $executionTimeLimitTimeSpan = [System.Xml.XmlConvert]::ToTimeSpan($ScheduledTask.Settings.$parameter)
             $result = $Value -eq $executionTimeLimitTimeSpan
-            Write-Verbose ($verboseMessages.ScheduleTaskTimeSpanResult -f $parameter, $result, $executionTimeLimitTimeSpan.TotalMinutes)
+            Write-Debug ($verboseMessages.ScheduleTaskTimeSpanResult -f $parameter, $result, $executionTimeLimitTimeSpan.TotalMinutes)
             return @{
                 target = $executionTimeLimitTimeSpan
                 result = $result
@@ -961,7 +978,7 @@ function TestScheduledTaskStatus
             # value check
             Write-Debug ($debugMessages.CheckScheduleTaskParameter -f "Disable", $Value)
             $result = $target -eq $Value
-            Write-Verbose ($verboseMessages.ScheduleTaskResult -f "Disable", $result, $target)
+            Write-Debug ($verboseMessages.ScheduleTaskResult -f "Disable", $result, $target)
             return @{
                 target = $target
                 result = $result
@@ -1007,7 +1024,7 @@ function TestScheduledTaskStatus
                 $startBoundaryDateTime = [System.Xml.XmlConvert]::ToDateTime(@($ScheduledTask.Triggers.$parameter)[$i])
                 $target += $startBoundaryDateTime
                 $result += @($Value)[$i] -eq $startBoundaryDateTime
-                Write-Verbose ($verboseMessages.ScheduleTaskResult -f $parameter, $result[$i], $startBoundaryDateTime)
+                Write-Debug ($verboseMessages.ScheduleTaskResult -f $parameter, $result[$i], $startBoundaryDateTime)
             }
             return @{
                 target = $target
@@ -1055,7 +1072,7 @@ function TestScheduledTaskStatus
                 $repetition = [System.Xml.XmlConvert]::ToTimeSpan(@($ScheduledTask.Triggers.Repetition.$Parameter)[$i])
                 $target += $repetition
                 $result = @($Value)[$i] -eq $repetition
-                Write-Verbose ($verboseMessages.ScheduleTaskResult -f $Parameter, $result[$i], $target.TotalMinutes)
+                Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result[$i], $target.TotalMinutes)
             }
             return @{
                 target = $target
@@ -1106,7 +1123,7 @@ function TestScheduledTaskStatus
                     {
                         $trigger-eq 0
                     }
-                    Write-Verbose ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
+                    Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
                 }
                 "Once"
                 {
@@ -1119,7 +1136,7 @@ function TestScheduledTaskStatus
                     {
                         $trigger -ne 0
                     }
-                    Write-Verbose ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
+                    Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
                 }
             }
             return @{
