@@ -138,13 +138,13 @@ function Get-WebPlatformInstallerProduct
     [CmdletBinding(DefaultParameterSetName = "Any")]
     param
     (
-        [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1, ValueFromPipeline = 1)]
+        [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1, ValueFromPipeline = 1)]
         [string[]]$ProductId,
         
-        [parameter(Mandatory = 0, Position = 1, ValueFromPipelineByPropertyName = 1, ParameterSetName = "Installed")]
+        [parameter(Mandatory = $false, Position = 1, ValueFromPipelineByPropertyName = 1, ParameterSetName = "Installed")]
         [switch]$Installed,
         
-        [parameter(Mandatory = 0, Position = 1, ValueFromPipelineByPropertyName = 1, ParameterSetName = "Available")]
+        [parameter(Mandatory = $false, Position = 1, ValueFromPipelineByPropertyName = 1, ParameterSetName = "Available")]
         [switch]$Available,
 
         [switch]$Force
@@ -223,10 +223,10 @@ function Install-WebPlatformInstallerProgram
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1, ValueFromPipeline = 1)]
+        [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1, ValueFromPipeline = 1)]
         [string[]]$ProductId,
 
-        [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1)]
+        [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1)]
         [ValidateSet('en', 'fr', 'es', 'de', 'it', 'ja', 'ko', 'ru', 'zh-cn', 'zh-tw', 'cs', 'pl', 'tr', 'pt-br', 'he', 'zh-hk', 'pt-pt')]
         [string]$LanguageCode = 'en'
     )
@@ -282,13 +282,13 @@ function Install-WebPlatformInstallerProgram
             [CmdletBinding()]
             param
             (
-                [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1)]
+                [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1)]
                 [string]$ProductId,
 
-                [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1)]
+                [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1)]
                 [Microsoft.Web.PlatformInstaller.InstallationState]$PreStatus,
 
-                [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1)]
+                [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1)]
                 [Microsoft.Web.PlatformInstaller.InstallationState]$PostStatus
             )
 
@@ -320,10 +320,10 @@ function Install-WebPlatformInstallerProgram
             [CmdletBinding()]
             param
             (
-                [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1)]
+                [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1)]
                 [string]$LanguageCode,
 
-                [parameter(Mandatory = 0, Position = 0, ValueFromPipelineByPropertyName = 1)]
+                [parameter(Mandatory = $false, Position = 0, ValueFromPipelineByPropertyName = 1)]
                 [Microsoft.Web.PlatformInstaller.Product[]]$product
             )
 
@@ -462,7 +462,7 @@ function Test-WebPlatformInstallerProductIsInstalled
     [CmdletBinding(DefaultParameterSetName = "Any")]
     param
     (
-        [parameter(Mandatory = 1, Position = 0, ValueFromPipelineByPropertyName = 1, ValueFromPipeline = 1)]
+        [parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = 1, ValueFromPipeline = 1)]
         [string[]]$ProductId
     )
 
