@@ -202,7 +202,9 @@
     <Content Include="DSCResources\Grani_ScheduleTaskLog\Enabled.ps1" />
     <Content Include="DSCResources\Grani_ScheduleTaskLog\Enabled.txt" />
     <Content Include="DSCResources\Grani_ScheduleTaskLog\Enabled\localhost.mof" />
+    <Content Include="DSCResources\Grani_ScheduleTask\TestScheduledTaskStatus.ps1" />
     <Content Include="DSCResources\Grani_ScheduleTask\TargetResource.ps1" />
+    <Content Include="DSCResources\Grani_ScheduleTask\TestScheduledTaskStatus.Tests.ps1" />
     <Content Include="DSCResources\Grani_ScheduleTask\TargetResource.Tests.ps1" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\GetTargetResource.ps1" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\GetTargetResource.Tests.ps1" />
@@ -251,7 +253,6 @@
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Present\Default-Repetention\present\localhost.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Present\DisableTask\cScheduleTask.ps1" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Present\DisableTask\cScheduleTask.txt" />
-    <Compile Include="DSCResources\Grani_ScheduleTask\localhost.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Present\EnableTask\cScheduleTask.ps1" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Present\EnableTask\cScheduleTask.txt" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Present\EnableTask\EnableCleanupTask\localhost.mof" />

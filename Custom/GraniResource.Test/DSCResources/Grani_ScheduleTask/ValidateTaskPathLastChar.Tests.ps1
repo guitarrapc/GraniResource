@@ -6,11 +6,11 @@ Describe "Grani_ScheduleTask : ValidateTaskPathLastChar" {
 
     Context "GetPathItemType" {
 
-        It "none \ last input value will output as last character with \" {
+        It "Last TaskPath char was not \. Output as add \ on last." {
             ValidateTaskPathLastChar -taskPath "hoge" | Should be "hoge\"
         }
 
-        It "with \ last input value will never change" {
+        It "Last TaskPath char was \. No modify." {
             ValidateTaskPathLastChar -taskPath "hoge\" | Should be "hoge\"
         }
     }
