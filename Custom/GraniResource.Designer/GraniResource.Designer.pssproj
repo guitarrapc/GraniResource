@@ -38,6 +38,9 @@
     <Content Include="Grani_TCPAckFrequency.ps1" />
     <Content Include="Grani_WebPI.ps1" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Grani_PendingReboot.ps1" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
 </Project>
