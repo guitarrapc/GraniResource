@@ -25,6 +25,7 @@ Grani_ACL|cACL|ACL Resource make you ability to manage ACL through easy configur
 Grani_DomainJoin|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
 Grani_Download|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
 Grani_GitHubApiContent|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
+Grani_PendingReboot | cPendingReboot | Allow you to handle reboot with configuration both LocalConfigurationManager ```RebootNodeIfNeeded``` setting as $true/$false.
 Grani_PfxImport|cPfxImport|Import Pfx file into desired CertStore / or Remove pfx from CertStore.
 Grani_S3Content|cS3Content|Download and track change with S3 Object and Local File.
 Grani_ScheduleTask|cScheduledTask|Enable you to configure Schedule Task. (Not all property supported, but quiet a lot.)
