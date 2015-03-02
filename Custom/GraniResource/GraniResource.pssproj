@@ -31,6 +31,7 @@
     <Folder Include="DSCResources\cWebPILauncher\" />
     <Folder Include="DSCResources\Grani_ACL\" />
     <Folder Include="DSCResources\Grani_DomainJoin\" />
+    <Folder Include="DSCResources\Grani_PendingReboot\" />
     <Folder Include="DSCResources\Grani_PfxImport\" />
     <Folder Include="DSCResources\Grani_S3Content\" />
     <Folder Include="DSCResources\Grani_Download\" />
@@ -47,6 +48,8 @@
     <Compile Include="DSCResources\Grani_ACL\Grani_ACL.schema.mof" />
     <Compile Include="DSCResources\Grani_Download\Grani_Download.psm1" />
     <Compile Include="DSCResources\Grani_Download\Grani_Download.schema.mof" />
+    <Compile Include="DSCResources\Grani_PendingReboot\Grani_PendingReboot.psm1" />
+    <Compile Include="DSCResources\Grani_PendingReboot\Grani_PendingReboot.schema.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.psm1" />
     <Compile Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.schema.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.schema.mof" />
@@ -66,6 +69,8 @@
     <Content Include="DSCResources\Grani_DomainJoin\Grani_DomainJoin.schema.mof" />
     <Content Include="DSCResources\Grani_DomainJoin\README.md" />
     <Content Include="DSCResources\Grani_DomainJoin\cDomainJoin.png" />
+    <Content Include="DSCResources\Grani_PendingReboot\README.md" />
+    <Content Include="DSCResources\Grani_PendingReboot\cPendingReboot.png" />
     <Content Include="DSCResources\Grani_PfxImport\Grani_PfxImport.psm1" />
     <Content Include="DSCResources\Grani_PfxImport\Grani_PfxImport.schema.mof" />
     <Content Include="DSCResources\Grani_PfxImport\README.md" />
