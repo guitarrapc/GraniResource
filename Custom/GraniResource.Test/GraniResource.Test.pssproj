@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
-    <Name>GraniRssource.Test</Name>
+    <Name>GraniResource.Test</Name>
     <ProjectHome />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -51,7 +51,10 @@
     <Folder Include="DSCResources\Grani_GitHubApiContent\Configuration\" />
     <Folder Include="DSCResources\Grani_GitHubApiContent\Configuration\cache\" />
     <Folder Include="DSCResources\Grani_GitHubApiContent\Configuration\mof\" />
-    <Folder Include="DSCResources\Grani_PendingReboot\Configuration\mof\" />
+    <Folder Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\" />
+    <Folder Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\mof\" />
+    <Folder Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\mof\" />
+    <Folder Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\" />
     <Folder Include="DSCResources\Grani_PfxImport\" />
     <Folder Include="DSCResources\Grani_PfxImport\Configuration\" />
     <Folder Include="DSCResources\Grani_PfxImport\Configuration\Absent\" />
@@ -99,6 +102,10 @@
     <Content Include="DSCResources\Grani_ACL\Present\ACLChange\Localhost.mof" />
     <Content Include="DSCResources\Grani_ACL\Present\cACLResource.ps1" />
     <Content Include="DSCResources\Grani_ACL\Present\cACLResource.txt" />
+    <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\ConfigurationSample.ps1" />
+    <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\mof\localhost.mof" />
+    <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\Reboot.log" />
+    <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\Skip.log" />
     <Content Include="DSCResources\Grani_PendingReboot\TargetResourceJoin.ps1" />
     <Content Include="DSCResources\Grani_PendingReboot\TargetResourceJoin.Tests.ps1" />
     <Content Include="DSCResources\Grani_DomainJoin\Configuration\JoinDomain\Join.log" />
@@ -226,9 +233,10 @@
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\UnJoinDomain\UnJoin.log" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\UnJoinDomain\mof\localhost.mof" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\UnJoinDomain\Skip.log" />
-    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ConfigurationSample.ps1" />
-    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\Skip.log" />
-    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\Reboot.log" />
+    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\ConfigurationSample.ps1" />
+    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\mof\localhost.mof" />
+    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\Skip.log" />
+    <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\Reboot.log" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Absent\absent\localhost.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Absent\cScheduleTask.ps1" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Absent\cScheduleTask.txt" />
