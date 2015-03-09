@@ -38,6 +38,7 @@
     <Folder Include="DSCResources\Grani_GitHubApiContent\" />
     <Folder Include="DSCResources\Grani_ScheduleTaskLog\" />
     <Folder Include="DSCResources\Grani_ScheduleTask\" />
+    <Folder Include="DSCResources\Grani_SymbolicLink\" />
     <Folder Include="DSCResources\Grani_TCPAckFrequency\" />
     <Folder Include="DSCResources\Grani_WebPI\" />
   </ItemGroup>
@@ -90,6 +91,8 @@
     <Content Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.psm1" />
     <Content Include="DSCResources\Grani_ScheduleTask\README.md" />
     <Content Include="DSCResources\Grani_ScheduleTask\cScheduleTask.png" />
+    <Content Include="DSCResources\Grani_SymbolicLink\Grani_SymbolicLink.psm1" />
+    <Content Include="DSCResources\Grani_SymbolicLink\Grani_SymbolicLink.schema.mof" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\README.md" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\cTCPAckFrequency.png" />
     <Content Include="DSCResources\Grani_WebPI\README.md" />
