@@ -93,6 +93,8 @@
     <Content Include="DSCResources\Grani_ScheduleTask\cScheduleTask.png" />
     <Content Include="DSCResources\Grani_SymbolicLink\Grani_SymbolicLink.psm1" />
     <Content Include="DSCResources\Grani_SymbolicLink\Grani_SymbolicLink.schema.mof" />
+    <Content Include="DSCResources\Grani_SymbolicLink\README.md" />
+    <Content Include="DSCResources\Grani_SymbolicLink\cSymbolicLink.png" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\README.md" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\cTCPAckFrequency.png" />
     <Content Include="DSCResources\Grani_WebPI\README.md" />
