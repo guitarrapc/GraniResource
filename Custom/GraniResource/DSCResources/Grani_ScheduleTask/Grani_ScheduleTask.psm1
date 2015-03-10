@@ -387,7 +387,6 @@ function Set-TargetResource
         {
             $true {
                 $existingTask | Disable-ScheduledTask
-                return
             }
             $false {
                 $existingTask | Enable-ScheduledTask
@@ -419,26 +418,29 @@ function Set-TargetResource
     $scheduleTaskParam.action = CreateTaskSchedulerAction @actionParam
 
     # trigger
-    if ($Daily -or $Once)
+    if (($ScheduledAt | measure).Count -ne 0)
     {
-        $scheduledTimeSpan = $scheduledDuration = $null
-    }
-    else
-    {
-        $scheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
-        $scheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
-    }
+        if ($Daily -or $Once)
+        {
+            $scheduledTimeSpan = $scheduledDuration = $null
+        }
+        else
+        {
+            $scheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
+            $scheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+        }
     
-    Write-Debug ($debugMessages.SetTrigger -f $scheduledTimeSpan, $scheduledDuration, $ScheduledAt, $Daily, $Once)
-    $triggerParam =
-    @{
-        ScheduledTimeSpan = $scheduledTimeSpan
-        ScheduledDuration = $scheduledDuration
-        ScheduledAt = $ScheduledAt
-        Daily = $Daily
-        Once = $Once
+        Write-Debug ($debugMessages.SetTrigger -f $scheduledTimeSpan, $scheduledDuration, $ScheduledAt, $Daily, $Once)
+        $triggerParam =
+        @{
+            ScheduledTimeSpan = $scheduledTimeSpan
+            ScheduledDuration = $scheduledDuration
+            ScheduledAt = $ScheduledAt
+            Daily = $Daily
+            Once = $Once
+        }
+        $scheduleTaskParam.trigger = CreateTaskSchedulerTrigger @triggerParam
     }
-    $scheduleTaskParam.trigger = CreateTaskSchedulerTrigger @triggerParam
 
     # settings
     $scheduleTaskParam.settings = New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (TicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
