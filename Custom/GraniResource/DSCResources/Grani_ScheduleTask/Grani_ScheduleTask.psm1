@@ -35,6 +35,7 @@ $verboseMessages = Data {
     ConvertFrom-StringData -StringData @"
         EnsureDetectAbsent = Ensure detected as Absent. Removing existing ScheduledTask for TaskPath '{0}', TaskName '{1}'.
         EnsureDetectPresent = Ensure detected as Present. Setting ScheduledTask for TaskPath '{0}', TaskName '{1}'.
+        DisableDetected = Disabled detected as $true. Disabling task and exit configuration.
 "@
 }
 
@@ -154,53 +155,65 @@ function Get-TargetResource
     # Task Path validation
     $param.TaskPath = ValidateTaskPathLastChar -taskPath $taskPath
 
-    # Credential param
-    if ((-not $PSBoundParameters.ContainsKey("Credential")) -or ([PSCredential]::Empty -eq $Credential))
+    if ($Disable)
     {
-        $param.Credential = New-Object System.Management.Automation.PSCredential ("SYSTEM", (New-Object System.Security.SecureString))
-    }
-
-    # Trigger param
-    if ($PSBoundParameters.ContainsKey("Once"))
-    {
-        $param.Once = $Once
-    }
-    elseif ($PSBoundParameters.ContainsKey("Daily"))
-    {
-        $param.Daily = $Daily
+        Write-Debug "Disable"
+        @(
+            'TaskName',
+            'Disable'
+        ) `
+        | where {$PSBoundParameters.ContainsKey($_)} `
+        | %{ $param.$_ = Get-Variable -Name $_ -ValueOnly }
     }
     else
     {
-        if ($PSBoundParameters.ContainsKey('ScheduledTimeSpanDay') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanHour') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanMin'))
+        # Credential param
+        if (($PSBoundParameters.ContainsKey("Credential")) -or ([PSCredential]::Empty -ne $Credential))
         {
-            $param.ScheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
+            $param.Credential = $Credential
         }
 
-        if ($PSBoundParameters.ContainsKey('ScheduledDurationDay') -and $PSBoundParameters.ContainsKey('ScheduledDurationHour') -and $PSBoundParameters.ContainsKey('ScheduledDurationMin'))
+        # Trigger param
+        if ($PSBoundParameters.ContainsKey("Once"))
         {
-            $param.ScheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+            $param.Once = $Once
         }
+        elseif ($PSBoundParameters.ContainsKey("Daily"))
+        {
+            $param.Daily = $Daily
+        }
+        else
+        {
+            if ($PSBoundParameters.ContainsKey('ScheduledTimeSpanDay') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanHour') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanMin'))
+            {
+                $param.ScheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
+            }
+
+            if ($PSBoundParameters.ContainsKey('ScheduledDurationDay') -and $PSBoundParameters.ContainsKey('ScheduledDurationHour') -and $PSBoundParameters.ContainsKey('ScheduledDurationMin'))
+            {
+                $param.ScheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+            }
+        }
+
+        # ExecutionTimelimit param
+        if ($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")){ $param.ExecutionTimeLimit = [TimeSpan]::FromTicks($ExecuteTimeLimitTicks) }
+
+        # obtain other param
+        @(
+            'TaskName',
+            'Description', 
+            'Execute', 
+            'Argument', 
+            'WorkingDirectory', 
+            'Runlevel',
+            'Compatibility',
+            'Hidden',
+            'Disable', 
+            'ScheduledAt'
+        ) `
+        | where {$PSBoundParameters.ContainsKey($_)} `
+        | %{ $param.$_ = Get-Variable -Name $_ -ValueOnly }
     }
-
-    # ExecutionTimelimit param
-    if ($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")){ $param.ExecutionTimeLimit = [TimeSpan]::FromTicks($ExecuteTimeLimitTicks) }
-
-    # obtain other param
-    @(
-        'TaskName',
-        'Description', 
-        'Execute', 
-        'Argument', 
-        'WorkingDirectory', 
-        'Credential', 
-        'Runlevel',
-        'Compatibility',
-        'Hidden',
-        'Disable', 
-        'ScheduledAt'
-    ) `
-    | where {$PSBoundParameters.ContainsKey($_)} `
-    | %{ $param.$_ = Get-Variable -Name $_ -ValueOnly }
 
     # Test current ScheduledTask
     $taskResult = TestScheduledTaskStatus @param
@@ -230,7 +243,6 @@ function Get-TargetResource
         'WorkingDirectory', 
 
         # Principal
-        'Credential',
         'Runlevel',
 
         # settings
@@ -245,6 +257,12 @@ function Get-TargetResource
     ) `
     | where {$taskResult."$_".target -ne $null} `
     | %{$returnHash.$_ = $taskResult."$_".target}
+
+    # convert credential to CIM Instance
+    if (($PSBoundParameters.ContainsKey("Credential")))
+    {
+        $returnHash.Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
+    }
 
     # convert timespan to int
     if (($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")) -and ($taskResult.ExecutionTimeLimit.target.Ticks -ne $null))
@@ -386,7 +404,9 @@ function Set-TargetResource
         switch ($Disable)
         {
             $true {
+                Write-Verbose ($verboseMessages.DisableDetected -f $TaskPath, $TaskName)
                 $existingTask | Disable-ScheduledTask
+                return
             }
             $false {
                 $existingTask | Enable-ScheduledTask
@@ -396,7 +416,6 @@ function Set-TargetResource
 
     # validation
     ValidateSameFolderNotExist @existingTaskParam
-    ValidateTrigger -ScheduledAt $ScheduledAt
 
     $scheduleTaskParam = @{}
 
@@ -418,7 +437,7 @@ function Set-TargetResource
     $scheduleTaskParam.action = CreateTaskSchedulerAction @actionParam
 
     # trigger
-    if (($ScheduledAt | measure).Count -ne 0)
+    if ($ScheduledAt -ne $null)
     {
         if ($Daily -or $Once)
         {
@@ -576,11 +595,6 @@ function ValidateTaskPathLastChar ($taskPath)
 function ValidateSameFolderNotExist ($TaskName, $TaskPath)
 {
     if (TestExistingTaskSchedulerWithPath -TaskName $TaskName -TaskPath $TaskPath){ throw New-Object System.InvalidOperationException ($errorMessages.SameNameFolderFound -f $taskName) }
-}
-
-function ValidateTrigger ($ScheduledAt)
-{
-    if ($ScheduledAt -eq $null){ throw New-Object System.NullReferenceException ($errorMessages.ScheduleAtNullException) }
 }
 
 #endregion

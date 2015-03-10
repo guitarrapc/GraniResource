@@ -54,8 +54,8 @@ Describe "Grani_ScheduleTask : TargetResource" {
             Test-TargetResource -Ensure Absent -TaskPath $taskPath -TaskName $taskName -Disable $disable | should be $true
         }
 
-        It "Set-TargetResource should Throw as Ensure : $ensure, ScheduledAt : null" {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Disable $disable -Execute $execute} | should Throw
+        It "Set-TargetResource should Throw as Ensure : $ensure, Execute : null" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Disable $disable} | should Throw
         }
 
         It "Set-TargetResource Present should not Throw as Ensure : $ensure, ScheduledAt : $scheduledAt" {
@@ -149,7 +149,7 @@ Describe "Grani_ScheduleTask : TargetResource" {
         }
 
         It "Get-TargetResource should return Credential : $($credential.UserName)" {
-            $result.Credential | should be $credential.UserName
+            $result.Credential.UserName | should be $credential.UserName
         }
 
         It "Get-TargetResource should return Runlevel : $runlevel" {
@@ -272,9 +272,6 @@ Describe "Grani_ScheduleTask : TargetResource" {
     }
 
     Context "Overwrite Credential ScheduleTask with non Credential ScheduleTask." {
-        It "Test-TargetResource should return false for removeing Credential parameter." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
-        }
         It "Set-TargetResource Present should not Throw as Ensure : $ensure, ScheduledAt : $scheduledAt" {
             {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute} | should not Throw
         }
@@ -285,12 +282,6 @@ Describe "Grani_ScheduleTask : TargetResource" {
 
         It "Get-TargetResource should not throw" {
             {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute} | should not Throw
-        }
-
-        $result = Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute
-
-        It "Get-TargetResource should return Credential : SYSTEM" {
-            $result.Credential | should be "SYSTEM"
         }
     }
 
