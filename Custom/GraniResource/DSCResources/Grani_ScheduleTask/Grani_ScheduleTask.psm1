@@ -387,6 +387,7 @@ function Set-TargetResource
         {
             $true {
                 $existingTask | Disable-ScheduledTask
+                return
             }
             $false {
                 $existingTask | Enable-ScheduledTask
