@@ -63,7 +63,8 @@ $errorMessages = Data {
     ConvertFrom-StringData -StringData @"
         InvalidTrigger = Invalid Operation detected, you can't set same or greater timespan for RepetitionInterval '{0}' than RepetitionDuration '{1}'.
         ExecuteBrank = Invalid Operation detected, Execute detected as blank. You must set executable string.
-        SchedulerArgumentLength = Argument length not match with current ScheduledAt {0} and passed ScheduledAt {1}.
+        ScheduleAtArgumentLength = Argument length not match with current ScheduledAt {0} and passed ScheduledAt {1}.
+        ScheduleRepetitionArgumentLength = Argument length not match with current Scheduled Repetition {0} and passed ScheduledAt {1}.
         ScheduleAtNullException = ScheduledAt detected as null. You must set at least 1 ScheduledAt to set ScheduledTask as Present.
 "@
 }
@@ -170,8 +171,15 @@ function Get-TargetResource
     }
     else
     {
-        $param.ScheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
-        $param.ScheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+        if ($PSBoundParameters.ContainsKey('ScheduledTimeSpanDay') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanHour') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanMin'))
+        {
+            $param.ScheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
+        }
+
+        if ($PSBoundParameters.ContainsKey('ScheduledDurationDay') -and $PSBoundParameters.ContainsKey('ScheduledDurationHour') -and $PSBoundParameters.ContainsKey('ScheduledDurationMin'))
+        {
+            $param.ScheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+        }
     }
 
     # ExecutionTimelimit param
@@ -995,10 +1003,22 @@ function TestScheduledTaskStatus
                 [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
 
                 [parameter(Mandatory = $false)]
-                [DateTime[]]$Value
+                [DateTime[]]$Value,
+
+                [bool]$IsExist
             )
 
             $private:parameter = "StartBoundary"
+
+            # skip when Parameter not use
+            if ($IsExist -eq $false)
+            {
+                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+                return @{
+                    target = $null
+                    result = $true
+                }
+            }
 
             # skip null
             if ($Value -eq $null)
@@ -1014,7 +1034,7 @@ function TestScheduledTaskStatus
             $scheduleCount = ($ScheduledTask.Triggers | measure).Count
             if ($valueCount -ne $scheduleCount)
             {
-                throw New-Object System.ArgumentException ($errorMessages.SchedulerArgumentLength -f $scheduleCount, $valueCount)
+                throw New-Object System.ArgumentException ($errorMessages.ScheduleAtArgumentLength -f $scheduleCount, $valueCount)
             }
 
             $result = $target = @()
@@ -1045,8 +1065,20 @@ function TestScheduledTaskStatus
                 [string]$Parameter,
 
                 [parameter(Mandatory = $false)]
-                [TimeSpan[]]$Value
+                [TimeSpan[]]$Value,
+
+                [bool]$IsExist
             )
+
+            # skip when Parameter not use
+            if ($IsExist -eq $false)
+            {
+                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+                return @{
+                    target = $null
+                    result = $true
+                }
+            }
 
             # skip null
             if ($Value -eq $null)
@@ -1062,7 +1094,7 @@ function TestScheduledTaskStatus
             $scheduleCount = ($ScheduledTask.Triggers | measure).Count
             if ($valueCount -ne $scheduleCount)
             {
-                throw New-Object System.ArgumentException ($errorMessages.SchedulerArgumentLength -f $scheduleCount, $valueCount)
+                throw New-Object System.ArgumentException ($errorMessages.ScheduleRepetitionArgumentLength -f $scheduleCount, $valueCount)
             }
 
             $result = $target = @()
@@ -1215,13 +1247,13 @@ function TestScheduledTaskStatus
         #region Triggers
 
             # SchduledAt
-            $returnHash.ScheduledAt = TestScheduledTaskScheduledAt -ScheduledTask $current -Value $ScheduledAt
+            $returnHash.ScheduledAt = TestScheduledTaskScheduledAt -ScheduledTask $current -Value $ScheduledAt -IsExist ($PSBoundParameters.ContainsKey('ScheduledAt'))
 
             # ScheduledTimeSpan (Repetition Interval)
-            $returnHash.ScheduledTimeSpan = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $ScheduledTimeSpan -Parameter Interval
+            $returnHash.ScheduledTimeSpan = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $ScheduledTimeSpan -Parameter Interval -IsExist ($PSBoundParameters.ContainsKey('ScheduledTimeSpan'))
 
             # ScheduledDuration (Repetition Duration)
-            $returnHash.ScheduledDuration = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $ScheduledDuration -Parameter Duration
+            $returnHash.ScheduledDuration = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $ScheduledDuration -Parameter Duration -IsExist ($PSBoundParameters.ContainsKey('ScheduledDuration'))
 
             # Daily
             $returnHash.Daily = TestScheduledTaskTriggerBy -ScheduledTaskXml $xml -Parameter Daily -Value $Daily -IsExist ($PSBoundParameters.ContainsKey('Daily'))
