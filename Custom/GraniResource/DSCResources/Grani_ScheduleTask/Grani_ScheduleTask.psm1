@@ -196,6 +196,7 @@ function Get-TargetResource
         }
 
         # ExecutionTimelimit param
+        Write-Verbose $PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")
         if ($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")){ $param.ExecutionTimeLimit = [TimeSpan]::FromTicks($ExecuteTimeLimitTicks) }
 
         # obtain other param
@@ -267,31 +268,31 @@ function Get-TargetResource
     # convert timespan to int
     if (($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")) -and ($taskResult.ExecutionTimeLimit.target.Ticks -ne $null))
     {
-        $returnHash.ExecuteTimeLimitTicks = $taskResult.ExecutionTimeLimit.target.Ticks
+        $returnHash.ExecuteTimeLimitTicks = [System.Int64]$taskResult.ExecutionTimeLimit.target.Ticks
     }
     if (($PSBoundParameters.ContainsKey("ScheduledTimeSpanDay")) -and ($taskResult.ScheduledTimeSpan.target -ne $null))
     {
-        $returnHash.ScheduledTimeSpanDay = $taskResult.ScheduledTimeSpan.target.Days
+        $returnHash.ScheduledTimeSpanDay = [int[]]($taskResult.ScheduledTimeSpan.target.Days)
     }
     if (($PSBoundParameters.ContainsKey("ScheduledTimeSpanHour")) -and ($taskResult.ScheduledTimeSpan.target -ne $null))
     {
-        $returnHash.ScheduledTimeSpanHour = $taskResult.ScheduledTimeSpan.target.Hours
+        $returnHash.ScheduledTimeSpanHour = [int[]]($taskResult.ScheduledTimeSpan.target.Hours)
     }
     if (($PSBoundParameters.ContainsKey("ScheduledTimeSpanMin")) -and ($taskResult.ScheduledTimeSpan.target -ne $null))
     {
-        $returnHash.ScheduledTimeSpanMin = $taskResult.ScheduledTimeSpan.target.Minutes
+        $returnHash.ScheduledTimeSpanMin = [int[]]($taskResult.ScheduledTimeSpan.target.Minutes)
     }
     if (($PSBoundParameters.ContainsKey("ScheduledDurationDay")) -and ($taskResult.ScheduledDuration.target -ne $null))
     {
-        $returnHash.ScheduledDurationDay = $taskResult.ScheduledDuration.target.Days
+        $returnHash.ScheduledDurationDay = [int[]]($taskResult.ScheduledDuration.target.Days)
     }
     if (($PSBoundParameters.ContainsKey("ScheduledDurationHour")) -and ($taskResult.ScheduledDuration.target -ne $null))
     {
-        $returnHash.ScheduledDurationHour = $taskResult.ScheduledDuration.target.Hours
+        $returnHash.ScheduledDurationHour = [int[]]($taskResult.ScheduledDuration.target.Hours)
     }
     if (($PSBoundParameters.ContainsKey("ScheduledDurationMin")) -and ($taskResult.ScheduledDuration.target -ne $null))
     {
-        $returnHash.ScheduledDurationMin = $taskResult.ScheduledDuration.target.Minutes
+        $returnHash.ScheduledDurationMin = $[int[]](taskResult.ScheduledDuration.target.Minutes)
     }
 
     return $returnHash
@@ -462,11 +463,18 @@ function Set-TargetResource
     }
 
     # settings
-    $scheduleTaskParam.settings = New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (TicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
+    $scheduleTaskParam.settings = if ($PSBoundParameters.ContainsKey('ExecuteTimeLimitTicks'))
+    {
+        New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (TicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
+    }
+    else
+    {
+        New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility
+    }
 
     # Register ScheduledTask
     $registerParam = GetRegisterParam -Credential $Credential -Runlevel $Runlevel -TaskName $TaskName -TaskPath $TaskPath -scheduleTaskParam $scheduleTaskParam
-    Register-ScheduledTask @registerParam > $null
+    Register-ScheduledTask @registerParam -Force > $null
 
     #endregion
 }
@@ -708,7 +716,6 @@ function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $schedu
             TaskPath = $TaskPath
             User = $Credential.UserName
             Password = $Credential.GetNetworkCredential().Password
-            Force = $true
         }
     }
     else
@@ -729,7 +736,6 @@ function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $schedu
             InputObject = New-ScheduledTask @scheduleTaskParam
             TaskName = $TaskName
             TaskPath = $TaskPath
-            Force = $true
         }
 
     }
@@ -809,7 +815,7 @@ function TestScheduledTaskStatus
         [bool]$Hidden,
 
         [parameter(Mandatory = 0, Position  = 14)]
-        [TimeSpan]$ExecutionTimeLimit = [TimeSpan]::FromDays(3),
+        [TimeSpan]$ExecutionTimeLimit,
 
         [parameter(Mandatory = 0,Position  = 15)]
         [ValidateSet("At", "Win8", "Win7", "Vista", "V1")]
@@ -842,7 +848,7 @@ function TestScheduledTaskStatus
             $task = $ScheduledTask | where $Parameter -eq $Value
             $uniqueValue = $task.$Parameter | sort -Unique
             $result = $uniqueValue -eq $Value
-            Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $uniqueValue)
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $uniqueValue)
             return @{
                 task = $task
                 target = $uniqueValue
@@ -924,13 +930,13 @@ function TestScheduledTaskStatus
                         target = $target
                         result = $true
                     }
-                    Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+                    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
                 }
             }
 
             # value check
             $result = $target -eq $Value
-            Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
             return @{
                 target = $target
                 result = $result
@@ -947,10 +953,22 @@ function TestScheduledTaskStatus
                 [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
 
                 [parameter(Mandatory = $false)]
-                [TimeSpan]$Value
+                [PSObject]$Value,
+
+                [bool]$IsExist
             )
 
             $private:parameter = "ExecutionTimeLimit"
+
+            # skip when Parameter not use
+            if ($IsExist -eq $false)
+            {
+                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+                return @{
+                    target = $null
+                    result = $true
+                }
+            }
 
             # skip null
             if ($Value -eq $null)
@@ -962,10 +980,11 @@ function TestScheduledTaskStatus
                 }
             }
 
+            $Value = $Value -as [TimeSpan]
             Write-Debug ($debugMessages.CheckScheduleTaskParameterTimeSpan -f $parameter, $Value.TotalMinutes)
             $executionTimeLimitTimeSpan = [System.Xml.XmlConvert]::ToTimeSpan($ScheduledTask.Settings.$parameter)
             $result = $Value -eq $executionTimeLimitTimeSpan
-            Write-Debug ($verboseMessages.ScheduleTaskTimeSpanResult -f $parameter, $result, $executionTimeLimitTimeSpan.TotalMinutes)
+            Write-Debug ($debugMessages.ScheduleTaskTimeSpanResult -f $parameter, $result, $executionTimeLimitTimeSpan.TotalMinutes)
             return @{
                 target = $executionTimeLimitTimeSpan
                 result = $result
@@ -1003,7 +1022,7 @@ function TestScheduledTaskStatus
             # value check
             Write-Debug ($debugMessages.CheckScheduleTaskParameter -f "Disable", $Value)
             $result = $target -eq $Value
-            Write-Debug ($verboseMessages.ScheduleTaskResult -f "Disable", $result, $target)
+            Write-Debug ($debugMessages.ScheduleTaskResult -f "Disable", $result, $target)
             return @{
                 target = $target
                 result = $result
@@ -1061,7 +1080,7 @@ function TestScheduledTaskStatus
                 $startBoundaryDateTime = [System.Xml.XmlConvert]::ToDateTime(@($ScheduledTask.Triggers.$parameter)[$i])
                 $target += $startBoundaryDateTime
                 $result += @($Value)[$i] -eq $startBoundaryDateTime
-                Write-Debug ($verboseMessages.ScheduleTaskResult -f $parameter, $result[$i], $startBoundaryDateTime)
+                Write-Debug ($debugMessages.ScheduleTaskResult -f $parameter, $result[$i], $startBoundaryDateTime)
             }
             return @{
                 target = $target
@@ -1251,7 +1270,7 @@ function TestScheduledTaskStatus
             $returnHash.Compatibility = TestScheduledTask -ScheduledTask $current -Parameter Compatibility -Value $Compatibility -Type ([ScheduledParameterType]::Settings) -IsExist ($PSBoundParameters.ContainsKey('Compatibility'))
 
             # ExecutionTimeLimit
-            $returnHash.ExecutionTimeLimit = TestScheduledTaskExecutionTimeLimit -ScheduledTask $current -Value $ExecutionTimeLimit
+            $returnHash.ExecutionTimeLimit = TestScheduledTaskExecutionTimeLimit -ScheduledTask $current -Value $ExecutionTimeLimit -IsExist ($PSBoundParameters.ContainsKey('ExecutionTimeLimit'))
 
             # Hidden
             $returnHash.Hidden = TestScheduledTask -ScheduledTask $current -Parameter Hidden -Value $Hidden -Type ([ScheduledParameterType]::Settings) -IsExist ($PSBoundParameters.ContainsKey('Hidden'))
