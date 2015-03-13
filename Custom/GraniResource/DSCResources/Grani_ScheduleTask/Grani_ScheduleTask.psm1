@@ -23,6 +23,29 @@ function Initialize
         }
 "@ -ErrorAction SilentlyContinue
 
+    #-- PublicEnum Enum for ScheduledTaskTest Property --#
+    Add-Type -TypeDefinition @"
+        public enum ScheduledTaskPropertyType
+        {
+            TaskPaty,
+            TaskName,
+            Description,
+            Execute,
+            Argument,
+            WorkingDirectory,
+            Credential,
+            RunLevel,
+            Compatibility,
+            ExecutionTimeLimit,
+            Hidden,
+            Disable,
+            ScheduledAt,
+            ScheduledTimeSpan,
+            ScheduledDuration,
+            Daily,
+            Once
+        }
+"@ -ErrorAction SilentlyContinue
 }
 
 Initialize
@@ -1225,6 +1248,14 @@ function TestScheduledTaskStatus
 
             # TaskPath
             $returnHash.TaskPath = GetScheduledTask -ScheduledTask $root -Parameter TaskPath -Value $TaskPath
+            if ($null -eq $returnHash.TaskPath.task)
+            {
+                foreach ($item in [Enum]::GetNames([ScheduledTaskPropertyType]))
+                {
+                    $returnHash.$item = @{target = $null; result = $true}
+                }
+                return $returnHash;
+            }
 
             # TaskName
             $returnHash.TaskName = GetScheduledTask -ScheduledTask $returnHash.TaskPath.task -Parameter Taskname -Value $TaskName
