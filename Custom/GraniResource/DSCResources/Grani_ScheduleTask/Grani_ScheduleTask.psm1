@@ -315,7 +315,7 @@ function Get-TargetResource
     }
     if (($PSBoundParameters.ContainsKey("ScheduledDurationMin")) -and ($taskResult.ScheduledDuration.target -ne $null))
     {
-        $returnHash.ScheduledDurationMin = $[int[]](taskResult.ScheduledDuration.target.Minutes)
+        $returnHash.ScheduledDurationMin = [int[]]($taskResult.ScheduledDuration.target.Minutes)
     }
 
     return $returnHash
