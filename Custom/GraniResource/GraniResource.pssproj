@@ -40,6 +40,7 @@
     <Folder Include="DSCResources\Grani_ScheduleTask\" />
     <Folder Include="DSCResources\Grani_SymbolicLink\" />
     <Folder Include="DSCResources\Grani_TCPAckFrequency\" />
+    <Folder Include="DSCResources\Grani_Archive\" />
     <Folder Include="DSCResources\Grani_TopShelf\" />
     <Folder Include="DSCResources\Grani_WebPI\" />
   </ItemGroup>
@@ -57,6 +58,7 @@
     <Compile Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.schema.mof" />
     <Compile Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.psm1" />
     <Compile Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.schema.mof" />
+    <Compile Include="DSCResources\Grani_Archive\Grani_Archive.psm1" />
     <Compile Include="DSCResources\Grani_TopShelf\Grani_TopShelf.psm1" />
     <Compile Include="DSCResources\Grani_WebPI\Grani_WebPI.psm1" />
     <Compile Include="DSCResources\Grani_WebPI\Grani_WebPI.schema.mof" />
@@ -99,7 +101,11 @@
     <Content Include="DSCResources\Grani_SymbolicLink\cSymbolicLink.png" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\README.md" />
     <Content Include="DSCResources\Grani_TCPAckFrequency\cTCPAckFrequency.png" />
+    <Content Include="DSCResources\Grani_Archive\Grani_Archive.schema.mof" />
+    <Content Include="DSCResources\Grani_Archive\README.md" />
     <Content Include="DSCResources\Grani_TopShelf\Grani_TopShelf.schema.mof" />
+    <Content Include="DSCResources\Grani_TopShelf\README.md" />
+    <Content Include="DSCResources\Grani_TopShelf\Grani_TopShelf.png" />
     <Content Include="DSCResources\Grani_WebPI\README.md" />
     <Content Include="DSCResources\Grani_WebPI\cWebPI.png" />
   </ItemGroup>
