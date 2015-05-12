@@ -83,3 +83,54 @@ With cS3Content resource, you can automate update.
 2. If TopShelf service is downloaded as .zip, then use Archive Resource to extract them and overwrite existing.
 3. Use cTopShelf Resource to promise service installed in to node.
 4. Run Service Resource to Promise Service started successfully.
+
+Here's sample DSC Configuration.
+
+```powershell
+configuration SampleTopShelfContinuousDelivery
+{
+    $s3Bucket = "INPUT YOUR S3 BUCKET NAME"
+
+    $zip = "S3 KEY ZIP FILE NAME"
+	$exe = "SERVICE EXE NAME"
+    $serviceName = "SERVICE NAME DEFINED IN TOPSHELF"
+
+    $destination = "C:\DOWNLOADPATH"
+    $downloadPath = Join-Path $destination $zip
+    $unzipPath = Join-Path $destination $serviceName
+    $servicePath = Join-Path $unzipPath "MSBUILD\EXTRACT\PATH\TO\$exe"
+
+    Import-DSCResource -ModuleName GraniResource
+
+    cS3Content SampleTopShelfContinuousDelivery
+    {
+        S3BucketName = $s3Bucket
+        Key = $zip
+        DestinationPath = $downloadPath
+        PreAction =  {
+            Stop-Service $using:serviceName
+            Remove-Item -Path $using:unzipPath -Recurse -Force
+        }
+    }
+
+    Archive SampleTopShelfContinuousDelivery
+    {
+        Ensure = 'Present'
+        Path = $downloadPath
+        Destination = $unzipPath
+    }
+
+    cTopShelf SampleTopShelfContinuousDelivery
+    {
+        Ensure = "Present"
+        Path = $servicePath
+        ServiceName = $serviceName
+    }
+
+    Service SampleTopShelfContinuousDelivery
+    {
+        Name = $serviceName
+        State = 'Running'
+    }
+}
+```
