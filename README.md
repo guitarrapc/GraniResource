@@ -32,6 +32,7 @@ ResourceName|FriendlyName|Description
 [Grani_ScheduleTaskLog](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_ScheduleTaskLog)|cScheduledTaskLog|Enable/Disable Scheduled Task Log
 [Grani_SymbolicLink](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_SymbolicLink)| cSymbolicLink | Create/Remove SymbolicLink.
 [Grani_TCPAckFrequency](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_TCPAckFrequency)|cTCPAckFrequency|Enable/Disable TCPAckFrequency
+[Grani_TopShelf](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_TopShelf)|cTopShelf|Install/Uninstall TopShelf Application
 [Grani_WebPI](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_WebPI)|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)
 [cWebPILauncher](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/cWebPILauncher)|cWebPILauncher|Install WebPlatformInstaller itself
 
