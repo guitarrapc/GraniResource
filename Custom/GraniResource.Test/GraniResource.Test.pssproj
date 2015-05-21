@@ -61,6 +61,11 @@
     <Folder Include="DSCResources\Grani_PfxImport\Configuration\Absent\mof\" />
     <Folder Include="DSCResources\Grani_PfxImport\Configuration\Present\" />
     <Folder Include="DSCResources\Grani_PfxImport\Configuration\Present\mof\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\Configuration\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\Configuration\Absent\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\Configuration\Absent\mof\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\Configuration\Present\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\Configuration\Present\mof\" />
     <Folder Include="DSCResources\Grani_S3Content\" />
     <Folder Include="DSCResources\Grani_S3Content\Configuration\" />
     <Folder Include="DSCResources\Grani_S3Content\Configuration\CheckSumFileName\" />
@@ -117,6 +122,7 @@
     <Folder Include="DSCResources\Grani_WebPI\WAP_PowerShellAPI\mof\" />
     <Folder Include="DSCResources\" />
     <Folder Include="DSCResources\Grani_TopShelf\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.ps1" />
@@ -157,6 +163,12 @@
     <Content Include="DSCResources\Grani_PfxImport\CertHelper.Tests.ps1" />
     <Content Include="DSCResources\Grani_DomainJoin\TargetResourceJoin.ps1" />
     <Content Include="DSCResources\Grani_DomainJoin\TargetResourceJoin.Tests.ps1" />
+    <Content Include="DSCResources\Grani_RegistryKey\Configuration\Absent\mof\localhost.mof" />
+    <Content Include="DSCResources\Grani_RegistryKey\Configuration\Absent\SetLog.txt" />
+    <Content Include="DSCResources\Grani_RegistryKey\Configuration\Absent\SkipLog.txt" />
+    <Content Include="DSCResources\Grani_RegistryKey\Configuration\Present\mof\localhost.mof" />
+    <Content Include="DSCResources\Grani_RegistryKey\Configuration\Present\SetLog.txt" />
+    <Content Include="DSCResources\Grani_RegistryKey\Configuration\Present\SkipLog.txt" />
     <Content Include="DSCResources\Grani_S3Content\Configuration\withAction\ConfigurationSample.ps1" />
     <Content Include="DSCResources\Grani_S3Content\Configuration\withAction\DownloadVerbose.log" />
     <Content Include="DSCResources\Grani_S3Content\Configuration\withAction\mof\localhost.mof" />
@@ -276,6 +288,12 @@
     <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\mof\localhost.mof" />
     <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\Skip.log" />
     <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\Reboot.log" />
+    <Compile Include="DSCResources\Grani_RegistryKey\Configuration\Absent\cRegistryKey.ps1" />
+    <Compile Include="DSCResources\Grani_RegistryKey\Configuration\Present\cRegistryKey.ps1" />
+    <Compile Include="DSCResources\Grani_RegistryKey\RegistryKey.ps1" />
+    <Compile Include="DSCResources\Grani_RegistryKey\RegistryKey.Tests.ps1" />
+    <Compile Include="DSCResources\Grani_RegistryKey\TargetResource.ps1" />
+    <Compile Include="DSCResources\Grani_RegistryKey\TargetResource.Tests.ps1" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Absent\absent\localhost.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Absent\cScheduleTask.ps1" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Configuration\Absent\cScheduleTask.txt" />
