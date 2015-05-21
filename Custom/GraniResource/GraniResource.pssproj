@@ -33,6 +33,7 @@
     <Folder Include="DSCResources\Grani_DomainJoin\" />
     <Folder Include="DSCResources\Grani_PendingReboot\" />
     <Folder Include="DSCResources\Grani_PfxImport\" />
+    <Folder Include="DSCResources\Grani_RegistryKey\" />
     <Folder Include="DSCResources\Grani_S3Content\" />
     <Folder Include="DSCResources\Grani_Download\" />
     <Folder Include="DSCResources\Grani_GitHubApiContent\" />
@@ -52,11 +53,13 @@
     <Compile Include="DSCResources\Grani_Download\Grani_Download.schema.mof" />
     <Compile Include="DSCResources\Grani_PendingReboot\Grani_PendingReboot.psm1" />
     <Compile Include="DSCResources\Grani_PendingReboot\Grani_PendingReboot.schema.mof" />
+    <Compile Include="DSCResources\Grani_RegistryKey\Grani_RegistryKey.psm1" />
     <Compile Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.psm1" />
     <Compile Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.schema.mof" />
     <Compile Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.schema.mof" />
     <Compile Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.psm1" />
     <Compile Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.schema.mof" />
+    <Compile Include="DSCResources\Grani_TopShelf\cTopShelf.png" />
     <Compile Include="DSCResources\Grani_TopShelf\Grani_TopShelf.psm1" />
     <Compile Include="DSCResources\Grani_WebPI\Grani_WebPI.psm1" />
     <Compile Include="DSCResources\Grani_WebPI\Grani_WebPI.schema.mof" />
@@ -78,6 +81,9 @@
     <Content Include="DSCResources\Grani_PfxImport\Grani_PfxImport.schema.mof" />
     <Content Include="DSCResources\Grani_PfxImport\README.md" />
     <Content Include="DSCResources\Grani_PfxImport\cPfxImport.png" />
+    <Content Include="DSCResources\Grani_RegistryKey\Grani_RegistryKey.schema.mof" />
+    <Content Include="DSCResources\Grani_RegistryKey\README.md" />
+    <Content Include="DSCResources\Grani_RegistryKey\cRegistryKey.png" />
     <Content Include="DSCResources\Grani_S3Content\Grani_S3Content.psm1" />
     <Content Include="DSCResources\Grani_Download\cDownload.png" />
     <Content Include="DSCResources\Grani_Download\README.md" />
@@ -101,7 +107,6 @@
     <Content Include="DSCResources\Grani_TCPAckFrequency\cTCPAckFrequency.png" />
     <Content Include="DSCResources\Grani_TopShelf\Grani_TopShelf.schema.mof" />
     <Content Include="DSCResources\Grani_TopShelf\README.md" />
-    <Content Include="DSCResources\Grani_TopShelf\Grani_TopShelf.png" />
     <Content Include="DSCResources\Grani_WebPI\README.md" />
     <Content Include="DSCResources\Grani_WebPI\cWebPI.png" />
   </ItemGroup>

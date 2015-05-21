@@ -41,7 +41,7 @@ Describe "Grani_TopShelf : TargetResource" {
     }
 
     Context "Already Configured Environment should skip." {
-        It "Set-TargetResource Absent should not Throw" {
+        It "Set-TargetResource $Ensure should not Throw" {
             {Set-TargetResource -Path $Path -ServiceName $ServiceName -Ensure $Ensure} | should not Throw
         }
         

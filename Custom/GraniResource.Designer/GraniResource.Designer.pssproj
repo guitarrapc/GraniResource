@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Grani_PendingReboot.ps1" />
+    <Compile Include="Grani_RegistryKey.ps1" />
     <Compile Include="Grani_TopShelf.ps1" />
     <Compile Include="Grani_SymbolicLink.ps1" />
   </ItemGroup>
