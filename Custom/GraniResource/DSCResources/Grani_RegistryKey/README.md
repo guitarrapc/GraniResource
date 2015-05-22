@@ -1,7 +1,7 @@
-Grani_TopShelf
+Grani_RegistryKey
 ============
 
-DSC Resource to configure RegistryKey.
+DSC Resource to configure Registry SubKey.
 
 Resource Information
 ----
@@ -32,7 +32,7 @@ Sample
 
 - Add RegistryKey
 
-this will add fuga/nyao key and it's parent.
+this will add subkey name ```fuga/nyao``` and it's parent.
 
 ```powershell
 configuration present
@@ -48,18 +48,17 @@ configuration present
 
 - Remove RegistryKey
 
-this will remove fuga/nyao key only. parent path will remain.
+this will remove fuga/nyao subkey only. parent subkey tree will remain.
 
 ```powershell
 configuration absent
 {
     Import-DscResource -ModuleName GraniResource
-    cTopShelf hoge
+    cRegistryKey hoge
     {
-        ServiceName = "SampleTopShelfService"
-        Path = (Resolve-Path ".\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.exe").Path
+        Key = "HKEY_LOCAL_MACHINE\SOFTWARE\hoge/piyo\fuga/nyao"
         Ensure = "Absent"
-    }
+    }    
 }
 ```
 
@@ -68,12 +67,12 @@ Tips
 
 **When do I need to use it?**
 
-- Scene 1.
+- Scene 1. Manage Registry SubKey only.
 
-As MSFT_Registry never handle RegistryKey, but it only handle Registry values. This resource will allow you to manage RegistryKey where it doesn't exist for Regisry Value.
+As MSFT_Registry never handle Registry SubKey, but it only handle Registry key/values. This resource will allow you to manage Registry SubKey where it doesn't exist for Regisry Value.
 
-- Scene 2.
+- Scene 2. Prevent MSFT_Registry Issue
 
-As MSFT_Registy have issue with creating registry path which contains slash "/", like "HKEY_LOCAL_MACHINE\hoge/fuga\nyao", it confuse / as path separater. It means MSFT resource under stand as "HKEY_LOCAL_MACHINE\hoge\fuga\nyao".
+As MSFT_Registy have issue with creating registry subkey which contains slash ```/```, like "HKEY_LOCAL_MACHINE\hoge/fuga\nyao". MSFT_Registry Resource will confuse ```/``` as path separater. It means MSFT_Registry resource understand that as "HKEY_LOCAL_MACHINE\hoge\fuga\nyao", oh.....
 
-With this resource you will be able to handle even path contains /.
+You will find it fixded issue with cRegistryKey resource.
