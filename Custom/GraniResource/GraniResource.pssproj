@@ -29,6 +29,7 @@
   <ItemGroup>
     <Folder Include="DSCResources\" />
     <Folder Include="DSCResources\cWebPILauncher\" />
+    <Folder Include="DSCResources\Grani_InheritACL\" />
     <Folder Include="DSCResources\Grani_ACL\" />
     <Folder Include="DSCResources\Grani_DomainJoin\" />
     <Folder Include="DSCResources\Grani_PendingReboot\" />
@@ -47,6 +48,7 @@
   <ItemGroup>
     <Compile Include="DSCResources\cWebPILauncher\cWebPILauncher.psd1" />
     <Compile Include="DSCResources\cWebPILauncher\cWebPILauncher.schema.psm1" />
+    <Compile Include="DSCResources\Grani_InheritACL\Grani_InheritACL.psm1" />
     <Compile Include="DSCResources\Grani_ACL\Grani_ACL.psm1" />
     <Compile Include="DSCResources\Grani_ACL\Grani_ACL.schema.mof" />
     <Compile Include="DSCResources\Grani_Download\Grani_Download.psm1" />
@@ -69,12 +71,17 @@
   <ItemGroup>
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.md" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
+    <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedPreserve.png" />
+    <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedNoPreserve.png" />
+    <Content Include="DSCResources\Grani_InheritACL\Grani_InheritACL.schema.mof" />
+    <Content Include="DSCResources\Grani_InheritACL\README.md" />
     <Content Include="DSCResources\Grani_ACL\README.md" />
     <Content Include="DSCResources\Grani_ACL\cACL.png" />
     <Content Include="DSCResources\Grani_DomainJoin\Grani_DomainJoin.psm1" />
     <Content Include="DSCResources\Grani_DomainJoin\Grani_DomainJoin.schema.mof" />
     <Content Include="DSCResources\Grani_DomainJoin\README.md" />
     <Content Include="DSCResources\Grani_DomainJoin\cDomainJoin.png" />
+    <Content Include="DSCResources\Grani_InheritACL\cInheritACL.png" />
     <Content Include="DSCResources\Grani_PendingReboot\README.md" />
     <Content Include="DSCResources\Grani_PendingReboot\cPendingReboot.png" />
     <Content Include="DSCResources\Grani_PfxImport\Grani_PfxImport.psm1" />
