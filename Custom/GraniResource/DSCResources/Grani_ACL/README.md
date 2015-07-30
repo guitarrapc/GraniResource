@@ -1,7 +1,7 @@
 Grani_ACL
 ============
 
-DSC Resource to configure ACL on NTFS.
+DSC Resource to configure ACL for NTFS.
 
 Resource Information
 ----

@@ -39,6 +39,7 @@
     <Content Include="Grani_WebPI.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grani_InheritACL.ps1" />
     <Compile Include="Grani_PendingReboot.ps1" />
     <Compile Include="Grani_RegistryKey.ps1" />
     <Compile Include="Grani_TopShelf.ps1" />

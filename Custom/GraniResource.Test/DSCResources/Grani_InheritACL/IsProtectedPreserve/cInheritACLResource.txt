@@ -1,0 +1,39 @@
+/*
+@TargetNode='Localhost'
+@GeneratedBy=Administrator
+@GenerationDate=07/30/2015 21:54:08
+@GenerationHost=DSCSERVER
+*/
+
+instance of MSFT_FileDirectoryConfiguration as $MSFT_FileDirectoryConfiguration1ref
+{
+ResourceID = "[File]hoge";
+ Type = "Directory";
+ Ensure = "Present";
+ DestinationPath = "C:\\test";
+ ModuleName = "PSDesiredStateConfiguration";
+ SourceInfo = "::9::9::File";
+ ModuleVersion = "1.0";
+
+};
+
+instance of Grani_InheritACL as $Grani_InheritACL1ref
+{
+ResourceID = "[cInheritACL]hoge";
+ PreserveInheritance = True;
+ Path = "C:\\test";
+ SourceInfo = "::16::9::cInheritACL";
+ ModuleName = "GraniResource";
+ IsProtected = True;
+ ModuleVersion = "3.2.0";
+
+};
+
+instance of OMI_ConfigurationDocument
+{
+ Version="1.0.0";
+ Author="Administrator";
+ GenerationDate="07/30/2015 21:54:08";
+ GenerationHost="DSCSERVER";
+};
+

@@ -30,6 +30,15 @@
   <ItemGroup>
     <Folder Include="DSCResources\cWebPILauncher\" />
     <Folder Include="DSCResources\cWebPILauncher\cWebPILauncher\" />
+    <Folder Include="DSCResources\Grani_InheritACL\" />
+    <Folder Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\" />
+    <Folder Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\mof\" />
+    <Folder Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\" />
+    <Folder Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\mof\" />
+    <Folder Include="DSCResources\Grani_InheritACL\notProtected\" />
+    <Folder Include="DSCResources\Grani_InheritACL\notProtected\mof\" />
+    <Folder Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\" />
+    <Folder Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\mof\" />
     <Folder Include="DSCResources\Grani_ACL\" />
     <Folder Include="DSCResources\Grani_ACL\Absent\" />
     <Folder Include="DSCResources\Grani_ACL\Absent\ACLChange\" />
@@ -128,12 +137,28 @@
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.ps1" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.txt" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher\Localhost.mof" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource_Skip.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\mof\Localhost.mof" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\cInheritACLResource.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\cInheritACLResource_Skip.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\mof\Localhost.mof" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\cInheritACLResource.png" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource.png" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\cInheritACLResource.png" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\cInheritACLResource_Skip.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\notProtected\cInheritACLResource_skip.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\notProtected\mof\Localhost.mof" />
+    <Content Include="DSCResources\Grani_InheritACL\notProtected\cInheritACLResource.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\mof\Localhost.mof" />
+    <Content Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\cInheritACLResource.txt" />
     <Content Include="DSCResources\Grani_ACL\Absent\ACLChange\Localhost.mof" />
     <Content Include="DSCResources\Grani_ACL\Absent\cACLResource.ps1" />
     <Content Include="DSCResources\Grani_ACL\Absent\cACLResource.txt" />
     <Content Include="DSCResources\Grani_ACL\Present\ACLChange\Localhost.mof" />
     <Content Include="DSCResources\Grani_ACL\Present\cACLResource.ps1" />
     <Content Include="DSCResources\Grani_ACL\Present\cACLResource.txt" />
+    <Content Include="DSCResources\Grani_InheritACL\notProtected\cInheritACLResource.png" />
     <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\ConfigurationSample.ps1" />
     <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\mof\localhost.mof" />
     <Content Include="DSCResources\Grani_PendingReboot\Configuration\SkipFilePendingReboot\Reboot.log" />
@@ -277,6 +302,10 @@
     <Content Include="DSCResources\Grani_WebPI\WAP_PowerShellAPI\Skip.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource.ps1" />
+    <Compile Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\cInheritACLResource.ps1" />
+    <Compile Include="DSCResources\Grani_InheritACL\notProtected\cInheritACLResource.ps1" />
+    <Compile Include="DSCResources\Grani_InheritACL\IsProtectedPreserve\cInheritACLResource.ps1" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\JoinDomain\ConfigurationSample.ps1" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\JoinDomain\mof\localhost.mof" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\JoinDomain\Skip.log" />
@@ -284,6 +313,8 @@
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\UnJoinDomain\UnJoin.log" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\UnJoinDomain\mof\localhost.mof" />
     <Compile Include="DSCResources\Grani_DomainJoin\Configuration\UnJoinDomain\Skip.log" />
+    <Compile Include="DSCResources\Grani_InheritACL\TargetResource.ps1" />
+    <Compile Include="DSCResources\Grani_InheritACL\TargetResource.Tests.ps1" />
     <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\ConfigurationSample.ps1" />
     <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\mof\localhost.mof" />
     <Compile Include="DSCResources\Grani_PendingReboot\Configuration\ForRebootNodeIfNeededFalse\Skip.log" />
