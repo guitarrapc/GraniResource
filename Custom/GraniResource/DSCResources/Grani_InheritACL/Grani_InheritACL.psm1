@@ -44,6 +44,8 @@ $verboseMessage = DATA {
 
 $exceptionMessage = DATA {
     ConvertFrom-StringData -StringData "
+        PathNotFoundException = Could not found desired path '{0}' exeption!
+        NoAccessRuleLeftException = Invalid Operation detected. there are no access left. You must set any not inherit acess before not preserve Inheritance.
     "
 }
 
@@ -165,7 +167,7 @@ function Set-TargetResource
     # Path existance Check
     if (!(Test-Path -Path $Path))
     {
-        throw New-Object System.IO.FileNotFoundException ("Could not found desired path '{0}' exeption!'" -f $Path)
+        throw New-Object System.IO.FileNotFoundException ($exceptionMessage.PathNotFoundException -f $Path)
     }
 
     # Get current
@@ -176,7 +178,7 @@ function Set-TargetResource
     $acl.SetAccessRuleProtection($IsProtected, $PreserveInheritance);
     if (($acl.Access | sort).Count -eq 0)
     {
-        throw New-Object System.InvalidOperationException ("Invalid Operation detected. there are no access left. You must set any not inherit acess before not preserve Inheritance.");
+        throw New-Object System.InvalidOperationException ($exceptionMessage.NoAccessRuleLeftException);
     }
 
     # Write Back to Path
