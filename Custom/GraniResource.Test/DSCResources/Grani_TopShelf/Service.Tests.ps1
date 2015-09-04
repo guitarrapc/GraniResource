@@ -31,21 +31,6 @@ Describe "Grani_TopShelf : Service" {
         }
     }
 
-    Context "StartService" {
-
-        It "Start Service should start service." {
-            Stop-Service -Name $valid -Force
-            (StartService -Name $valid).Status | Should be ([System.ServiceProcess.ServiceControllerStatus]::Running.ToString())
-        }        
-    }
-
-    Context "StopService" {
-
-        It "Stop Service should stop service." {
-            (StopService -Name $valid).Status | Should be ([System.ServiceProcess.ServiceControllerStatus]::Stopped.ToString())
-        }        
-    }
-
     Context "GetServiceStatusSafe" {
 
         It "GetServiceStatusSafe will return null for invalid service." {
@@ -53,12 +38,12 @@ Describe "Grani_TopShelf : Service" {
         }
 
         It "GetServiceStatusSafe will return Running status for Started service" {
-            StartService -Name $valid
+            Start-Service -Name $valid
             GetServiceStatusSafe -Name $valid | Should be ([System.ServiceProcess.ServiceControllerStatus]::Running.ToString())
         }
 
         It "GetServiceStatusSafe will return Stopped status for Stopped service" {
-            StopService -Name $valid
+            Stop-Service -Name $valid -Force
             GetServiceStatusSafe -Name $valid | Should be ([System.ServiceProcess.ServiceControllerStatus]::Stopped.ToString())
         }
     }
@@ -70,12 +55,12 @@ Describe "Grani_TopShelf : Service" {
         }
 
         It "IsServiceRunning will return true for Started service" {
-            StartService -Name $valid
+            Start-Service -Name $valid
             IsServiceRunning -Name $valid | Should be $true
         }
 
         It "IsServiceRunning will return false for Stopped service" {
-            StopService -Name $valid
+            Stop-Service -Name $valid -Force
             IsServiceRunning -Name $valid | Should be $false
         }
     }
@@ -87,12 +72,12 @@ Describe "Grani_TopShelf : Service" {
         }
 
         It "IsServiceStopped will return false for Started service" {
-            StartService -Name $valid
+            Start-Service -Name $valid
             IsServiceStopped -Name $valid | Should be $false
         }
 
         It "IsServiceStopped will return true for Stopped service" {
-            StopService -Name $valid
+            Stop-Service -Name $valid -Force
             IsServiceStopped -Name $valid | Should be $true
         }
     }
@@ -116,23 +101,23 @@ Describe "Grani_TopShelf : Service" {
         }
     }
 
-    Context "IsTopShelfService" {
+    Context "IsTopShelfServiceValid" {
 
-        It "IsTopShelfService will return $false for NOT TopShelf Service" {
-            IsTopShelfService -Name $valid -Path $topShelfPath | Should be $false
+        It "IsTopShelfServiceValid will return $false for NOT TopShelf Service" {
+            IsTopShelfServiceValid -Name $valid -Path $topShelfPath | Should be $false
         }
 
-        It "IsTopShelfService will return $true for TopShelf Service which is running" {
-            StartService -Name $topShelf
-            IsTopShelfService -Name $topShelf -Path $topShelfPath | Should be $true
+        It "IsTopShelfServiceValid will return $true for TopShelf Service which is running" {
+            Start-Service -Name $topShelf
+            IsTopShelfServiceValid -Name $topShelf -Path $topShelfPath | Should be $true
         }
 
-        It "IsTopShelfService will return $true for TopShelf Service which is Stopped" {
-            StopService -Name $topShelf
-            IsTopShelfService -Name $topShelf -Path $topShelfPath | Should be $true
+        It "IsTopShelfServiceValid will return $true for TopShelf Service which is Stopped" {
+            Stop-Service -Name $topShelf -Force
+            IsTopShelfServiceValid -Name $topShelf -Path $topShelfPath | Should be $true
         }
 
-        It "IsTopShelfService should reverse service status to Stoppped." {
+        It "IsTopShelfServiceValid should reverse service status to Stoppped." {
             IsServiceStopped -Name $topShelf | Should be $true
         }
     }
