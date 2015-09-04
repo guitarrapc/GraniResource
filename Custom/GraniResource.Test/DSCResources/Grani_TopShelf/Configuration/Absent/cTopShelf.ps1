@@ -4,7 +4,7 @@
     cTopShelf hoge
     {
         ServiceName = "SampleTopShelfService"
-        Path = (Resolve-Path ".\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.exe").Path
+        Path = (Resolve-Path "..\..\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.exe").Path
         Ensure = "Absent"
     }
 }
