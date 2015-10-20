@@ -25,6 +25,7 @@ ResourceName|FriendlyName|Description
 [Grani_DomainJoin](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_DomainJoin)|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
 [Grani_Download](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_Download)|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
 [Grani_GitHubApiContent](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_GitHubApiContent)|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
+[Grani_HostsFile](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_HostsFile)|cHostsFile|Operate hosts file entry with configuration.
 [Grani_InheritACL](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_InheritACL)|cInheritACL|Manage NTFS AccessRule Inheritance. Use cACL to manage each access rules for further usage.
 [Grani_PendingReboot](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_PendingReboot) | cPendingReboot | Allow you to handle reboot with configuration both LocalConfigurationManager ```RebootNodeIfNeeded``` setting as $true/$false.
 [Grani_PfxImport](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_PfxImport)|cPfxImport|Import Pfx file into desired CertStore / or Remove pfx from CertStore.
@@ -57,6 +58,6 @@ PowerShellOrgDSC
 
 PowerShellOrg is community DSC Repository. Hope we can share Resources.
 
-This include PowerShellOrg Resource which needed. 
+This include PowerShellOrg Resource which needed.
 
 However some resource are too norty to use in production. (Like TaskScheduler / Choco Resource)  GraniResource include much more powerfull resource which already fully use in production for hundreds of Windows Server 2012 R2.

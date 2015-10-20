@@ -5,13 +5,13 @@ This directory includes Custom DSC Resource created by guitarrapc and used in Gr
 
 Directory Tree
 ----
-
+M
 DirectoryName | Description
 ----|----
-GraniResourceDesigner | Contains xDSCResourceDesigner script to create ```*.schame.mof``` and ```*.psm1```. 
-GraniResource.Test | Contains Pester and Configuration Tests for each DSC Resource.
+Designer | Contains xDSCResourceDesigner script to create ```*.schame.mof``` and ```*.psm1```.
 GraniResource | Contains  DSC Resource source code.
 Package | Contains Zip file for relase every tags.
+Test | Contains Pester and Configuration Tests for each DSC Resource.
 
 Where can I see how to usage of DSCResource?
 ----
