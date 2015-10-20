@@ -74,6 +74,8 @@
   <ItemGroup>
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.md" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
+    <Content Include="DSCResources\Grani_HostsFile\README.md" />
+    <Content Include="DSCResources\Grani_HostsFile\cHostsFile.png" />
     <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedPreserve.png" />
     <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedNoPreserve.png" />
     <Content Include="DSCResources\Grani_InheritACL\Grani_InheritACL.schema.mof" />
