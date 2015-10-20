@@ -29,6 +29,7 @@
   <ItemGroup>
     <Folder Include="DSCResources\" />
     <Folder Include="DSCResources\cWebPILauncher\" />
+    <Folder Include="DSCResources\Grani_HostsFile\" />
     <Folder Include="DSCResources\Grani_InheritACL\" />
     <Folder Include="DSCResources\Grani_ACL\" />
     <Folder Include="DSCResources\Grani_DomainJoin\" />
@@ -48,6 +49,8 @@
   <ItemGroup>
     <Compile Include="DSCResources\cWebPILauncher\cWebPILauncher.psd1" />
     <Compile Include="DSCResources\cWebPILauncher\cWebPILauncher.schema.psm1" />
+    <Compile Include="DSCResources\Grani_HostsFile\Grani_HostsFile.psm1" />
+    <Compile Include="DSCResources\Grani_HostsFile\Grani_HostsFile.schema.mof" />
     <Compile Include="DSCResources\Grani_InheritACL\Grani_InheritACL.psm1" />
     <Compile Include="DSCResources\Grani_ACL\Grani_ACL.psm1" />
     <Compile Include="DSCResources\Grani_ACL\Grani_ACL.schema.mof" />
