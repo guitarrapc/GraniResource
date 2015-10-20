@@ -5,9 +5,9 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "GraniResource", "GraniResource\GraniResource.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
 EndProject
-Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "GraniResource.Test", "GraniREsource.Test\GraniResource.Test.pssproj", "{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}"
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "Test", "Test\Test.pssproj", "{A54DF4A1-7FEE-4E95-A67C-F19E2A52F7FB}"
 EndProject
-Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "GraniResource.Designer", "GraniResource.Designer\GraniResource.Designer.pssproj", "{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}"
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "Designer", "Designer\Designer.pssproj", "{78EE0DE0-91A0-4418-AE5E-2CC201F1CE29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
