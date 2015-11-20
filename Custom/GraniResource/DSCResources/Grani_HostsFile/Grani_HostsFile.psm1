@@ -26,14 +26,14 @@ Data VerboseMessages {
     ConvertFrom-StringData -StringData @"
         CheckHostsEntry = Check hosts entry is exists.
         CreateHostsEntry = Create hosts entry {0} : {1}.
+        HostsEntryFound = Found a hosts entry {0} : {1}.
+        HostsEntryNotFound = Did not find a hosts entry {0} : {1}.
         RemoveHostsEntry = Remove hosts entry {0} : {1}.
 "@
 }
 
 Data DebugMessages {
     ConvertFrom-StringData -StringData @"
-        HostsEntryFound = Found a hosts entry {0} : {1}.
-        HostsEntryNotFound = Did not find a hosts entry {0} : {1}.
 "@
 }
 
@@ -74,19 +74,18 @@ function Get-TargetResource
     {
         if (TestIsHostEntryExists -IpAddress $IpAddress -HostName $HostName)
         {
-            Write-Verbose ($DebugMessages.HostsEntryFound -f $HostName, $IpAddress);
+            Write-Verbose ($VerboseMessages.HostsEntryFound -f $HostName, $IpAddress);
             $Configuration.Ensure = [EnsureType]::Present;
         }
         else
         {
-            Write-Verbose ($DebugMessages.HostsEntryNotFound -f $HostName, $IpAddress);
+            Write-Verbose ($VerboseMessages.HostsEntryNotFound -f $HostName, $IpAddress);
             $Configuration.Ensure = [EnsureType]::Absent;
         }
     }
     catch
     {
-        Write-Verbose $_
-        throw $_
+        Write-Error $_
     }
 
     return $Configuration;
