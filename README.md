@@ -23,6 +23,7 @@ ResourceName|FriendlyName|Description
 ----|----|----
 [Grani_ACL](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_ACL)|cACL|ACL Resource make you ability to manage ACL through easy configuration.
 [Grani_DomainJoin](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_DomainJoin)|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
+[Grani_DotNetFramework](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_DotNetFramework)|cDotNetFramework|Manage .NET Framework offline file install/uninstall.
 [Grani_Download](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_Download)|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
 [Grani_GitHubApiContent](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_GitHubApiContent)|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
 [Grani_HostsFile](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_HostsFile)|cHostsFile|Operate hosts file entry with configuration.
