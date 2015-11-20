@@ -40,7 +40,7 @@ ResourceName|FriendlyName|Description
 [Grani_WebPI](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_WebPI)|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)
 [cWebPILauncher](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/cWebPILauncher)|cWebPILauncher|Install WebPlatformInstaller itself
 
-Check [GraniResurce.Test](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource.Test) for GraniResource sample usage.
+Check [UnitTestFiles](https://github.com/guitarrapc/DSCResources/tree/master/Custom/Test/DSCResources) for GraniResource sample usage.
 
 All Resource have it's README.md inside [DSCResouce](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources).
 
