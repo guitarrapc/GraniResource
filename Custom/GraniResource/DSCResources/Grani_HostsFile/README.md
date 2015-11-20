@@ -30,9 +30,9 @@ Intellisense
 Sample
 ----
 
-- Add RegistryKey
+- Add Host Entry
 
-this will add hosts Entry to resolve google.com as 8.8.8.8
+This will add hosts Entry to resolve google.com as 8.8.8.8
 
 ```powershell
 configuration present
@@ -47,9 +47,9 @@ configuration present
 }
 ```
 
-- Remove RegistryKey
+- Remove HostEntry
 
-this will remove fuga/nyao subkey only. parent subkey tree will remain.
+This will remove hosts Entry to resolve google.com as 8.8.8.8
 
 ```powershell
 configuration Absent
