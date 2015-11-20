@@ -1,1 +1,0 @@
-<Playlist Version="1.0"><Add Test="Grani_TCPAckFrequency : Test-TargetResource" /><Add Test="Grani_TCPAckFrequency : Get-TargetResource" /><Add Test="Grani_TCPAckFrequency : Set-TargetResource" /></Playlist>
