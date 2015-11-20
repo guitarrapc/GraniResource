@@ -46,6 +46,7 @@
     <Compile Include="Grani_HostsFile.ps1" />
     <Compile Include="Grani_TopShelf.ps1" />
     <Compile Include="Grani_SymbolicLink.ps1" />
+    <Compile Include="Grani_DotNetFramework.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />

@@ -30,6 +30,11 @@
   <ItemGroup>
     <Folder Include="DSCResources\cWebPILauncher\" />
     <Folder Include="DSCResources\cWebPILauncher\cWebPILauncher\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\Configuration\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\Configuration\Absent\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\Configuration\Absent\mof\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\Configuration\Present\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\Configuration\Present\mof\" />
     <Folder Include="DSCResources\Grani_InheritACL\" />
     <Folder Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\" />
     <Folder Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\mof\" />
@@ -138,11 +143,18 @@
     <Folder Include="DSCResources\" />
     <Folder Include="DSCResources\Grani_TopShelf\" />
     <Folder Include="DSCResources\Grani_RegistryKey\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.ps1" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.txt" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher\Localhost.mof" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Configuration\Absent\Apply.log" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Configuration\Absent\mof\localhost.mof" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Configuration\Absent\Skip.log" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Configuration\Present\Apply.log" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Configuration\Present\mof\localhost.mof" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Configuration\Present\Skip.log" />
     <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource.txt" />
     <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource_Skip.txt" />
     <Content Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\mof\Localhost.mof" />
@@ -314,6 +326,14 @@
     <Content Include="DSCResources\Grani_WebPI\WAP_PowerShellAPI\Skip.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DSCResources\Grani_DotNetFramework\Configuration\Absent\ConfigurationSample.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\Configuration\Present\ConfigurationSample.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\Validate.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\Verify.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\Validate.Tests.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\Verify.Tests.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\TargetResource.ps1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\TargetResource.Tests.ps1" />
     <Compile Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveCorrect\cInheritACLResource.ps1" />
     <Compile Include="DSCResources\Grani_InheritACL\IsProtectedNotPreserveBad\cInheritACLResource.ps1" />
     <Compile Include="DSCResources\Grani_InheritACL\notProtected\cInheritACLResource.ps1" />

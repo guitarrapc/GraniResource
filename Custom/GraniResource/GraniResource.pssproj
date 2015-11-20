@@ -44,11 +44,13 @@
     <Folder Include="DSCResources\Grani_SymbolicLink\" />
     <Folder Include="DSCResources\Grani_TCPAckFrequency\" />
     <Folder Include="DSCResources\Grani_TopShelf\" />
+    <Folder Include="DSCResources\Grani_DotNetFramework\" />
     <Folder Include="DSCResources\Grani_WebPI\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DSCResources\cWebPILauncher\cWebPILauncher.psd1" />
     <Compile Include="DSCResources\cWebPILauncher\cWebPILauncher.schema.psm1" />
+    <Compile Include="DSCResources\Grani_DotNetFramework\Grani_DotNetFramework.psm1" />
     <Compile Include="DSCResources\Grani_HostsFile\Grani_HostsFile.psm1" />
     <Compile Include="DSCResources\Grani_HostsFile\Grani_HostsFile.schema.mof" />
     <Compile Include="DSCResources\Grani_InheritACL\Grani_InheritACL.psm1" />
@@ -74,6 +76,9 @@
   <ItemGroup>
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.md" />
     <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
+    <Content Include="DSCResources\Grani_DotNetFramework\Grani_DotNetFramework.schema.mof" />
+    <Content Include="DSCResources\Grani_DotNetFramework\README.md" />
+    <Content Include="DSCResources\Grani_DotNetFramework\cDotNetFramework.png" />
     <Content Include="DSCResources\Grani_HostsFile\README.md" />
     <Content Include="DSCResources\Grani_HostsFile\cHostsFile.png" />
     <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedPreserve.png" />
