@@ -23,7 +23,7 @@ Describe "Grani_DotNetFramework : Verify" {
             {VerifyExitCode -ExitCode 3010} | Should not throw
         }
 
-        It "Exit Code 1602 should not throw" {
+        It "Exit Code 1602 should throw" {
             {VerifyExitCode -ExitCode 1602} | Should throw
         }
 
@@ -35,7 +35,11 @@ Describe "Grani_DotNetFramework : Verify" {
             {VerifyExitCode -ExitCode 5100} | Should throw
         }
 
-        It "Exit Code 1 should throw" {
+        It "Exit Code 16389 should throw" {
+            {VerifyExitCode -ExitCode 16389} | Should throw
+        }
+
+        It "Exit Code 1, other exit code, should throw" {
             {VerifyExitCode -ExitCode 1} | Should throw
         }
     }
