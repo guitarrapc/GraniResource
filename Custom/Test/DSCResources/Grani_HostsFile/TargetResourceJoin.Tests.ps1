@@ -6,6 +6,7 @@ Describe "Grani_HostsFile : *-TargetResource" {
 
     $hostName = "google.com"
     $ipAddress = "8.8.8.8"
+    $newIPAddress = "8.8.6.6"
     $present = "Present"
     $absent = "Absent"
 
@@ -44,21 +45,39 @@ Describe "Grani_HostsFile : *-TargetResource" {
         }
    }
 
-    Context "Already configured environment. Remove HostEntry " {
-        It "Test-TargetResource should return true" {
-            Test-TargetResource -HostName $hostName -IpAddress $ipAddress -Ensure $present | should be $true
+    Context "Already configured environment. Enter different IP with same HostEntry " {
+        It "Test-TargetResource should return false" {
+            Test-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $present | should be $false
         }
 
         It "Set-TargetResource should not Throw" {
-            {Set-TargetResource -HostName $hostName -IpAddress $ipAddress -Ensure $absent} | should not Throw
+            {Set-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $present} | should not Throw
         }
 
-        It "Get-TargetResource should return Ensure : Absent" {
-            (Get-TargetResource -HostName $hostName -IpAddress $ipAddress -Ensure $absent).Ensure | should be ([EnsureType]::Absent.ToString())
+        It "Get-TargetResource should return Ensure : Present" {
+            (Get-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $present).Ensure | should be ([EnsureType]::Present.ToString())
         }
 
         It "Test-TargetResource should return true" {
-            Test-TargetResource -HostName $hostName -IpAddress $ipAddress -Ensure $absent | should be $true
+            Test-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $present | should be $true
+        }
+    }
+
+    Context "Already configured environment. Remove HostEntry " {
+        It "Test-TargetResource should return true" {
+            Test-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $present | should be $true
+        }
+
+        It "Set-TargetResource should not Throw" {
+            {Set-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $absent} | should not Throw
+        }
+
+        It "Get-TargetResource should return Ensure : Absent" {
+            (Get-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $absent).Ensure | should be ([EnsureType]::Absent.ToString())
+        }
+
+        It "Test-TargetResource should return true" {
+            Test-TargetResource -HostName $hostName -IpAddress $newIPAddress -Ensure $absent | should be $true
         }
     }
 }
