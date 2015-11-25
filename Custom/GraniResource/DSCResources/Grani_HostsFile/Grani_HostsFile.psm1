@@ -29,6 +29,8 @@ Data VerboseMessages {
         HostsEntryFound = Found a hosts entry {0} : {1}.
         HostsEntryNotFound = Did not find a hosts entry {0} : {1}.
         RemoveHostsEntry = Remove hosts entry {0} : {1}.
+        RemoveHostsEntryBeforeAdd = Remove duplicate hostname entry before adding host entry. This will ignore IPAddress because correct host entry will add right after remove. hostname : {0}
+        RemovedEntryIP = Removed Entry for {0} : {1}.{2}.{3}.{4}
 "@
 }
 
@@ -119,10 +121,15 @@ function Set-TargetResource
             ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*$IpAddress\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
             return;
         }
+        else
+        {
+            # Present
+            Write-Verbose ($VerboseMessages.RemoveHostsEntryBeforeAdd -f $HostName)
+            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
 
-        # Present
-        Write-Verbose ($VerboseMessages.CreateHostsEntry -f $HostName, $IpAddress)
-        Add-Content -Path $script:hostsLocation -Value $hostEntry -Force -Encoding $script:encoding
+            Write-Verbose ($VerboseMessages.CreateHostsEntry -f $HostName, $IpAddress)
+            Add-Content -Path $script:hostsLocation -Value $hostEntry -Force -Encoding $script:encoding
+        }
     }
     catch
     {
