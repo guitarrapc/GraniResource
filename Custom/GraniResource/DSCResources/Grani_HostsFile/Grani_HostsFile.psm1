@@ -14,6 +14,15 @@ function Initialize
             Absent
         }
 "@ -ErrorAction SilentlyContinue; 
+
+    # Enum for Reference
+    Add-Type -TypeDefinition @"
+        public enum ReferenceType
+        {
+            DnsServer,
+            StaticIp
+        }
+"@ -ErrorAction SilentlyContinue; 
 }
 
 . Initialize;
@@ -58,30 +67,47 @@ function Get-TargetResource
         [string]$HostName,
         
         [parameter(Mandatory = $true)]
-        [string]$IpAddress,
+        [ValidateSet('Present','Absent')]
+        [string]$Ensure = [EnsureType]::Present,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet('Present','Absent')]
-        [string]$Ensure = [EnsureType]::Present
+        [ValidateSet("DnsServer","StaticIp")]
+        [String]$Reference,
+
+        [parameter(Mandatory = $true)]
+        [string]$IpAddress
     )  
     
     $Configuration = @{
         HostName = $HostName
         IPAddress = $IpAddress
+        Reference = $Reference
     };
 
     Write-Verbose $VerboseMessages.CheckHostsEntry;
 
     try
     {
-        if (TestIsHostEntryExists -IpAddress $IpAddress -HostName $HostName)
+        if ($Reference -eq [ReferenceType]::StaticIp)
         {
-            Write-Verbose ($VerboseMessages.HostsEntryFound -f $HostName, $IpAddress);
+            # Reference is StaticIp
+            $ipEntry = $IpAddress
+        }
+        elseif ($Reference -eq [ReferenceType]::DnsServer)
+        {
+            # Reference is DnsServer
+            $resolveIp = Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress;
+            $ipEntry = (Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress | select -First 1).IPAddress
+        }
+
+        if (TestIsHostEntryExists -IpAddress $ipEntry -HostName $HostName)
+        {
+            Write-Verbose ($VerboseMessages.HostsEntryFound -f $HostName, $ipEntry);
             $Configuration.Ensure = [EnsureType]::Present;
         }
         else
         {
-            Write-Verbose ($VerboseMessages.HostsEntryNotFound -f $HostName, $IpAddress);
+            Write-Verbose ($VerboseMessages.HostsEntryNotFound -f $HostName, $ipEntry);
             $Configuration.Ensure = [EnsureType]::Absent;
         }
     }
@@ -103,22 +129,38 @@ function Set-TargetResource
         [string]$HostName,
         
         [parameter(Mandatory = $true)]
-        [string]$IpAddress,
+        [ValidateSet('Present','Absent')]
+        [string]$Ensure = [EnsureType]::Present,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet('Present','Absent')]
-        [string]$Ensure = 'Present'
-    )  
+        [ValidateSet("DnsServer","StaticIp")]
+        [String]$Reference,
 
-    $hostEntry = "`n{0}`t{1}" -f $IpAddress, $HostName
+        [parameter(Mandatory = $true)]
+        [string]$IpAddress
+    )  
 
     try
     {
+        if ($Reference -eq [ReferenceType]::StaticIp)
+        {
+            # Reference is StaticIp
+            $ipEntry = $IpAddress
+        }
+        elseif ($Reference -eq [ReferenceType]::DnsServer)
+        {
+            # Reference is DnsServer
+            $resolveIp = Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress;
+            $ipEntry = (Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress | select -First 1).IPAddress
+        }
+
+        $hostEntry = "`n{0}`t{1}" -f $ipEntry, $HostName
+
         # Absent
         if ($Ensure -eq [EnsureType]::Absent.ToString())
         {
-            Write-Verbose ($VerboseMessages.RemoveHostsEntry -f $HostName, $IpAddress)
-            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*$IpAddress\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
+            Write-Verbose ($VerboseMessages.RemoveHostsEntry -f $HostName, $ipEntry)
+            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*$ipEntry\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
             return;
         }
         else
@@ -127,7 +169,7 @@ function Set-TargetResource
             Write-Verbose ($VerboseMessages.RemoveHostsEntryBeforeAdd -f $HostName)
             ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
 
-            Write-Verbose ($VerboseMessages.CreateHostsEntry -f $HostName, $IpAddress)
+            Write-Verbose ($VerboseMessages.CreateHostsEntry -f $HostName, $ipEntry)
             Add-Content -Path $script:hostsLocation -Value $hostEntry -Force -Encoding $script:encoding
         }
     }
@@ -147,11 +189,15 @@ function Test-TargetResource
         [string]$HostName,
         
         [parameter(Mandatory = $true)]
-        [string]$IpAddress,
+        [ValidateSet('Present','Absent')]
+        [string]$Ensure = [EnsureType]::Present,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet('Present','Absent')]
-        [string]$Ensure = 'Present'
+        [ValidateSet("DnsServer","StaticIp")]
+        [String]$Reference,
+
+        [parameter(Mandatory = $true)]
+        [string]$IpAddress
     )  
 
     return (Get-TargetResource -HostName $HostName -IpAddress $IpAddress -Ensure $Ensure).Ensure -eq $Ensure
