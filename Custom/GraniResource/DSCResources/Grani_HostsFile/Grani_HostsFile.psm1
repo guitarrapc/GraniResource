@@ -74,11 +74,11 @@ function Get-TargetResource
         [string]$Ensure = [EnsureType]::Present,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("DnsServer","StaticIp")]
-        [String]$Reference,
+        [string]$IpAddress,
 
-        [parameter(Mandatory = $true)]
-        [string]$IpAddress
+        [parameter(Mandatory = $false)]
+        [ValidateSet("DnsServer","StaticIp")]
+        [String]$Reference = "DnsServer"
     )  
     
     $Configuration = @{
@@ -125,11 +125,11 @@ function Set-TargetResource
         [string]$Ensure = [EnsureType]::Present,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("DnsServer","StaticIp")]
-        [String]$Reference,
+        [string]$IpAddress,
 
-        [parameter(Mandatory = $true)]
-        [string]$IpAddress
+        [parameter(Mandatory = $false)]
+        [ValidateSet("DnsServer","StaticIp")]
+        [String]$Reference = "DnsServer"
     )  
 
     try
@@ -174,11 +174,11 @@ function Test-TargetResource
         [string]$Ensure = [EnsureType]::Present,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("DnsServer","StaticIp")]
-        [String]$Reference,
+        [string]$IpAddress,
 
-        [parameter(Mandatory = $true)]
-        [string]$IpAddress
+        [parameter(Mandatory = $false)]
+        [ValidateSet("DnsServer","StaticIp")]
+        [String]$Reference = "DnsServer"
     )  
 
     return (Get-TargetResource -HostName $HostName -IpAddress $IpAddress -Ensure $Ensure).Ensure -eq $Ensure;
