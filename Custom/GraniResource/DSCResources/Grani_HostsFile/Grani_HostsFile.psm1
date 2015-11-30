@@ -91,7 +91,7 @@ function Get-TargetResource
 
     try
     {
-        $ipEntry = ResolveIpAddressReference -IpAddress $IpAddress -Reference $Reference;
+        $ipEntry = ResolveIpAddressReference -IpAddress $IpAddress -HostName $HostName -Reference $Reference;
         if (TestIsHostEntryExists -IpAddress $ipEntry -HostName $HostName)
         {
             Write-Verbose ($VerboseMessages.HostsEntryFound -f $HostName, $ipEntry);
@@ -134,7 +134,7 @@ function Set-TargetResource
 
     try
     {
-        $ipEntry = ResolveIpAddressReference -IpAddress $IpAddress -Reference $Reference
+        $ipEntry = ResolveIpAddressReference -IpAddress $IpAddress -HostName $HostName -Reference $Reference
         $hostEntry = "`n{0}`t{1}" -f $ipEntry, $HostName
 
         # Absent
@@ -181,7 +181,7 @@ function Test-TargetResource
         [String]$Reference = "DnsServer"
     )  
 
-    return (Get-TargetResource -HostName $HostName -IpAddress $IpAddress -Ensure $Ensure).Ensure -eq $Ensure;
+    return (Get-TargetResource -HostName $HostName -IpAddress $IpAddress -Ensure $Ensure -Reference $Reference).Ensure -eq $Ensure;
 }
 
 #endregion
@@ -190,10 +190,10 @@ function Test-TargetResource
 
 function TestIsHostEntryExists ([string]$IpAddress, [string] $HostName)
 {
-    return (Get-Content -Path $script:hostsLocation -Encoding $script:encoding) -match "^[^#]*$ipAddress\s+$HostName";
+    return ((Get-Content -Path $script:hostsLocation -Encoding $script:encoding) -match "^[^#]*$ipAddress\s+$HostName" | measure).Count -ne 0;
 }
 
-function ResolveIpAddressReference ([string]$IpAddress, [ReferenceType]$Reference)
+function ResolveIpAddressReference ([string]$IpAddress, [string]$HostName, [ReferenceType]$Reference)
 {
     $ipEntry = if ($Reference -eq [ReferenceType]::StaticIp)
     {
