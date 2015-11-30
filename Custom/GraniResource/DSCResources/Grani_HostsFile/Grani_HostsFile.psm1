@@ -1,4 +1,4 @@
-Reference is StaticIp. IPAddress will directly used. {0}#region Initialize
+#region Initialize
 
 function Initialize
 {
