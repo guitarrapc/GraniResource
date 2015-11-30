@@ -1,4 +1,4 @@
-#region Initialize
+Reference is StaticIp. IPAddress will directly used. {0}#region Initialize
 
 function Initialize
 {
@@ -37,6 +37,8 @@ Data VerboseMessages {
         CreateHostsEntry = Create hosts entry {0} : {1}.
         HostsEntryFound = Found a hosts entry {0} : {1}.
         HostsEntryNotFound = Did not find a hosts entry {0} : {1}.
+        ReferenceDnsServer = Reference is DnsServer. Trying to connect to DnsServer and get first A record. {0}
+        ReferenceStaticIp = Reference is StaticIp. IPAddress will directly used. {0}
         RemoveHostsEntry = Remove hosts entry {0} : {1}.
         RemoveHostsEntryBeforeAdd = Remove duplicate hostname entry before adding host entry. This will ignore IPAddress because correct host entry will add right after remove. hostname : {0}
         RemovedEntryIP = Removed Entry for {0} : {1}.{2}.{3}.{4}
@@ -50,6 +52,7 @@ Data DebugMessages {
 
 Data ErrorMessages {
     ConvertFrom-StringData -StringData @"
+        CouldNotResolveIpWithDnsServer = Could not resolve A revord with DnsServer. IpAddress : {0}
 "@
 }
 
@@ -88,18 +91,7 @@ function Get-TargetResource
 
     try
     {
-        if ($Reference -eq [ReferenceType]::StaticIp)
-        {
-            # Reference is StaticIp
-            $ipEntry = $IpAddress
-        }
-        elseif ($Reference -eq [ReferenceType]::DnsServer)
-        {
-            # Reference is DnsServer
-            $resolveIp = Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress;
-            $ipEntry = (Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress | select -First 1).IPAddress
-        }
-
+        $ipEntry = ResolveIpAddressReference -IpAddress $IpAddress -Reference $Reference;
         if (TestIsHostEntryExists -IpAddress $ipEntry -HostName $HostName)
         {
             Write-Verbose ($VerboseMessages.HostsEntryFound -f $HostName, $ipEntry);
@@ -113,7 +105,7 @@ function Get-TargetResource
     }
     catch
     {
-        Write-Error $_
+        Write-Error $_;
     }
 
     return $Configuration;
@@ -142,40 +134,29 @@ function Set-TargetResource
 
     try
     {
-        if ($Reference -eq [ReferenceType]::StaticIp)
-        {
-            # Reference is StaticIp
-            $ipEntry = $IpAddress
-        }
-        elseif ($Reference -eq [ReferenceType]::DnsServer)
-        {
-            # Reference is DnsServer
-            $resolveIp = Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress;
-            $ipEntry = (Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress | select -First 1).IPAddress
-        }
-
+        $ipEntry = ResolveIpAddressReference -IpAddress $IpAddress -Reference $Reference
         $hostEntry = "`n{0}`t{1}" -f $ipEntry, $HostName
 
         # Absent
         if ($Ensure -eq [EnsureType]::Absent.ToString())
         {
-            Write-Verbose ($VerboseMessages.RemoveHostsEntry -f $HostName, $ipEntry)
-            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*$ipEntry\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
+            Write-Verbose ($VerboseMessages.RemoveHostsEntry -f $HostName, $ipEntry);
+            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*$ipEntry\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding;
             return;
         }
         else
         {
             # Present
-            Write-Verbose ($VerboseMessages.RemoveHostsEntryBeforeAdd -f $HostName)
-            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding
+            Write-Verbose ($VerboseMessages.RemoveHostsEntryBeforeAdd -f $HostName);
+            ((Get-Content $script:hostsLocation) -notmatch "^\s*$") -notmatch "^[^#]*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\s+$HostName" | Set-Content -Path $script:hostsLocation -Force -Encoding $script:encoding;
 
-            Write-Verbose ($VerboseMessages.CreateHostsEntry -f $HostName, $ipEntry)
-            Add-Content -Path $script:hostsLocation -Value $hostEntry -Force -Encoding $script:encoding
+            Write-Verbose ($VerboseMessages.CreateHostsEntry -f $HostName, $ipEntry);
+            Add-Content -Path $script:hostsLocation -Value $hostEntry -Force -Encoding $script:encoding;
         }
     }
     catch
     {
-        throw $_
+        throw $_;
     }
 }
 
@@ -200,7 +181,7 @@ function Test-TargetResource
         [string]$IpAddress
     )  
 
-    return (Get-TargetResource -HostName $HostName -IpAddress $IpAddress -Ensure $Ensure).Ensure -eq $Ensure
+    return (Get-TargetResource -HostName $HostName -IpAddress $IpAddress -Ensure $Ensure).Ensure -eq $Ensure;
 }
 
 #endregion
@@ -212,6 +193,29 @@ function TestIsHostEntryExists ([string]$IpAddress, [string] $HostName)
     return (Get-Content -Path $script:hostsLocation -Encoding $script:encoding) -match "^[^#]*$ipAddress\s+$HostName";
 }
 
+function ResolveIpAddressReference ([string]$IpAddress, [ReferenceType]$Reference)
+{
+    $ipEntry = if ($Reference -eq [ReferenceType]::StaticIp)
+    {
+        # Reference is StaticIp
+        Write-Verbose ($VerboseMessages.ReferenceStaticIp -f $IpAddress);
+        $IpAddress;
+    }
+    elseif ($Reference -eq [ReferenceType]::DnsServer)
+    {
+        # Reference is DnsServer
+        Write-Verbose ($VerboseMessages.ReferenceDnsServer -f $IpAddress);
+        $resolveIp = Resolve-DnsName -Name $HostName -Server $IpAddress -DnsOnly | where Type -eq A | sort IPAddress;
+        if ($null -eq $resolveIp)
+        {
+            throw New-Object System.NullReferenceException ($ErrorMessages.CouldNotResolveIpWithDnsServer -f $IpAddress);
+        }
+        ($resolveIp | select -First 1).IPAddress;
+    }
+
+    return $ipEntry;
+}
+
 #endregion
 
-Export-ModuleMember -Function *-TargetResource
+Export-ModuleMember -Function *-TargetResource;
