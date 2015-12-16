@@ -4,8 +4,8 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
 Describe "Grani_S3Content : GetPathItemType" {
 
-    $pathF = "d:\hoge\ReadMe.md"
-    $pathD = "d:\hoge\ReadMe"
+    $pathF = "c:\hoge\ReadMe.md"
+    $pathD = "c:\hoge\ReadMe"
 
     $parent = Split-Path -Path $pathF -Parent
     New-Item -Path $parent -ItemType Directory -Force > $null

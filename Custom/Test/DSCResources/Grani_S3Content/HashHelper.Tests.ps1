@@ -5,9 +5,9 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 Describe "Grani_S3Content : HashHelper" {
 
     # Local definition
-    $pathF = "d:\hoge\ReadMe.md"
-    $pathD = "d:\hoge\ReadMe"
-    $pathNotExist = "d:\hoge\notexist.md"
+    $pathF = "c:\hoge\ReadMe.md"
+    $pathD = "c:\hoge\ReadMe"
+    $pathNotExist = "c:\hoge\notexist.md"
 
     $parent = Split-Path -Path $pathF -Parent
     New-Item -Path $parent -ItemType Directory -Force > $null

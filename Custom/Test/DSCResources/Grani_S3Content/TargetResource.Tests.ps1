@@ -4,7 +4,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
 Describe "Grani_S3Content : *-TargetResource" {
 
-    $path = "d:\hoge\ReadMe.md"
+    $path = "c:\hoge\ReadMe.md"
     $parent = Split-Path -Path $path -Parent
 
     # $bucketName = [Guid]::NewGuid()

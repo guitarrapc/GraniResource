@@ -7,7 +7,7 @@ Describe "Grani_S3Content : ValidationHelper" {
     $bucketName = [Guid]::NewGuid()
     $key =     [Guid]::NewGuid()
 
-    $path = "d:\hoge\ReadMe.md"
+    $path = "c:\hoge\ReadMe.md"
     $parent = Split-Path -Path $path -Parent
 
     New-Item -Path $parent -ItemType Directory -Force > $null

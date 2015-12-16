@@ -68,9 +68,9 @@ $verboseMessage = DATA {
 $exceptionMessage = DATA {
     ConvertFrom-StringData -StringData "
         DestinationPathAlreadyExistAsNotFile = Destination Path '{0}' already exist but not a file. Found itemType is {1}. Windows not allowed exist same name item.
-        S3BucketNotExistEXception = Desired S3 Bucket not found exception. : '{0}'
-        S3ObjectNotExistEXception = Desired S3 Object not found in S3Bucket exception. : '{0}'
-        ScriptBlockException = Error thrown on ScriptBlock '{0}'
+        S3BucketNotExistEXception = Desired S3 Bucket not found exception. S3Bucket : {0}
+        S3ObjectNotExistEXception = Desired S3 Object not found in S3Bucket exception. S3Bucket : {0}, S3Object : {1}
+        ScriptBlockException = Error thrown on ScriptBlock. ScriptBlock : {0}
     "
 }
 
@@ -107,11 +107,6 @@ function Get-TargetResource
         [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
     )
 
-
-    # validate S3 Bucket is exist
-    ValidateS3Bucket -BucketName $S3BucketName
-    ValidateS3Object -BucketName $S3BucketName -Key $Key
-
     # Initialize return values
     # Header and OAuth2Token will never return as TypeConversion problem
     $returnHash = 
@@ -126,7 +121,14 @@ function Get-TargetResource
         CheckSum = $CheckSum
     }
 
-    # Destination Path check
+    # Fail fast S3Bucket and S3Object existance.
+    if ((-not (Test-S3Bucket -BucketName $BucketName)) -or (-not (TestS3Object -BucketName $BucketName -Key $Key)))
+    {
+        return $returnHash
+    }
+
+    
+    # Start checking destination Path check if S3Bucket and S3Object exists
     Write-Debug -Message $debugMessage.IsDestinationPathExist
     $itemType = GetPathItemType -Path $DestinationPath
 
@@ -340,7 +342,7 @@ function ValidateS3Object
     Write-Debug -Message ($debugMessage.ValidateS3Object -f $Key)
     if (-not (TestS3Object -BucketName $BucketName -Key $Key))
     {
-        throw New-Object System.NullReferenceException ($exceptionMessage.S3ObjectNotExistEXception -f $S3Object)
+        throw New-Object System.NullReferenceException ($exceptionMessage.S3ObjectNotExistEXception -f $BucketName, $Key)
     }
 }
 

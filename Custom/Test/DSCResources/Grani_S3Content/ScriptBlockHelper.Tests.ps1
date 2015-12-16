@@ -4,7 +4,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
 Describe "Grani_S3Content : ScriptBlockHelper" {
 
-    $folder = "d:\hoge"
+    $folder = "c:\hoge"
     $scriptString = "whoami"
     $noReturnScriptString = "return ''"
     $credential = Get-Credential
