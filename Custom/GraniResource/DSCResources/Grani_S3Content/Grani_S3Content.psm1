@@ -122,7 +122,7 @@ function Get-TargetResource
     }
 
     # Fail fast S3Bucket and S3Object existance.
-    if ((-not (Test-S3Bucket -BucketName $BucketName)) -or (-not (TestS3Object -BucketName $BucketName -Key $Key)))
+    if ((-not (Test-S3Bucket -BucketName $S3BucketName)) -or (-not (TestS3Object -BucketName $S3BucketName -Key $Key)))
     {
         return $returnHash
     }
