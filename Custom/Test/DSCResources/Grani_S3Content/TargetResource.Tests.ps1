@@ -23,7 +23,23 @@ Describe "Grani_S3Content : *-TargetResource" {
 
     #region CheckSum : FileHash
     Context "Scratch environment. CheckSum : FileHash " {
-        It "Get-TargetResource should not throw" {
+        It "Get-TargetResource should not throw for invalid S3Bucket" {
+            {Get-TargetResource -S3BucketName "hogemoge$bucketName" -Key $key -DestinationPath $path} | should not Throw
+        }
+
+        It "Get-TargetResource should not throw for invalid S3Object" {
+            {Get-TargetResource -S3BucketName "$bucketName" -Key "$key-$bucketName" -DestinationPath $path} | should not Throw
+        }
+
+        It "Get-TargetResource should not throw for invalid Path" {
+            {Get-TargetResource -S3BucketName "$bucketName" -Key "$key" -DestinationPath "$path-$bucketName"} | should not Throw
+        }
+
+        It "Get-TargetResource should not throw for invalid S3Bucket / S3Object / Path" {
+            {Get-TargetResource -S3BucketName "$hogemoge$bucketName" -Key "$key-$bucketName" -DestinationPath "$path-$bucketName"} | should not Throw
+        }
+
+        It "Get-TargetResource should not throw for valid S3Bucket / S3Object" {
             {Get-TargetResource -S3BucketName $bucketName -Key $key -DestinationPath $path} | should not Throw
         }
 
