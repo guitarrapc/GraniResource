@@ -30,6 +30,8 @@ Intellisense
 Sample
 ----
 
+**Note : Default RepetitionInterval and RepetitionDuration are already sat.
+
 - Create ScheduleTask with SYSTEM account.
 
 ```powershell
@@ -51,7 +53,7 @@ configuration ScheduleTask
 }
 ```
 
-- Create ScheduleTask with Specific account.
+- Create Daily ScheduleTask with Specific account.
 
 ```powershell
 configuration ScheduleTask
@@ -87,6 +89,89 @@ $ConfigurationData = @{
             Role = "localhost"
         }
     )
+}
+```
+
+- Create ScheduleTask with Repetition.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "\"
+        ScheduledAt = @([datetime]"00:00:00")
+        RepetitionIntervalTimeSpanString = @([TimeSpan]::FromHours(1).ToString()),
+        RepetitionDurationTimeSpanString = @([TimeSpan]::MaxValue.ToString()),
+        Compatibility = "Win8"
+        Disable = $false
+    }
+}
+```
+
+- Create ScheduleTask with AtStartup.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "\"
+        AtStartup = $true
+        Compatibility = "Win8"
+        Disable = $false
+    }
+}
+```
+
+- Create ScheduleTask with AtLogon.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "\"
+        AtLogon = $true
+        Compatibility = "Win8"
+        Disable = $false
+    }
+}
+```
+
+Also LogonUser account will be set if you pass credential.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "\"
+        AtLogon = $true
+        Compatibility = "Win8"
+        Credential = $Credential
+        Disable = $false
+    }
 }
 ```
 
