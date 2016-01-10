@@ -27,7 +27,7 @@ function Initialize
     Add-Type -TypeDefinition @"
         public enum ScheduledTaskPropertyType
         {
-            TaskPaty,
+            TaskPath,
             TaskName,
             Description,
             Execute,
@@ -40,10 +40,12 @@ function Initialize
             Hidden,
             Disable,
             ScheduledAt,
-            ScheduledTimeSpan,
-            ScheduledDuration,
+            RepetitionIntervalTimeSpanString,
+            RepetitionDurationTimeSpanString,
             Daily,
-            Once
+            Once,
+            AtSartup,
+            AtLogOn
         }
 "@ -ErrorAction SilentlyContinue
 }
@@ -64,18 +66,21 @@ $verboseMessages = Data {
 
 $debugMessages = Data {
     ConvertFrom-StringData -StringData @"
+        CheckSchedulerAtLogOn = Checking Trigger is : AtLogOn
+        CheckSchedulerAtStartup = Checking Trigger is : AtStartup
         CheckSchedulerDaily = Checking Trigger is : Daily
         CheckSchedulerOnce = Checking Trigger is : Once
         CheckScheduleTaskExist = Checking {0} is exists with : {1}
         CheckScheduleTaskParameter = Checking {0} is match with : {1}
         CheckScheduleTaskParameterTimeSpan = Checking {0} is match with : {1}min
+        CheckSchedulerUserId = Checking UserId is exists with : {0}
         CreateTask = Creating Task Scheduler Name '{0}', Path '{1}'
         ScheduleTaskResult = {0} : {1} ({2})
         ScheduleTaskTimeSpanResult = {0} : {1} ({2}min)
         SetAction = Setting Action Execute : '{0}', Argument : '{1}', WorkingDirectory : '{2}'.
         SetDescription = Setting Description : '{0}'.
         SetDisable = Setting ScheduledTask Disable : '{0}'.
-        SetTrigger = Setting Trigger ScheduledTimeSpan : '{0}', ScheduledDuration : '{1}', ScheduledAt : '{2}', Daily : '{3}', Once : '{4}'.
+        SetTrigger = Setting Trigger RepetitionIntervalTimeSpanString : '{0}', RepetitionDurationTimeSpanString : '{1}', ScheduledAt : '{2}', Daily : '{3}', Once : '{4}'.
         SkipNoneUseParameter = Skipping {0} as value not passed to function.
         SkipNullPassedParameter = Skipping {0} as passed value is null.
         SkipPrincipal = Skip Credential. Using System for Principal.
@@ -90,6 +95,7 @@ $errorMessages = Data {
         ScheduleAtArgumentLength = Argument length not match with current ScheduledAt {0} and passed ScheduledAt {1}.
         ScheduleRepetitionArgumentLength = Argument length not match with current Scheduled Repetition {0} and passed ScheduledAt {1}.
         ScheduleAtNullException = ScheduledAt detected as null. You must set at least 1 ScheduledAt to set ScheduledTask as Present.
+        ScheduleTriggerNullException = None of Schedule trigger detected. Please set one of trigger from : RepetitionIntervalTimeSpanString, RepetitionDurationTimeSpanString, Daily, Once, AtSartup, AtLogOn
 "@
 }
 
@@ -100,7 +106,7 @@ $errorMessages = Data {
 function Get-TargetResource
 {
     [OutputType([HashTable])]
-    [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
+    [CmdletBinding(DefaultParameterSetName = "Repetition")]
     param
     (
         [parameter(Mandatory = $true)]
@@ -126,7 +132,7 @@ function Get-TargetResource
         [System.String]$WorkingDirectory,
 
         [parameter(Mandatory = $false)]
-        [System.Management.Automation.PSCredential]$Credential,
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
         [ValidateSet("Highest","Limited")]
@@ -142,35 +148,29 @@ function Get-TargetResource
         [parameter(Mandatory = $false)]
         [System.Boolean]$Hidden,
 
-        [parameter(Mandatory = $true)]
-        [System.Boolean]$Disable,
+        [parameter(Mandatory = $false)]
+        [System.Boolean]$Disable = $true,
 
         [parameter(Mandatory = $false)]
         [System.DateTime[]]$ScheduledAt,
 
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanDay = 0,
+        [parameter(Mandatory = $false, parameterSetName = "Repetition")]
+        [string[]]$RepetitionIntervalTimeSpanString = @([TimeSpan]::FromHours(1).ToString()),
 
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanHour = 1,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanMin = 0,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationDay = 1,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationHour = 0,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationMin = 0,
+        [parameter(Mandatory = $false, parameterSetName = "Repetition")]
+        [string[]]$RepetitionDurationTimeSpanString = @([TimeSpan]::MaxValue.ToString()),
 
         [parameter(Mandatory = $false, parameterSetName = "Daily")]
         [System.Boolean]$Daily,
 
         [parameter(Mandatory = $false, parameterSetName = "Once")]
-        [System.Boolean]$Once
+        [System.Boolean]$Once,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtStartup")]
+        [System.Boolean]$AtStartup,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
+        [System.Boolean]$AtLogOn
     )
 
     $param = @{}
@@ -205,16 +205,24 @@ function Get-TargetResource
         {
             $param.Daily = $Daily
         }
+        elseif ($PSBoundParameters.ContainsKey("AtStartup"))
+        {
+            $param.AtStartup = $AtStartup
+        }
+        elseif ($PSBoundParameters.ContainsKey("AtLogOn"))
+        {
+            $param.AtLogOn = $AtLogOn
+        }
         else
         {
-            if ($PSBoundParameters.ContainsKey('ScheduledTimeSpanDay') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanHour') -and $PSBoundParameters.ContainsKey('ScheduledTimeSpanMin'))
+            if ($PSBoundParameters.ContainsKey('RepetitionIntervalTimeSpanString') -and (-not $RepetitionIntervalTimeSpanString.Contains("")))
             {
-                $param.ScheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
+                $param.RepetitionInterval = ConvertToTimeSpan -TimeSpanString $RepetitionIntervalTimeSpanString
             }
 
-            if ($PSBoundParameters.ContainsKey('ScheduledDurationDay') -and $PSBoundParameters.ContainsKey('ScheduledDurationHour') -and $PSBoundParameters.ContainsKey('ScheduledDurationMin'))
+            if ($PSBoundParameters.ContainsKey('RepetitionDurationTimeSpanString') -and (-not $RepetitionDurationTimeSpanString.Contains("")))
             {
-                $param.ScheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+                $param.RepetitionDuration = ConvertToTimeSpan -TimeSpanString $RepetitionDurationTimeSpanString
             }
         }
 
@@ -277,7 +285,9 @@ function Get-TargetResource
         # Trigger
         'ScheduledAt',
         'Daily',
-        'Once'
+        'Once',
+        'AtStartup',
+        'AtLogOn'
     ) `
     | where {$taskResult."$_".target -ne $null} `
     | %{$returnHash.$_ = $taskResult."$_".target}
@@ -288,34 +298,18 @@ function Get-TargetResource
         $returnHash.Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
     }
 
-    # convert timespan to int
+    # convert timespan to string
     if (($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")) -and ($taskResult.ExecutionTimeLimit.target.Ticks -ne $null))
     {
         $returnHash.ExecuteTimeLimitTicks = [System.Int64]$taskResult.ExecutionTimeLimit.target.Ticks
     }
-    if (($PSBoundParameters.ContainsKey("ScheduledTimeSpanDay")) -and ($taskResult.ScheduledTimeSpan.target -ne $null))
+    if ($PSBoundParameters.ContainsKey("RepetitionIntervalTimeSpanString"))
     {
-        $returnHash.ScheduledTimeSpanDay = [int[]]($taskResult.ScheduledTimeSpan.target.Days)
+        $returnHash.RepetitionIntervalTimeSpanString = $taskResult.RepetitionInterval.target | where {$_} | %{$_.ToString()}
     }
-    if (($PSBoundParameters.ContainsKey("ScheduledTimeSpanHour")) -and ($taskResult.ScheduledTimeSpan.target -ne $null))
+    if ($PSBoundParameters.ContainsKey("RepetitionDurationTimeSpanString"))
     {
-        $returnHash.ScheduledTimeSpanHour = [int[]]($taskResult.ScheduledTimeSpan.target.Hours)
-    }
-    if (($PSBoundParameters.ContainsKey("ScheduledTimeSpanMin")) -and ($taskResult.ScheduledTimeSpan.target -ne $null))
-    {
-        $returnHash.ScheduledTimeSpanMin = [int[]]($taskResult.ScheduledTimeSpan.target.Minutes)
-    }
-    if (($PSBoundParameters.ContainsKey("ScheduledDurationDay")) -and ($taskResult.ScheduledDuration.target -ne $null))
-    {
-        $returnHash.ScheduledDurationDay = [int[]]($taskResult.ScheduledDuration.target.Days)
-    }
-    if (($PSBoundParameters.ContainsKey("ScheduledDurationHour")) -and ($taskResult.ScheduledDuration.target -ne $null))
-    {
-        $returnHash.ScheduledDurationHour = [int[]]($taskResult.ScheduledDuration.target.Hours)
-    }
-    if (($PSBoundParameters.ContainsKey("ScheduledDurationMin")) -and ($taskResult.ScheduledDuration.target -ne $null))
-    {
-        $returnHash.ScheduledDurationMin = [int[]]($taskResult.ScheduledDuration.target.Minutes)
+        $returnHash.RepetitionDurationTimeSpanString = $taskResult.RepetitionDuration.target | where {$_} | %{$_.ToString()}
     }
 
     return $returnHash
@@ -324,7 +318,7 @@ function Get-TargetResource
 function Set-TargetResource
 {
     [OutputType([Void])]
-    [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
+    [CmdletBinding(DefaultParameterSetName = "Repetition")]
     param
     (
         [parameter(Mandatory = $true)]
@@ -366,35 +360,29 @@ function Set-TargetResource
         [parameter(Mandatory = $false)]
         [System.Boolean]$Hidden = $true,
 
-        [parameter(Mandatory = $true)]
-        [System.Boolean]$Disable = $false,
+        [parameter(Mandatory = $false)]
+        [System.Boolean]$Disable = $true,
 
         [parameter(Mandatory = $false)]
         [System.DateTime[]]$ScheduledAt,
 
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanDay = 0,
+        [parameter(Mandatory = $false, parameterSetName = "Repetition")]
+        [string[]]$RepetitionIntervalTimeSpanString = @([TimeSpan]::FromHours(1).ToString()),
 
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanHour = 1,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanMin = 0,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationDay = 1,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationHour = 0,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationMin = 0,
+        [parameter(Mandatory = $false, parameterSetName = "Repetition")]
+        [string[]]$RepetitionDurationTimeSpanString = @([TimeSpan]::MaxValue.ToString()),
 
         [parameter(Mandatory = $false, parameterSetName = "Daily")]
         [System.Boolean]$Daily = $false,
 
         [parameter(Mandatory = $false, parameterSetName = "Once")]
-        [System.Boolean]$Once = $false
+        [System.Boolean]$Once,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtStartup")]
+        [System.Boolean]$AtStartup,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
+        [System.Boolean]$AtLogOn
     )
     
     # exist
@@ -465,25 +453,58 @@ function Set-TargetResource
     {
         if ($Daily -or $Once)
         {
-            $scheduledTimeSpan = $scheduledDuration = $null
+            $interval = $duration = $null
+        }
+        elseif (($null -eq $RepetitionIntervalTimeSpanString) -and ($null -eq $RepetitionDurationTimeSpanString))
+        {
+            $interval = $duration = $null
+        }
+        elseif ((-not $RepetitionIntervalTimeSpanString.Contains("")) -and (-not $RepetitionDurationTimeSpanString.Contains("")))
+        {
+            $interval = ConvertToTimeSpan -TimeSpanString $RepetitionIntervalTimeSpanString
+            $duration = ConvertToTimeSpan -TimeSpanString $RepetitionDurationTimeSpanString
         }
         else
         {
-            $scheduledTimeSpan = CreateTimeSpan -Day $ScheduledTimeSpanDay -Hour $ScheduledTimeSpanHour -Min $ScheduledTimeSpanMin
-            $scheduledDuration = CreateTimeSpan -Day $ScheduledDurationDay -Hour $ScheduledDurationHour -Min $ScheduledDurationMin
+            $interval = $duration = $null
         }
-    
-        Write-Debug ($debugMessages.SetTrigger -f $scheduledTimeSpan, $scheduledDuration, $ScheduledAt, $Daily, $Once)
-        $triggerParam =
-        @{
-            ScheduledTimeSpan = $scheduledTimeSpan
-            ScheduledDuration = $scheduledDuration
-            ScheduledAt = $ScheduledAt
-            Daily = $Daily
-            Once = $Once
-        }
-        $scheduleTaskParam.trigger = CreateTaskSchedulerTrigger @triggerParam
     }
+    elseif ($AtStartup -or $AtLogOn)
+    {
+        # Both AtStartup and $AtLogOn cannot use with $ScheduledAt
+        $interval = $duration = $ScheduledAt = $null
+    }
+
+    if ($AtLogOn)
+    {
+        # Set LogOn UserId with Credential User.
+        $logOnUserId = if ($Credential -eq [PSCredential]::Empty)
+        {
+            $null
+        }
+        elseif ([string]::IsNullOrWhiteSpace($Credential.GetNetworkCredential().Domain))
+        {
+            $Credential.UserName
+        }
+        else
+        {
+            "{0}\{1}" -f $Credential.UserName, $Credential.GetNetworkCredential().Domain
+        }
+    }
+
+    Write-Debug ($debugMessages.SetTrigger -f $interval, $duration, $ScheduledAt, $Daily, $Once, $AtStartup, $AtLogOn)
+    $triggerParam =
+    @{
+        RepetitionInterval = $interval
+        RepetitionDuration = $duration
+        ScheduledAt = $ScheduledAt
+        Daily = $Daily
+        Once = $Once
+        AtStartup = $AtStartup
+        AtLogOn = $AtLogOn
+        LogOnUserId = $logOnUserId
+    }
+    $scheduleTaskParam.trigger = CreateTaskSchedulerTrigger @triggerParam
 
     # settings
     $scheduleTaskParam.settings = if ($PSBoundParameters.ContainsKey('ExecuteTimeLimitTicks'))
@@ -497,7 +518,7 @@ function Set-TargetResource
 
     # Register ScheduledTask
     $registerParam = GetRegisterParam -Credential $Credential -Runlevel $Runlevel -TaskName $TaskName -TaskPath $TaskPath -scheduleTaskParam $scheduleTaskParam
-    Register-ScheduledTask @registerParam -Force > $null
+    Register-ScheduledTask @registerParam -Force | select * | Out-String | Write-Debug
 
     #endregion
 }
@@ -505,7 +526,7 @@ function Set-TargetResource
 function Test-TargetResource
 {
     [OutputType([Bool])]
-    [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
+    [CmdletBinding(DefaultParameterSetName = "Repetition")]
     param
     (
         [parameter(Mandatory = $true)]
@@ -531,7 +552,7 @@ function Test-TargetResource
         [System.String]$WorkingDirectory,
 
         [parameter(Mandatory = $false)]
-        [System.Management.Automation.PSCredential]$Credential,
+        [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
         [ValidateSet("Highest","Limited")]
@@ -547,36 +568,29 @@ function Test-TargetResource
         [parameter(Mandatory = $false)]
         [System.Boolean]$Hidden,
 
-        [parameter(Mandatory = $true)]
-        [System.Boolean]$Disable,
+        [parameter(Mandatory = $false)]
+        [System.Boolean]$Disable = $true,
 
         [parameter(Mandatory = $false)]
         [System.DateTime[]]$ScheduledAt,
 
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanDay = 0,
+        [parameter(Mandatory = $false, parameterSetName = "Repetition")]
+        [string[]]$RepetitionIntervalTimeSpanString = @([TimeSpan]::FromHours(1).ToString()),
 
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanHour = 1,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledTimeSpanMin = 0,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationDay = 1,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationHour = 0,
-
-        [parameter(Mandatory = $false, parameterSetName = "ScheduledDuration")]
-        [System.Int32[]]$ScheduledDurationMin = 0,
+        [parameter(Mandatory = $false, parameterSetName = "Repetition")]
+        [string[]]$RepetitionDurationTimeSpanString = @([TimeSpan]::MaxValue.ToString()),
 
         [parameter(Mandatory = $false, parameterSetName = "Daily")]
         [System.Boolean]$Daily,
 
         [parameter(Mandatory = $false, parameterSetName = "Once")]
-        [System.Boolean]$Once
+        [System.Boolean]$Once,
 
+        [parameter(Mandatory = $false, parameterSetName = "AtStartup")]
+        [System.Boolean]$AtStartup,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
+        [System.Boolean]$AtLogOn
     )
 
     $param = @{}
@@ -597,18 +611,16 @@ function Test-TargetResource
         'Hidden',
         'Disable', 
         'ScheduledAt',
-        'ScheduledTimeSpanDay',
-        'ScheduledTimeSpanHour',
-        'ScheduledTimeSpanMin',
-        'ScheduledDurationDay',
-        'ScheduledDurationHour',
-        'ScheduledDurationMin',
+        'RepetitionIntervalTimeSpanString',
+        'RepetitionDurationTimeSpanString',
         'Daily',
-        'Once'
+        'Once',
+        'AtStartup',
+        'AtLogOn'
     ) `
     | where {$PSBoundParameters.ContainsKey($_)} `
     | %{ $param.$_ = Get-Variable -Name $_ -ValueOnly }
-    
+    "hoge" | Write-Verbose
     return (Get-TargetResource @param).Ensure -eq $Ensure
 }
 
@@ -616,15 +628,30 @@ function Test-TargetResource
 
 #region Validate Helper
 
-function ValidateTaskPathLastChar ($taskPath)
+function ValidateTaskPathLastChar
 {
-    $lastChar = [System.Linq.Enumerable]::ToArray($taskPath) | select -Last 1
-    if ($lastChar -ne "\"){ return $taskPath + "\" }
-    return $taskPath
+    [OutputType([Void])]
+    [CmdletBinding()]
+    param
+    (
+        [string]$TaskPath
+    )
+
+    $lastChar = [System.Linq.Enumerable]::ToArray($TaskPath) | select -Last 1
+    if ($lastChar -ne "\"){ return $TaskPath + "\" }
+    return $TaskPath
 }
 
-function ValidateSameFolderNotExist ($TaskName, $TaskPath)
+function ValidateSameFolderNotExist
 {
+    [OutputType([Void])]
+    [CmdletBinding()]
+    param
+    (
+        [string]$TaskName,
+        [string]$TaskPath
+    )
+
     if (TestExistingTaskSchedulerWithPath -TaskName $TaskName -TaskPath $TaskPath){ throw New-Object System.InvalidOperationException ($errorMessages.SameNameFolderFound -f $taskName) }
 }
 
@@ -632,8 +659,15 @@ function ValidateSameFolderNotExist ($TaskName, $TaskPath)
 
 #region Create Helper
 
-function CreateTaskSchedulerAction ($Argument, $Execute, $WorkingDirectory)
+function CreateTaskSchedulerAction 
 {
+    [CmdletBinding()]
+    param
+    (
+        [string]$Argument,
+        [string]$Execute,
+        [string]$WorkingDirectory
+    )
     if ($Execute -eq [string]::Empty){ throw New-Object System.InvalidOperationException ($errorMessages.ExecuteBrank) }
 
     $param = @{}
@@ -643,46 +677,52 @@ function CreateTaskSchedulerAction ($Argument, $Execute, $WorkingDirectory)
     return New-ScheduledTaskAction @param
 }
 
-function CreateTimeSpan
+function ConvertToTimeSpan
 {
+    [OutputType([TimeSpan[]])]
+    [CmdletBinding()]
     param(
         [parameter(Mandatory = $false, Position  = 0)]
         [ValidateNotNullOrEmpty()]
-        [int[]]$Day,
-
-        [parameter(Mandatory = $false, Position  = 1)]
-        [ValidateNotNullOrEmpty()]
-        [int[]]$Hour,
-
-        [parameter(Mandatory = $false, Position  = 2)]
-        [ValidateNotNullOrEmpty()]
-        [int[]]$Min
+        [string[]]$TimeSpanString
     )
 
-    if ($PSBoundParameters.ContainsKey("Day") -and $PSBoundParameters.ContainsKey("Hour") -and $PSBoundParameters.ContainsKey("Min"))
+    foreach ($x in $TimeSpanString)
     {
-        $first = New-ZipPairs -first $Day -second $Hour
-        $result = New-ZipPairs -first $first -second $Min
-        foreach ($x in $result)
+        if (-not [string]::IsNullOrWhiteSpace($TimeSpanString))
         {
-            if ($x.item1.item1 -eq 0 -and $x.item1.item2 -eq 0 -and $x.item2 -eq 0)
+            [TimeSpan]$result = New-Object System.TimeSpan;
+            if (![TimeSpan]::TryParse($x, [ref]$result))
             {
                 [TimeSpan]::MaxValue
             }
             else
             {
-                New-TimeSpan -Days $x.item1.item1 -Hours $x.item1.item2 -Minutes $x.item2
+                $result
             }
         }
-    }   
+    }
 }
 
-function CreateTaskSchedulerTrigger ($ScheduledTimeSpan, $ScheduledDuration, $ScheduledAt, $Daily, $Once)
+function CreateTaskSchedulerTrigger
 {
-    $trigger = if (($false -eq $Daily) -and ($false -eq $Once))
+    [CmdletBinding()]
+    param
+    (
+        [TimeSpan[]]$RepetitionInterval,
+        [TimeSpan[]]$RepetitionDuration,
+        [DateTime[]]$ScheduledAt,
+        [bool]$Daily,
+        [bool]$Once,
+        [bool]$AtStartup,
+        [bool]$AtLogOn,
+        [string]$LogOnUserId
+    )
+
+    $trigger = if (($false -eq $Daily) -and ($false -eq $Once) -and ($false -eq $AtStartup) -and ($false -eq $AtLogOn))
     {
-        $ScheduledTimeSpanPair = New-ZipPairs -first $ScheduledTimeSpan -Second $ScheduledDuration
-        $ScheduledAtPair = New-ZipPairs -first $ScheduledAt -Second $ScheduledTimeSpanPair
+        $repetitionPair = New-ZipPairs -first $RepetitionInterval -Second $RepetitionDuration
+        $ScheduledAtPair = New-ZipPairs -first $ScheduledAt -Second $repetitionPair
         $ScheduledAtPair `
         | %{
             if ($_.Item2.Item1 -ge $_.Item2.Item2){ throw New-Object System.InvalidOperationException ($errorMessages.InvalidTrigger -f $_.Item2.Item1, $_.Item2.Item2)}
@@ -697,6 +737,22 @@ function CreateTaskSchedulerTrigger ($ScheduledTimeSpan, $ScheduledDuration, $Sc
     {
         $ScheduledAt | %{New-ScheduledTaskTrigger -At $_ -Once}
     }
+    elseif ($AtStartup)
+    {
+        New-ScheduledTaskTrigger -AtStartup
+    }
+    elseif ($AtLogOn)
+    {
+        if (-not ([string]::IsNullOrWhiteSpace($LogOnUserId)))
+        {
+            New-ScheduledTaskTrigger -AtLogOn -User $LogOnUserId
+        }
+        else
+        {
+            New-ScheduledTaskTrigger -AtLogOn
+        }
+        
+    }
     return $trigger
 }
 
@@ -704,8 +760,14 @@ function CreateTaskSchedulerTrigger ($ScheduledTimeSpan, $ScheduledDuration, $Sc
 
 #region Convert Helper
 
-function TicksToTimeSpan ([System.Int64]$Ticks)
+function TicksToTimeSpan
 {
+    [OutputType([System.TimeSpan])]
+    [CmdletBinding()]
+    param
+    (
+        [System.Int64]$Ticks
+    )
     return [TimeSpan]::FromTicks($Ticks)
 }
 
@@ -713,13 +775,30 @@ function TicksToTimeSpan ([System.Int64]$Ticks)
 
 #region Get Helper
 
-function GetExistingTaskScheduler ($TaskName, $TaskPath)
+function GetExistingTaskScheduler
 {
-    return Get-ScheduledTask | where TaskName -eq $taskName | where TaskPath -eq $taskPath
+    [CmdletBinding()]
+    param
+    (
+        [string]$TaskName,
+        [string]$TaskPath
+    )
+    return Get-ScheduledTask | where TaskName -eq $TaskName | where TaskPath -eq $TaskPath
 }
 
-function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $scheduleTaskParam)
+function GetRegisterParam
 {
+    [OutputType([HashTable])]
+    [CmdletBinding()]
+    param
+    (
+        $Credential,
+        $Runlevel,
+        [string]$TaskName,
+        [string]$TaskPath,
+        $scheduleTaskParam
+    )
+
     if (([PSCredential]::Empty -ne $Credential) -and ("SYSTEM" -ne $Credential.UserName))
     {
         Write-Debug $debugMessages.UsePrincipal
@@ -760,7 +839,6 @@ function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $schedu
             TaskName = $TaskName
             TaskPath = $TaskPath
         }
-
     }
 }
 
@@ -768,14 +846,30 @@ function GetRegisterParam ($Credential, $Runlevel, $TaskName, $TaskPath, $schedu
 
 #region Test Helper
 
-function TestExistingTaskScheduler ($TaskName, $TaskPath)
+function TestExistingTaskScheduler
 {
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [string]$TaskName,
+        [string]$TaskPath
+    )
+
     $task = GetExistingTaskScheduler -TaskName $TaskName -TaskPath $TaskPath
     return ($task | Measure-Object).count -ne 0
 }
 
-function TestExistingTaskSchedulerWithPath ($TaskName, $TaskPath)
+function TestExistingTaskSchedulerWithPath
 {
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [string]$TaskName,
+        [string]$TaskPath
+    )
+
     if ($TaskPath -ne "\"){ return $false }
 
     # only run when taskpath is \
@@ -789,10 +883,488 @@ function TestExistingTaskSchedulerWithPath ($TaskName, $TaskPath)
     return $false
 }
 
+function GetScheduledTask
+{
+    [OutputType([HashTable])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance[]]$ScheduledTask,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $true)]
+        [string]$Value
+    )
+
+    Write-Debug ($debugMessages.CheckScheduleTaskExist -f $parameter, $Value)
+    $task = $ScheduledTask | where $Parameter -eq $Value
+    $uniqueValue = $task.$Parameter | sort -Unique
+    $result = $uniqueValue -eq $Value
+    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $uniqueValue)
+    return @{
+        task = $task
+        target = $uniqueValue
+        result = $result
+    }
+}
+
+function TestScheduledTask
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
+
+        [parameter(Mandatory = $true)]
+        [ScheduledParameterType]$Type,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    # skip null
+    if ($Value -eq $null)
+    {
+        Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    Write-Debug ($debugMessages.CheckScheduleTaskParameter -f $Parameter, $Value)
+    $target = switch ($Type)
+    {
+        ([ScheduledParameterType]::Root)
+        {
+            $ScheduledTask.$Parameter | sort -Unique
+        }
+        ([ScheduledParameterType]::Actions)
+        {
+            $ScheduledTask.Actions.$Parameter | sort -Unique
+        }
+        ([ScheduledParameterType]::Principal)
+        {
+            $ScheduledTask.Principal.$Parameter | sort -Unique
+        }
+        ([ScheduledParameterType]::Settings)
+        {
+            $ScheduledTask.Settings.$Parameter | sort -Unique
+        }
+        ([ScheduledParameterType]::Triggers)
+        {
+            $ScheduledTask.Triggers.$Parameter | sort -Unique
+        }
+    }
+            
+    if ($Value.GetType().FullName -eq [string].FullName)
+    {
+        if (($target -eq $null) -and ([string]::IsNullOrEmpty($Value)))
+        {
+            return @{
+                target = $target
+                result = $true
+            }
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+        }
+    }
+
+    # value check
+    $result = $target -eq $Value
+    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+    return @{
+        target = $target
+        result = $result
+    }
+}
+
+function TestScheduledTaskExecutionTimeLimit
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    $private:parameter = "ExecutionTimeLimit"
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    # skip null
+    if ($Value -eq $null)
+    {
+        Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    $Value = $Value -as [TimeSpan]
+    Write-Debug ($debugMessages.CheckScheduleTaskParameterTimeSpan -f $parameter, $Value.TotalMinutes)
+    $executionTimeLimitTimeSpan = [System.Xml.XmlConvert]::ToTimeSpan($ScheduledTask.Settings.$parameter)
+    $result = $Value -eq $executionTimeLimitTimeSpan
+    Write-Debug ($debugMessages.ScheduleTaskTimeSpanResult -f $parameter, $result, $executionTimeLimitTimeSpan.TotalMinutes)
+    return @{
+        target = $executionTimeLimitTimeSpan
+        result = $result
+    }
+}
+
+function TestScheduledTaskDisable
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    # convert Enable -> Disable
+    $target = $ScheduledTask.Settings.Enabled -eq $false
+            
+    # value check
+    Write-Debug ($debugMessages.CheckScheduleTaskParameter -f "Disable", $Value)
+    $result = $target -eq $Value
+    Write-Debug ($debugMessages.ScheduleTaskResult -f "Disable", $result, $target)
+    return @{
+        target = $target
+        result = $result
+    }
+}
+
+function TestScheduledTaskScheduledAt
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
+
+        [parameter(Mandatory = $false)]
+        [DateTime[]]$Value,
+
+        [bool]$IsExist
+    )
+
+    $private:parameter = "StartBoundary"
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    # skip null
+    if ($Value -eq $null)
+    {
+        Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    $valueCount = ($Value | measure).Count
+    $scheduleCount = ($ScheduledTask.Triggers | measure).Count
+    if ($valueCount -ne $scheduleCount)
+    {
+        throw New-Object System.ArgumentException ($errorMessages.ScheduleAtArgumentLength -f $scheduleCount, $valueCount)
+    }
+
+    $result = $target = @()
+    for ($i = 0; $i -le ($ScheduledTask.Triggers.$parameter.Count -1); $i++)
+    {
+        Write-Debug ($debugMessages.CheckScheduleTaskParameter -f $parameter, $Value[$i])
+        $startBoundaryDateTime = [System.Xml.XmlConvert]::ToDateTime(@($ScheduledTask.Triggers.$parameter)[$i])
+        $target += $startBoundaryDateTime
+        $result += @($Value)[$i] -eq $startBoundaryDateTime
+        Write-Debug ($debugMessages.ScheduleTaskResult -f $parameter, $result[$i], $startBoundaryDateTime)
+    }
+    return @{
+        target = $target
+        result = $result | sort -Unique
+    }
+}
+
+function TestScheduledTaskScheduledRepetition
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [TimeSpan[]]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    # skip null
+    if ($Value -eq $null)
+    {
+        Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    $valueCount = ($Value | measure).Count
+    $scheduleCount = ($ScheduledTask.Triggers | measure).Count
+    if ($valueCount -ne $scheduleCount)
+    {
+        throw New-Object System.ArgumentException ($errorMessages.ScheduleRepetitionArgumentLength -f $scheduleCount, $valueCount)
+    }
+
+    $result = $target = @()
+    for ($i = 0; $i -le ($ScheduledTask.Triggers.Repetition.$Parameter.Count -1); $i++)
+    {
+        Write-Debug ($debugMessages.CheckScheduleTaskParameter -f $Parameter, $Value[$i])
+        $repetition = [System.Xml.XmlConvert]::ToTimeSpan(@($ScheduledTask.Triggers.Repetition.$Parameter)[$i])
+        $target += $repetition
+        $result = @($Value)[$i] -eq $repetition
+        Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result[$i], $target.TotalMinutes)
+    }
+    return @{
+        target = $target
+        result = $result | sort -Unique
+    }
+}
+
+function TestScheduledTaskTriggerScheduleByDay
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$ScheduledTaskXml,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    $trigger = ($ScheduledTaskXml.task.Triggers.CalendarTrigger.ScheduleByDay | measure).Count
+    $result = $false
+    switch ($Parameter)
+    {
+        "Daily"
+        {
+            Write-Debug $debugMessages.CheckSchedulerDaily
+            $result = if ($Value)
+            {
+                $trigger -ne 0
+            }
+            else
+            {
+                $trigger-eq 0
+            }
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
+        }
+        "Once"
+        {
+            Write-Debug $debugMessages.CheckSchedulerOnce
+            $result = if ($Value)
+            {
+                $trigger -eq 0
+            }
+            else
+            {
+                $trigger -ne 0
+            }
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
+        }
+    }
+    return @{
+        target = $result
+        result = $result
+    }
+}
+
+function TestScheduledTaskTriggerBootTrigger
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$ScheduledTaskXml,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    $trigger = $ScheduledTaskXml.task.Triggers.BootTrigger
+    $result = $false
+    Write-Debug $debugMessages.CheckSchedulerAtStartup
+    $target = $trigger.Enabled
+    $result = $target -eq $Value
+    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+    return @{
+        target = $target
+        result = $result
+    }
+}
+
+function TestScheduledTaskTriggerLogonTrigger
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$ScheduledTaskXml,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if ($IsExist -eq $false)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
+        }
+    }
+
+    $trigger = $ScheduledTaskXml.task.Triggers.LogonTrigger
+    $result = $false
+    switch ($Parameter)
+    {
+        "AtLogOn"
+        {
+            Write-Debug $debugMessages.CheckSchedulerAtLogOn
+            $target = $trigger.Enabled
+            $result = $target -eq $Value
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+        }
+        "UserId"
+        {
+            Write-Debug ($debugMessages.CheckSchedulerUserId -f $Value)
+            $target = $trigger.UserId
+            $result = $target -eq $Value
+            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+        }
+    }
+    return @{
+        target = $target
+        result = $result
+    }
+}
+
 function TestScheduledTaskStatus
 {
     [OutputType([HashTable])]
-    [CmdletBinding(DefaultParameterSetName = "ScheduledDuration")]
+    [CmdletBinding(DefaultParameterSetName = "Repetition")]
     param
     (
         [parameter(Mandatory = 1, Position  = 0)]
@@ -813,11 +1385,11 @@ function TestScheduledTaskStatus
         [parameter(Mandatory = 0, Position  = 5)]
         [datetime[]]$ScheduledAt,
 
-        [parameter(Mandatory = 0, Position  = 6, parameterSetName = "ScheduledDuration")]
-        [TimeSpan[]]$ScheduledTimeSpan,
+        [parameter(Mandatory = 0, Position  = 6, parameterSetName = "Repetition")]
+        [TimeSpan[]]$RepetitionInterval,
 
-        [parameter(Mandatory = 0, Position  = 7, parameterSetName = "ScheduledDuration")]
-        [TimeSpan[]]$ScheduledDuration,
+        [parameter(Mandatory = 0, Position  = 7, parameterSetName = "Repetition")]
+        [TimeSpan[]]$RepetitionDuration,
 
         [parameter(Mandatory = 0, Position  = 8, parameterSetName = "Daily")]
         [bool]$Daily = $false,
@@ -825,513 +1397,140 @@ function TestScheduledTaskStatus
         [parameter(Mandatory = 0, Position  = 9, parameterSetName = "Once")]
         [bool]$Once = $false,
 
-        [parameter(Mandatory = 0, Position  = 10)]
-        [string]$Description,
+        [parameter(Mandatory = 0, Position  = 10, parameterSetName = "AtStatup")]
+        [bool]$AtStartup = $false,
 
-        [parameter(Mandatory = 0, Position  = 11)]
-        [PScredential]$Credential,
+        [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
+        [bool]$AtLogOn = $false,
 
         [parameter(Mandatory = 0, Position  = 12)]
-        [bool]$Disable,
+        [string]$Description,
 
         [parameter(Mandatory = 0, Position  = 13)]
-        [bool]$Hidden,
+        [PScredential]$Credential,
 
         [parameter(Mandatory = 0, Position  = 14)]
+        [bool]$Disable,
+
+        [parameter(Mandatory = 0, Position  = 15)]
+        [bool]$Hidden,
+
+        [parameter(Mandatory = 0, Position  = 16)]
         [TimeSpan]$ExecutionTimeLimit,
 
-        [parameter(Mandatory = 0,Position  = 15)]
+        [parameter(Mandatory = 0, Position  = 17)]
         [ValidateSet("At", "Win8", "Win7", "Vista", "V1")]
         [string]$Compatibility,
 
-        [parameter(Mandatory = 0,Position  = 16)]
+        [parameter(Mandatory = 0,Position  = 18)]
         [ValidateSet("Highest", "Limited")]
         [string]$Runlevel
     )
 
-    begin
-    {
-        function GetScheduledTask
+    #region Root
+
+        $returnHash = [ordered]@{}
+
+        # get whole task
+        $root = Get-ScheduledTask
+
+        # TaskPath
+        $returnHash.TaskPath = GetScheduledTask -ScheduledTask $root -Parameter TaskPath -Value $TaskPath
+        if ($null -eq $returnHash.TaskPath.task)
         {
-            [OutputType([HashTable])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [Microsoft.Management.Infrastructure.CimInstance[]]$ScheduledTask,
-
-                [parameter(Mandatory = $true)]
-                [string]$Parameter,
-
-                [parameter(Mandatory = $true)]
-                [string]$Value
-            )
-
-            Write-Debug ($debugMessages.CheckScheduleTaskExist -f $parameter, $Value)
-            $task = $ScheduledTask | where $Parameter -eq $Value
-            $uniqueValue = $task.$Parameter | sort -Unique
-            $result = $uniqueValue -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $uniqueValue)
-            return @{
-                task = $task
-                target = $uniqueValue
-                result = $result
+            foreach ($item in [Enum]::GetNames([ScheduledTaskPropertyType]))
+            {
+                $returnHash.$item = @{target = $null; result = $true}
             }
+            return $returnHash;
         }
 
-        function TestScheduledTask
+        # TaskName
+        $returnHash.TaskName = GetScheduledTask -ScheduledTask $returnHash.TaskPath.task -Parameter Taskname -Value $TaskName
+
+        # default
+        $current = $returnHash.TaskName.task
+        if (($current | measure).Count -eq 0){ return $returnHash }
+
+        # export as xml
+        [xml]$script:xml = Export-ScheduledTask -TaskName $current.TaskName -TaskPath $current.TaskPath
+
+        # Description
+        $returnHash.Description = TestScheduledTask -ScheduledTask $current -Parameter Description -Value $Description -Type ([ScheduledParameterType]::Root) -IsExist ($PSBoundParameters.ContainsKey('Description'))
+
+    #endregion
+
+    #region Action
+
+        # Execute
+        $returnHash.Execute = TestScheduledTask -ScheduledTask $current -Parameter Execute -Value $Execute -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('Execute'))
+
+        # Arguments
+        $returnHash.Argument = TestScheduledTask -ScheduledTask $current -Parameter Arguments -Value $Argument -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('Argument'))
+
+        # WorkingDirectory
+        $returnHash.WorkingDirectory = TestScheduledTask -ScheduledTask $current -Parameter WorkingDirectory -Value $WorkingDirectory -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('WorkingDirectory'))
+
+    #endregion
+
+    #region Principal
+
+        # UserId
+        $returnHash.Credential = TestScheduledTask -ScheduledTask $current -Parameter UserId -Value $Credential.UserName -Type ([ScheduledParameterType]::Principal) -IsExist ($PSBoundParameters.ContainsKey('Credential'))
+
+        # RunLevel
+        $returnHash.RunLevel = TestScheduledTask -ScheduledTask $current -Parameter RunLevel -Value $Runlevel -Type ([ScheduledParameterType]::Principal) -IsExist ($PSBoundParameters.ContainsKey('Runlevel'))
+
+    #endregion
+
+    #region Settings
+
+        # Compatibility
+        $returnHash.Compatibility = TestScheduledTask -ScheduledTask $current -Parameter Compatibility -Value $Compatibility -Type ([ScheduledParameterType]::Settings) -IsExist ($PSBoundParameters.ContainsKey('Compatibility'))
+
+        # ExecutionTimeLimit
+        $returnHash.ExecutionTimeLimit = TestScheduledTaskExecutionTimeLimit -ScheduledTask $current -Value $ExecutionTimeLimit -IsExist ($PSBoundParameters.ContainsKey('ExecutionTimeLimit'))
+
+        # Hidden
+        $returnHash.Hidden = TestScheduledTask -ScheduledTask $current -Parameter Hidden -Value $Hidden -Type ([ScheduledParameterType]::Settings) -IsExist ($PSBoundParameters.ContainsKey('Hidden'))
+
+        # Disable
+        $returnHash.Disable = TestScheduledTaskDisable -ScheduledTask $current -Value $Disable -IsExist ($PSBoundParameters.ContainsKey('Disable'))
+
+    #endregion
+
+    #region Triggers
+
+        # SchduledAt
+        $returnHash.ScheduledAt = TestScheduledTaskScheduledAt -ScheduledTask $current -Value $ScheduledAt -IsExist ($PSBoundParameters.ContainsKey('ScheduledAt'))
+
+        # RepetitionInterval
+        $returnHash.RepetitionInterval = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $RepetitionInterval -Parameter Interval -IsExist ($PSBoundParameters.ContainsKey('RepetitionInterval'))
+
+        # RepetitionDuration
+        $returnHash.RepetitionDuration = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $RepetitionDuration -Parameter Duration -IsExist ($PSBoundParameters.ContainsKey('RepetitionDuration'))
+
+        # Daily
+        $returnHash.Daily = TestScheduledTaskTriggerScheduleByDay -ScheduledTaskXml $xml -Parameter Daily -Value $Daily -IsExist ($PSBoundParameters.ContainsKey('Daily'))
+
+        # Once
+        $returnHash.Once = TestScheduledTaskTriggerScheduleByDay -ScheduledTaskXml $xml -Parameter Once -Value $Once -IsExist ($PSBoundParameters.ContainsKey('Once'))
+
+        # AtStartup
+        $returnHash.AtStartup = TestScheduledTaskTriggerBootTrigger -ScheduledTaskXml $xml -Parameter AtStatup -Value $AtStartup -IsExist ($PSBoundParameters.ContainsKey('AtStartup'))
+
+        # AtLogOn
+        $returnHash.AtLogOn = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
+
+        # UserId (AtLogOn execute UserId)
+        if ($Credential -ne [PSCredential]::Empty)
         {
-            [OutputType([bool])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
+            $returnHash.AtLogon.result = (TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $Credential.UserName -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))).Result;
+        }        
 
-                [parameter(Mandatory = $true)]
-                [ScheduledParameterType]$Type,
+    #endregion
 
-                [parameter(Mandatory = $true)]
-                [string]$Parameter,
-
-                [parameter(Mandatory = $false)]
-                [PSObject]$Value,
-
-                [bool]$IsExist
-            )
-
-            # skip when Parameter not use
-            if ($IsExist -eq $false)
-            {
-                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            # skip null
-            if ($Value -eq $null)
-            {
-                Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            Write-Debug ($debugMessages.CheckScheduleTaskParameter -f $Parameter, $Value)
-            $target = switch ($Type)
-            {
-                ([ScheduledParameterType]::Root)
-                {
-                    $ScheduledTask.$Parameter | sort -Unique
-                }
-                ([ScheduledParameterType]::Actions)
-                {
-                    $ScheduledTask.Actions.$Parameter | sort -Unique
-                }
-                ([ScheduledParameterType]::Principal)
-                {
-                    $ScheduledTask.Principal.$Parameter | sort -Unique
-                }
-                ([ScheduledParameterType]::Settings)
-                {
-                    $ScheduledTask.Settings.$Parameter | sort -Unique
-                }
-                ([ScheduledParameterType]::Triggers)
-                {
-                    $ScheduledTask.Triggers.$Parameter | sort -Unique
-                }
-            }
-            
-            if ($Value.GetType().FullName -eq [string].FullName)
-            {
-                if (($target -eq $null) -and ([string]::IsNullOrEmpty($Value)))
-                {
-                    return @{
-                        target = $target
-                        result = $true
-                    }
-                    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
-                }
-            }
-
-            # value check
-            $result = $target -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
-            return @{
-                target = $target
-                result = $result
-            }
-        }
-
-        function TestScheduledTaskExecutionTimeLimit
-        {
-            [OutputType([bool])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
-
-                [parameter(Mandatory = $false)]
-                [PSObject]$Value,
-
-                [bool]$IsExist
-            )
-
-            $private:parameter = "ExecutionTimeLimit"
-
-            # skip when Parameter not use
-            if ($IsExist -eq $false)
-            {
-                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            # skip null
-            if ($Value -eq $null)
-            {
-                Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            $Value = $Value -as [TimeSpan]
-            Write-Debug ($debugMessages.CheckScheduleTaskParameterTimeSpan -f $parameter, $Value.TotalMinutes)
-            $executionTimeLimitTimeSpan = [System.Xml.XmlConvert]::ToTimeSpan($ScheduledTask.Settings.$parameter)
-            $result = $Value -eq $executionTimeLimitTimeSpan
-            Write-Debug ($debugMessages.ScheduleTaskTimeSpanResult -f $parameter, $result, $executionTimeLimitTimeSpan.TotalMinutes)
-            return @{
-                target = $executionTimeLimitTimeSpan
-                result = $result
-            }
-        }
-
-        function TestScheduledTaskDisable
-        {
-            [OutputType([bool])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
-
-                [parameter(Mandatory = $false)]
-                [PSObject]$Value,
-
-                [bool]$IsExist
-            )
-
-            # skip when Parameter not use
-            if ($IsExist -eq $false)
-            {
-                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            # convert Enable -> Disable
-            $target = $ScheduledTask.Settings.Enabled -eq $false
-            
-            # value check
-            Write-Debug ($debugMessages.CheckScheduleTaskParameter -f "Disable", $Value)
-            $result = $target -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f "Disable", $result, $target)
-            return @{
-                target = $target
-                result = $result
-            }
-        }
-
-        function TestScheduledTaskScheduledAt
-        {
-            [OutputType([bool])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
-
-                [parameter(Mandatory = $false)]
-                [DateTime[]]$Value,
-
-                [bool]$IsExist
-            )
-
-            $private:parameter = "StartBoundary"
-
-            # skip when Parameter not use
-            if ($IsExist -eq $false)
-            {
-                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            # skip null
-            if ($Value -eq $null)
-            {
-                Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            $valueCount = ($Value | measure).Count
-            $scheduleCount = ($ScheduledTask.Triggers | measure).Count
-            if ($valueCount -ne $scheduleCount)
-            {
-                throw New-Object System.ArgumentException ($errorMessages.ScheduleAtArgumentLength -f $scheduleCount, $valueCount)
-            }
-
-            $result = $target = @()
-            for ($i = 0; $i -le ($ScheduledTask.Triggers.$parameter.Count -1); $i++)
-            {
-                Write-Debug ($debugMessages.CheckScheduleTaskParameter -f $parameter, $Value[$i])
-                $startBoundaryDateTime = [System.Xml.XmlConvert]::ToDateTime(@($ScheduledTask.Triggers.$parameter)[$i])
-                $target += $startBoundaryDateTime
-                $result += @($Value)[$i] -eq $startBoundaryDateTime
-                Write-Debug ($debugMessages.ScheduleTaskResult -f $parameter, $result[$i], $startBoundaryDateTime)
-            }
-            return @{
-                target = $target
-                result = $result | sort -Unique
-            }
-        }
-
-        function TestScheduledTaskScheduledRepetition
-        {
-            [OutputType([bool])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [Microsoft.Management.Infrastructure.CimInstance]$ScheduledTask,
-
-                [parameter(Mandatory = $true)]
-                [string]$Parameter,
-
-                [parameter(Mandatory = $false)]
-                [TimeSpan[]]$Value,
-
-                [bool]$IsExist
-            )
-
-            # skip when Parameter not use
-            if ($IsExist -eq $false)
-            {
-                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            # skip null
-            if ($Value -eq $null)
-            {
-                Write-Debug ($debugMessages.SkipNullPassedParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            $valueCount = ($Value | measure).Count
-            $scheduleCount = ($ScheduledTask.Triggers | measure).Count
-            if ($valueCount -ne $scheduleCount)
-            {
-                throw New-Object System.ArgumentException ($errorMessages.ScheduleRepetitionArgumentLength -f $scheduleCount, $valueCount)
-            }
-
-            $result = $target = @()
-            for ($i = 0; $i -le ($ScheduledTask.Triggers.Repetition.$Parameter.Count -1); $i++)
-            {
-                Write-Debug ($debugMessages.CheckScheduleTaskParameter -f $Parameter, $Value[$i])
-                $repetition = [System.Xml.XmlConvert]::ToTimeSpan(@($ScheduledTask.Triggers.Repetition.$Parameter)[$i])
-                $target += $repetition
-                $result = @($Value)[$i] -eq $repetition
-                Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result[$i], $target.TotalMinutes)
-            }
-            return @{
-                target = $target
-                result = $result | sort -Unique
-            }
-        }
-
-        function TestScheduledTaskTriggerBy
-        {
-            [OutputType([bool])]
-            [CmdletBinding()]
-            param
-            (
-                [parameter(Mandatory = $true)]
-                [System.Xml.XmlDocument]$ScheduledTaskXml,
-
-                [parameter(Mandatory = $true)]
-                [string]$Parameter,
-
-                [parameter(Mandatory = $false)]
-                [PSObject]$Value,
-
-                [bool]$IsExist
-            )
-
-            # skip when Parameter not use
-            if ($IsExist -eq $false)
-            {
-                Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
-                return @{
-                    target = $null
-                    result = $true
-                }
-            }
-
-            $trigger = ($ScheduledTaskXml.task.Triggers.CalendarTrigger.ScheduleByDay | measure).Count
-            $result = $false
-            switch ($Parameter)
-            {
-                "Daily"
-                {
-                    Write-Debug $debugMessages.CheckSchedulerDaily
-                    $result = if ($Value)
-                    {
-                        $trigger -ne 0
-                    }
-                    else
-                    {
-                        $trigger-eq 0
-                    }
-                    Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
-                }
-                "Once"
-                {
-                    Write-Debug $debugMessages.CheckSchedulerOnce
-                    $result = if ($Value)
-                    {
-                        $trigger -eq 0
-                    }
-                    else
-                    {
-                        $trigger -ne 0
-                    }
-                    Write-Debug ($verboseMessages.ScheduleTaskResult -f $Parameter, $result, $trigger)
-                }
-            }
-            return @{
-                target = $result
-                result = $result
-            }
-        }
-    }
-    
-    end
-    {
-        #region Root
-
-            $returnHash = [ordered]@{}
-
-            # get whole task
-            $root = Get-ScheduledTask
-
-            # TaskPath
-            $returnHash.TaskPath = GetScheduledTask -ScheduledTask $root -Parameter TaskPath -Value $TaskPath
-            if ($null -eq $returnHash.TaskPath.task)
-            {
-                foreach ($item in [Enum]::GetNames([ScheduledTaskPropertyType]))
-                {
-                    $returnHash.$item = @{target = $null; result = $true}
-                }
-                return $returnHash;
-            }
-
-            # TaskName
-            $returnHash.TaskName = GetScheduledTask -ScheduledTask $returnHash.TaskPath.task -Parameter Taskname -Value $TaskName
-
-            # default
-            $current = $returnHash.TaskName.task
-            if (($current | measure).Count -eq 0){ return $returnHash }
-
-            # export as xml
-            [xml]$script:xml = Export-ScheduledTask -TaskName $current.TaskName -TaskPath $current.TaskPath
-
-            # Description
-            $returnHash.Description = TestScheduledTask -ScheduledTask $current -Parameter Description -Value $Description -Type ([ScheduledParameterType]::Root) -IsExist ($PSBoundParameters.ContainsKey('Description'))
-
-        #endregion
-
-        #region Action
-
-            # Execute
-            $returnHash.Execute = TestScheduledTask -ScheduledTask $current -Parameter Execute -Value $Execute -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('Execute'))
-
-            # Arguments
-            $returnHash.Argument = TestScheduledTask -ScheduledTask $current -Parameter Arguments -Value $Argument -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('Argument'))
-
-            # WorkingDirectory
-            $returnHash.WorkingDirectory = TestScheduledTask -ScheduledTask $current -Parameter WorkingDirectory -Value $WorkingDirectory -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('WorkingDirectory'))
-
-        #endregion
-
-        #region Principal
-
-            # UserId
-            $returnHash.Credential = TestScheduledTask -ScheduledTask $current -Parameter UserId -Value $Credential.UserName -Type ([ScheduledParameterType]::Principal) -IsExist ($PSBoundParameters.ContainsKey('Credential'))
-
-            # RunLevel
-            $returnHash.RunLevel = TestScheduledTask -ScheduledTask $current -Parameter RunLevel -Value $Runlevel -Type ([ScheduledParameterType]::Principal) -IsExist ($PSBoundParameters.ContainsKey('Runlevel'))
-
-        #endregion
-
-        #region Settings
-
-            # Compatibility
-            $returnHash.Compatibility = TestScheduledTask -ScheduledTask $current -Parameter Compatibility -Value $Compatibility -Type ([ScheduledParameterType]::Settings) -IsExist ($PSBoundParameters.ContainsKey('Compatibility'))
-
-            # ExecutionTimeLimit
-            $returnHash.ExecutionTimeLimit = TestScheduledTaskExecutionTimeLimit -ScheduledTask $current -Value $ExecutionTimeLimit -IsExist ($PSBoundParameters.ContainsKey('ExecutionTimeLimit'))
-
-            # Hidden
-            $returnHash.Hidden = TestScheduledTask -ScheduledTask $current -Parameter Hidden -Value $Hidden -Type ([ScheduledParameterType]::Settings) -IsExist ($PSBoundParameters.ContainsKey('Hidden'))
-
-            # Disable
-            $returnHash.Disable = TestScheduledTaskDisable -ScheduledTask $current -Value $Disable -IsExist ($PSBoundParameters.ContainsKey('Disable'))
-
-        #endregion
-
-        #region Triggers
-
-            # SchduledAt
-            $returnHash.ScheduledAt = TestScheduledTaskScheduledAt -ScheduledTask $current -Value $ScheduledAt -IsExist ($PSBoundParameters.ContainsKey('ScheduledAt'))
-
-            # ScheduledTimeSpan (Repetition Interval)
-            $returnHash.ScheduledTimeSpan = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $ScheduledTimeSpan -Parameter Interval -IsExist ($PSBoundParameters.ContainsKey('ScheduledTimeSpan'))
-
-            # ScheduledDuration (Repetition Duration)
-            $returnHash.ScheduledDuration = TestScheduledTaskScheduledRepetition -ScheduledTask $current -Value $ScheduledDuration -Parameter Duration -IsExist ($PSBoundParameters.ContainsKey('ScheduledDuration'))
-
-            # Daily
-            $returnHash.Daily = TestScheduledTaskTriggerBy -ScheduledTaskXml $xml -Parameter Daily -Value $Daily -IsExist ($PSBoundParameters.ContainsKey('Daily'))
-
-            # Once
-            $returnHash.Once = TestScheduledTaskTriggerBy -ScheduledTaskXml $xml -Parameter Once -Value $Once -IsExist ($PSBoundParameters.ContainsKey('Once'))
-
-        #endregion
-
-        return $returnHash
-    }
+    return $returnHash
 }
 
 #endregion

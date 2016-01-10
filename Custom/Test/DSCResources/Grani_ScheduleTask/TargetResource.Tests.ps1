@@ -17,15 +17,15 @@ Describe "Grani_ScheduleTask : TargetResource" {
     $executeTimeLimitTicks = [TimeSpan]::FromDays(3).Ticks
     $hidden = $true
     $disable = $false
-    $scheduledAt = [datetime]"0:0:0"
-    $scheduledTimeSpanDay = 0
-    $scheduledTimeSpanHour = 1
-    $scheduledTimeSpanMin = 0
-    $scheduledDurationDay = 1
-    $scheduledDurationHour = 0
-    $scheduledDurationMin = 0
+    $scheduledAt = [datetime]"00:00:00"
+    $repetitionIntervalTimeSpanString = [TimeSpan]::FromHours(1).ToString()
+    $repetitionDurationTimeSpanString = [TimeSpan]::FromDays(1).ToString()
+    $emptyRepetitionIntervalTimeSpanString = ""
+    $emptyRepetitionDurationTimeSpanString = ""
     $once = $true
     $daily = $true
+    $atStartup = $true
+    $atLogOn = $true
 
     Context "Scratch environment with simple parameters." {
 
@@ -96,29 +96,45 @@ Describe "Grani_ScheduleTask : TargetResource" {
     }
 
     Context "Scratch environment with Complex parameters." {
-        It "Set-TargetResource Present should Throw as ScheduledTimespan and Daily use same time." {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin -Daily $daily} | should Throw
+        It "Set-TargetResource Present should Throw as RepetitionInterval and Daily use same time." {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString -Daily $daily} | should Throw
         }
 
-        It "Set-TargetResource Present should Throw as ScheduledTimespan and Once use same time." {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin -Once $once} | should Throw
+        It "Set-TargetResource Present should Throw as RepetitionInterval and Once use same time." {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString -Once $once} | should Throw
+        }
+
+        It "Set-TargetResource Present should Throw as RepetitionInterval and AtStartup use same time." {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString -AtStartup $atStartup} | should Throw
+        }
+
+        It "Set-TargetResource Present should not Throw when RepetitionInterval and AtLogOn use same time." {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString -AtLogOn $atLogOn} | should Throw
+        }
+
+        It "Set-TargetResource Present should not Throw when ScheduleAt and AtStartup use same time." {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -AtStartup $atStartup} | should not Throw
+        }
+
+        It "Set-TargetResource Present should Throw as ScheduleAt and AtLogOn use same time." {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -AtLogOn $atLogOn} | should not Throw
         }
 
         It "Set-TargetResource Present should not Throw." {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin} | should not Throw
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString} | should not Throw
         }
 
         It "Test-TargetResource should return true as Ensure : $ensure" {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $true
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $true
         }
     }
 
     Context "Get Each returned value as is matched with passed parameter." {
         It "Get-TargetResource should not throw" {
-            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin} | should not Throw
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString} | should not Throw
         }
 
-        $result = Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin
+        $result = Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString
 
         It "Get-TargetResource should return Ensure : $ensure" {
             $result.Ensure | should be $ensure
@@ -176,98 +192,82 @@ Describe "Grani_ScheduleTask : TargetResource" {
             $result.ScheduledAt | should be $scheduledAt
         }
 
-        It "Get-TargetResource should return ScheduledTimeSpanDay : $scheduledTimeSpanDay" {
-            $result.ScheduledTimeSpanDay | should be $scheduledTimeSpanDay
+        It "Get-TargetResource should return RepetitionInterval : $repetitionIntervalTimeSpanString" {
+            $result.RepetitionIntervalTimeSpanString | should be $repetitionIntervalTimeSpanString
         }
 
-        It "Get-TargetResource should return ScheduledTimeSpanHour : $scheduledTimeSpanHour" {
-            $result.ScheduledTimeSpanHour | should be $scheduledTimeSpanHour
-        }
-
-        It "Get-TargetResource should return ScheduledTimeSpanMin : $scheduledTimeSpanMin" {
-            $result.ScheduledTimeSpanMin | should be $scheduledTimeSpanMin
-        }
-
-        It "Get-TargetResource should return ScheduledDurationDay : $scheduledDurationDay" {
-            $result.ScheduledDurationDay | should be $scheduledDurationDay
-        }
-
-        It "Get-TargetResource should return ScheduledDurationHour : $scheduledDurationHour" {
-            $result.ScheduledDurationHour | should be $scheduledDurationHour
-        }
-
-        It "Get-TargetResource should return ScheduledDurationMin : $scheduledDurationMin" {
-            $result.ScheduledDurationMin | should be $scheduledDurationMin
+        It "Get-TargetResource should return RepetitionDuration : $repetitionDurationTimeSpanString" {
+            $result.RepetitionDurationTimeSpanString | should be $repetitionDurationTimeSpanString
         }
     }
 
     Context "Test existing Settings is detected as false for each not same passed parameters." {
         It "Test-TargetResource should return false for invalid Description." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description "" -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description "" -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid Execute." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute hoge -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute hoge -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid Argument." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument hoge -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument hoge -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid WorkingDirectory." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory hoge -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory hoge -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid Credential." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential (Get-Credential) -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential (Get-Credential) -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid RunLevel." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel Highest -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel Highest -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid Compatibility." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility Win7 -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility Win7 -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid ExecuteTimeLimitTicks." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks 0 -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks 0 -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid Hidden." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $false -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $false -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid Disable." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $true -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $true -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
         It "Test-TargetResource should return false for invalid ScheduledAt." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt.AddHours(1) -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt.AddHours(1) -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
-        It "Test-TargetResource should return false for invalid scheduledTimeSpanDay." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay ($scheduledTimeSpanDay + 1) -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+        It "Test-TargetResource should return false for invalid RepetitionInterval Day." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString ([TimeSpan]$repetitionIntervalTimeSpanString + [TimeSpan]::FromDays(1)).ToString() -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
-        It "Test-TargetResource should return false for invalid scheduledTimeSpanHour." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour ($scheduledTimeSpanHour + 1) -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+        It "Test-TargetResource should return false for invalid RepetitionInterval Hour." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString ([TimeSpan]$repetitionIntervalTimeSpanString + [TimeSpan]::FromHours(1)).ToString() -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
-        It "Test-TargetResource should return false for invalid scheduledTimeSpanMin." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin ($scheduledTimeSpanMin + 1) -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+        It "Test-TargetResource should return false for invalid RepetitionInterval Min." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString ([TimeSpan]$repetitionIntervalTimeSpanString + [TimeSpan]::FromMinutes(1)).ToString() -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString | should be $false
         }
 
-        It "Test-TargetResource should return false for invalid ScheduledDurationDay." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay ($scheduledDurationDay + 1) -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin | should be $false
+        It "Test-TargetResource should return false for invalid RepetitionDuration Day." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString ([TimeSpan]$repetitionDurationTimeSpanString + [TimeSpan]::FromDays(1)).ToString() | should be $false
         }
 
-        It "Test-TargetResource should return false for invalid ScheduledDurationHour." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour ($scheduledDurationHour + 1) -ScheduledDurationMin $scheduledDurationMin | should be $false
+        It "Test-TargetResource should return false for invalid RepetitionDuration Hour." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString ([TimeSpan]$repetitionDurationTimeSpanString + [TimeSpan]::FromHours(1)).ToString() | should be $false
         }
 
-        It "Test-TargetResource should return false for invalid scheduledTimeSpanHour." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin ($scheduledDurationMin + 1) | should be $false
+        It "Test-TargetResource should return false for invalid RepetitionInterval Hour." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString ([TimeSpan]$repetitionDurationTimeSpanString + [TimeSpan]::FromMinutes(1)).ToString() | should be $false
         }
     }
 
@@ -285,11 +285,24 @@ Describe "Grani_ScheduleTask : TargetResource" {
         }
     }
 
+    Context "Try Empty Repetition" {
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, ScheduledAt : $scheduledAt, RepetitionIntervalTimeSpanString : $emptyrepetitionIntervalTimeSpanString, RepetitionDuration : $emptyRepetitionDuration" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString} | should not Throw
+        }
+
+        It "Test-TargetResource should return true." {
+            Test-TargetResource  -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString | should be $true
+        }
+
+        It "Get-TargetResource should not throw" {
+            {Get-TargetResource  -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString} | should not Throw
+        }
+    }
+
     Context "Remove existing Settings." {
         It "Set-TargetResource Absent should not Throw." {
-            {Set-TargetResource -Ensure Absent -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -scheduledTimeSpanDay $scheduledTimeSpanDay -scheduledTimeSpanHour $scheduledTimeSpanHour -ScheduledTimeSpanMin $scheduledTimeSpanMin -ScheduledDurationDay $scheduledDurationDay -ScheduledDurationHour $scheduledDurationHour -ScheduledDurationMin $scheduledDurationMin} | should not Throw
+            {Set-TargetResource -Ensure Absent -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString} | should not Throw
         }
     }
 }
-
 
