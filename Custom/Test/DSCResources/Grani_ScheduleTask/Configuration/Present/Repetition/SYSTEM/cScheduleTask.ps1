@@ -5,14 +5,16 @@
     {
         cScheduleTask hoge
         {
-            Ensure = "present"
+            Ensure = "Present"
             Execute = "powershell.exe"
             Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
             TaskName = "hoge"
             TaskPath = "\"
             ScheduledAt = [datetime]"00:00:00"
-            Daily = $true
-            Runlevel = "Highest"
+            RepetitionIntervalTimeSpanString = @(([TimeSpan]"01:00:00").ToString())
+            RepetitionDurationTimeSpanString = @(([TimeSpan]::MaxValue).ToString())
+            Compatibility = "Win8"
+            Disable = $false
         }
     }
 }
