@@ -299,6 +299,32 @@ Describe "Grani_ScheduleTask : TargetResource" {
         }
     }
 
+    Context "Try AtLogon" {
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $null" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute} | should not Throw
+        }
+
+        It "Test-TargetResource should return true." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute | should be $true
+        }
+
+        It "Get-TargetResource should not throw" {
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute} | should not Throw
+        }
+
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName)" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+        }
+
+        It "Test-TargetResource should return true." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential | should be $true
+        }
+
+        It "Get-TargetResource should not throw" {
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+        }
+    }
+
     Context "Remove existing Settings." {
         It "Set-TargetResource Absent should not Throw." {
             {Set-TargetResource -Ensure Absent -TaskPath $taskPath -TaskName $taskName -Description $description -Execute $execute -Argument $argument -WorkingDirectory $workingDirectory -Credential $credential -Runlevel $runlevel -Compatibility $compatibility -ExecuteTimeLimitTicks $executeTimeLimitTicks -Hidden $hidden -Disable $disable -ScheduledAt $scheduledAt -RepetitionIntervalTimeSpanString $repetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $repetitionDurationTimeSpanString} | should not Throw

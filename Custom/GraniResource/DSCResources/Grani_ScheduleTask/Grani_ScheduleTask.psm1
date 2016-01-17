@@ -482,13 +482,9 @@ function Set-TargetResource
         {
             $null
         }
-        elseif ([string]::IsNullOrWhiteSpace($Credential.GetNetworkCredential().Domain))
-        {
-            $Credential.UserName
-        }
         else
         {
-            "{0}\{1}" -f $Credential.UserName, $Credential.GetNetworkCredential().Domain
+            $Credential.UserName
         }
     }
 
