@@ -45,7 +45,8 @@ function Initialize
             Daily,
             Once,
             AtSartup,
-            AtLogOn
+            AtLogOn,
+            AtLogOnUserId
         }
 "@ -ErrorAction SilentlyContinue
 }
@@ -170,7 +171,10 @@ function Get-TargetResource
         [System.Boolean]$AtStartup,
 
         [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
-        [System.Boolean]$AtLogOn
+        [System.Boolean]$AtLogOn,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
+        [System.String]$AtLogOnUserId = ""
     )
 
     $param = @{}
@@ -212,6 +216,7 @@ function Get-TargetResource
         elseif ($PSBoundParameters.ContainsKey("AtLogOn"))
         {
             $param.AtLogOn = $AtLogOn
+            $param.AtLogOnUserId = $AtLogOnUserId
         }
         else
         {
@@ -287,7 +292,8 @@ function Get-TargetResource
         'Daily',
         'Once',
         'AtStartup',
-        'AtLogOn'
+        'AtLogOn',
+        'AtLogOnUserId'
     ) `
     | where {$taskResult."$_".target -ne $null} `
     | %{$returnHash.$_ = $taskResult."$_".target}
@@ -382,7 +388,10 @@ function Set-TargetResource
         [System.Boolean]$AtStartup,
 
         [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
-        [System.Boolean]$AtLogOn
+        [System.Boolean]$AtLogOn,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
+        [System.String]$AtLogOnUserId = ""
     )
     
     # exist
@@ -475,19 +484,6 @@ function Set-TargetResource
         $interval = $duration = $ScheduledAt = $null
     }
 
-    if ($AtLogOn)
-    {
-        # Set LogOn UserId with Credential User.
-        $logOnUserId = if ($Credential -eq [PSCredential]::Empty)
-        {
-            $null
-        }
-        else
-        {
-            $Credential.UserName
-        }
-    }
-
     Write-Debug ($debugMessages.SetTrigger -f $interval, $duration, $ScheduledAt, $Daily, $Once, $AtStartup, $AtLogOn)
     $triggerParam =
     @{
@@ -498,7 +494,7 @@ function Set-TargetResource
         Once = $Once
         AtStartup = $AtStartup
         AtLogOn = $AtLogOn
-        LogOnUserId = $logOnUserId
+        LogOnUserId = $AtLogOnUserId
     }
     $scheduleTaskParam.trigger = CreateTaskSchedulerTrigger @triggerParam
 
@@ -586,7 +582,10 @@ function Test-TargetResource
         [System.Boolean]$AtStartup,
 
         [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
-        [System.Boolean]$AtLogOn
+        [System.Boolean]$AtLogOn,
+
+        [parameter(Mandatory = $false, parameterSetName = "AtLogOn")]
+        [System.String]$AtLogOnUserId = ""
     )
 
     $param = @{}
@@ -612,11 +611,11 @@ function Test-TargetResource
         'Daily',
         'Once',
         'AtStartup',
-        'AtLogOn'
+        'AtLogOn',
+        'AtLoOnUserId'
     ) `
     | where {$PSBoundParameters.ContainsKey($_)} `
     | %{ $param.$_ = Get-Variable -Name $_ -ValueOnly }
-    "hoge" | Write-Verbose
     return (Get-TargetResource @param).Ensure -eq $Ensure
 }
 
@@ -1399,6 +1398,9 @@ function TestScheduledTaskStatus
         [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
         [bool]$AtLogOn = $false,
 
+        [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
+        [string]$AtLogOnUserId = "",
+
         [parameter(Mandatory = 0, Position  = 12)]
         [string]$Description,
 
@@ -1519,10 +1521,7 @@ function TestScheduledTaskStatus
         $returnHash.AtLogOn = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
 
         # UserId (AtLogOn execute UserId)
-        if ($Credential -ne [PSCredential]::Empty)
-        {
-            $returnHash.AtLogon.result = (TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $Credential.UserName -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))).Result;
-        }        
+        $returnHash.AtLogonUserId = (TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'))).Result;
 
     #endregion
 
