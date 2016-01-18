@@ -15,6 +15,7 @@
             Compatibility = "Win8"
             Disable = $false
             Credential = $Credential
+            AtLogOnUserId = "test"
         }
     }
 }

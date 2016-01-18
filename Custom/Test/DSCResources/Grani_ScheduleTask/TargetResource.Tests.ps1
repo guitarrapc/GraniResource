@@ -26,6 +26,7 @@ Describe "Grani_ScheduleTask : TargetResource" {
     $daily = $true
     $atStartup = $true
     $atLogOn = $true
+    $atLogOnUserId = "test"
 
     Context "Scratch environment with simple parameters." {
 
@@ -312,16 +313,28 @@ Describe "Grani_ScheduleTask : TargetResource" {
             {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute} | should not Throw
         }
 
-        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName)" {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName), AtLogOnUserId : $($credential.UserName)" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential} | should not Throw
         }
 
         It "Test-TargetResource should return true." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential | should be $true
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential | should be $true
         }
 
         It "Get-TargetResource should not throw" {
-            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+        }
+
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName), AtLogOnUserId : $atLogOnUserId" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+        }
+
+        It "Test-TargetResource should return true." {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential | should be $true
+        }
+
+        It "Get-TargetResource should not throw" {
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential} | should not Throw
         }
     }
 

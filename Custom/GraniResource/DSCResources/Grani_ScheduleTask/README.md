@@ -6,7 +6,7 @@ DSC Resource to configure Schedule Task.
 Resource Information
 ----
 
-Name | FriendlyName | ModuleName 
+Name | FriendlyName | ModuleName
 -----|-----|-----
 Grani_ScheduleTask | cScheduleTask | GraniResource
 
@@ -134,7 +134,7 @@ configuration ScheduleTask
 }
 ```
 
-- Create ScheduleTask with AtLogon.
+- Create ScheduleTask with AtLogOn. This configuration will run any user who log on.
 
 ```powershell
 configuration ScheduleTask
@@ -154,7 +154,7 @@ configuration ScheduleTask
 }
 ```
 
-Also LogonUser account will be set if you pass credential.
+Set Specific user to run with AtLogOn.
 
 ```powershell
 configuration ScheduleTask
@@ -168,6 +168,7 @@ configuration ScheduleTask
         TaskName = "hoge"
         TaskPath = "\"
         AtLogon = $true
+        AtLogOnUserId = "test"
         Compatibility = "Win8"
         Credential = $Credential
         Disable = $false
@@ -175,6 +176,21 @@ configuration ScheduleTask
 }
 ```
 
+- Remove ScheduleTask.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Absent"
+        TaskName = "hoge"
+        TaskPath = "\"
+        Disable = $false
+    }
+}
+```
 - Remove ScheduleTask.
 
 ```powershell
@@ -202,7 +218,7 @@ If you didn't specify Credential Property, resource creates schedule task as SYS
 You can set ScheduledTask with Specific UserAccount, only when you passed Valid user account. Otherwise you will get following errors.
 
 ```
-Š®‘SCüƒGƒ‰[ ID ‚Í HRESULT 0x80070534,Register-ScheduledTask ‚Å‚·BƒGƒ‰[ ƒƒbƒZ[ƒW‚Í ƒAƒJƒEƒ“ƒg–¼‚ÆƒZƒLƒ…ƒŠƒeƒB ID ‚ÌŠÔ‚Ìƒ}ƒbƒsƒ“ƒO‚ÍÀs‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½B
+å®Œå…¨ä¿®é£¾ã‚¨ãƒ©ãƒ¼ ID ã¯ HRESULT 0x80070534,Register-ScheduledTask ã§ã™ã€‚ã‚¨ãƒ©ãƒ¼ ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã¯ ã‚¢ã‚«ã‚¦ãƒ³ãƒˆåã¨ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£ ID ã®é–“ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã¯å®Ÿè¡Œã•ã‚Œã¾ã›ã‚“ã§ã—ãŸã€‚
 ```
 
 ```

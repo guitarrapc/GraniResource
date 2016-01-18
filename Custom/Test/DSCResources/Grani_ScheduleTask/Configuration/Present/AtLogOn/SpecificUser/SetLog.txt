@@ -1,42 +1,23 @@
+    ディレクトリ: C:\Users\Administrator\ScheduleTask
+
+
+Mode                LastWriteTime     Length Name                                                               
+----                -------------     ------ ----                                                               
+-a---        2016/01/19      5:47       1816 localhost.mof                                                      
 詳細: パラメーター ''methodName' = SendConfigurationApply,'className' = MSFT_DSCLocalConfigurationManager,'namespaceName' = root/Microsoft/Windows/DesiredStateConfiguration' を使用して操作 'CimMethod の呼び出し' を実行します。
 詳細: コンピューター DSCSERVER、ユーザー SID S-1-5-21-664902234-602511844-991937109-500 から LCM メソッドが呼び出されました。
 詳細: [DSCSERVER]: LCM:  [ 開始     設定       ]
 詳細: [DSCSERVER]: LCM:  [ 開始     リソース     ]  [[cScheduleTask]ScheduleTask]
 詳細: [DSCSERVER]: LCM:  [ 開始     テスト      ]  [[cScheduleTask]ScheduleTask]
+詳細: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Test : test
 詳細: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] False
 デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking TaskPath is exists with : \
 デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] TaskPath : True (\)
 デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking Taskname is exists with : hoge
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Taskname : True (hoge)
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping Description as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking Execute is match with : powershell.exe
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Execute : True (powershell.exe)
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking Arguments is match with : -Command "Get-Date | Out-File c:\hoge1.log"
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Arguments : True (-Command "Get-Date | Out-File c:\hoge1.log")
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping WorkingDirectory as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking UserId is match with : administrator
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] UserId : True (administrator)
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping RunLevel as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking Compatibility is match with : Win8
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Compatibility : True (Win8)
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping ExecutionTimeLimit as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping Hidden as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking Disable is match with : False
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Disable : True (False)
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping StartBoundary as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping Interval as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping Duration as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping Daily as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping Once as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Skipping AtStatup as value not passed to function.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking Trigger is : AtLogOn
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] AtLogOn : True (true)
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Checking UserId is exists with : administrator
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] UserId : False ()
-詳細: [DSCSERVER]: LCM:  [ 終了     テスト      ]  [[cScheduleTask]ScheduleTask]  0.4060 秒かかりました。
+デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Taskname : False ()
+詳細: [DSCSERVER]: LCM:  [ 終了     テスト      ]  [[cScheduleTask]ScheduleTask]  0.3590 秒かかりました。
 詳細: [DSCSERVER]: LCM:  [ 開始     設定       ]  [[cScheduleTask]ScheduleTask]
 詳細: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Ensure detected as Present. Setting ScheduledTask for TaskPath '\', TaskName 'hoge'.
-デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Setting ScheduledTask Disable : 'False'.
 デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Setting Action Execute : 'powershell.exe', Argument : '-Command "Get-Date | Out-File c:\hoge1.log"', WorkingDirectory : ''.
 デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Setting Trigger RepetitionIntervalTimeSpanString : '', RepetitionDurationTimeSpanString : '', ScheduledAt : '', Daily : 'False', Once : 'False'.
 デバッグ: [DSCSERVER]:                            [[cScheduleTask]ScheduleTask] Using principal with Credential. Execution will be fail if not elevated.
@@ -61,16 +42,16 @@ PSComputerName        :
 CimClass              : Root/Microsoft/Windows/TaskScheduler:MSFT_ScheduledTask
 CimInstanceProperties : {Actions, Author, Date, Description...}
 CimSystemProperties   : Microsoft.Management.Infrastructure.CimSystemProperties
-詳細: [DSCSERVER]: LCM:  [ 終了     設定       ]  [[cScheduleTask]ScheduleTask]  0.9380 秒かかりました。
+詳細: [DSCSERVER]: LCM:  [ 終了     設定       ]  [[cScheduleTask]ScheduleTask]  0.5000 秒かかりました。
 詳細: [DSCSERVER]: LCM:  [ 終了     リソース     ]  [[cScheduleTask]ScheduleTask]
-詳細: [DSCSERVER]: LCM:  [ 終了     設定       ]    (1.7125 秒)。
+詳細: [DSCSERVER]: LCM:  [ 終了     設定       ]    (1.1028 秒)。
 詳細: 操作 'CimMethod の呼び出し' が完了しました。
-詳細: 構成ジョブが完了するまでにかかった時間は 1.447 秒です
+詳細: 構成ジョブが完了するまでにかかった時間は 0.923 秒です
 True
-
 
 Argument                         : -Command "Get-Date | Out-File c:\hoge1.log"
 AtLogOn                          : True
+AtLogOnUserId                    : 
 AtStartup                        : 
 Compatibility                    : Win8
 Credential                       : MSFT_Credential
@@ -80,7 +61,6 @@ Disable                          : False
 Ensure                           : Present
 Execute                          : powershell.exe
 ExecuteTimeLimitTicks            : 
-Force                            : 
 Hidden                           : 
 Once                             : 
 RepetitionDurationTimeSpanString : 
