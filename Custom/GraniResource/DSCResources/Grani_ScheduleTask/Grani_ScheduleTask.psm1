@@ -124,13 +124,7 @@ function Get-TargetResource
         [System.String]$Description,
 
         [parameter(Mandatory = $false)]
-        [System.String]$Execute,
-
-        [parameter(Mandatory = $false)]
-        [System.String]$Argument,
-
-        [parameter(Mandatory = $false)]
-        [System.String]$WorkingDirectory,
+        [Microsoft.Management.Infrastructure.CimInstance[]]$Action,
 
         [parameter(Mandatory = $false)]
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
@@ -200,6 +194,16 @@ function Get-TargetResource
             $param.Credential = $Credential
         }
 
+        # Action param
+        if ($PSBoundParameters.ContainsKey("Action"))
+        {
+            $actionHash = ConvertCimInstanceToHashTable -CimInstance $Action
+            if ($actionHash.Keys.Count -ne 0)
+            {
+                $param += $actionHash;
+            }
+        }
+
         # Trigger param
         if ($PSBoundParameters.ContainsKey("Once"))
         {
@@ -232,16 +236,15 @@ function Get-TargetResource
         }
 
         # ExecutionTimelimit param
-        Write-Verbose $PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")
-        if ($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")){ $param.ExecutionTimeLimit = [TimeSpan]::FromTicks($ExecuteTimeLimitTicks) }
+        if ($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks"))
+        {
+            $param.ExecutionTimeLimit = [TimeSpan]::FromTicks($ExecuteTimeLimitTicks)
+        }
 
         # obtain other param
         @(
             'TaskName',
             'Description', 
-            'Execute', 
-            'Argument', 
-            'WorkingDirectory', 
             'Runlevel',
             'Compatibility',
             'Hidden',
@@ -274,11 +277,6 @@ function Get-TargetResource
         'TaskPath',
         'Description', 
 
-        # Action
-        'Execute', 
-        'Argument', 
-        'WorkingDirectory', 
-
         # Principal
         'Runlevel',
 
@@ -303,6 +301,9 @@ function Get-TargetResource
     {
         $returnHash.Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
     }
+
+    # action result
+    $returnHash.Action = (Get-ScheduledTask | where TaskName -eq $TaskName | where TaskPath -eq $TaskPath).Actions
 
     # convert timespan to string
     if (($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")) -and ($taskResult.ExecutionTimeLimit.target.Ticks -ne $null))
@@ -341,13 +342,7 @@ function Set-TargetResource
         [System.String]$Description,
 
         [parameter(Mandatory = $false)]
-        [System.String]$Execute = [string]::Empty,
-
-        [parameter(Mandatory = $false)]
-        [System.String]$Argument = [string]::Empty,
-
-        [parameter(Mandatory = $false)]
-        [System.String]$WorkingDirectory = [string]::Empty,
+        [Microsoft.Management.Infrastructure.CimInstance[]]$Action,
 
         [parameter(Mandatory = $false)]
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
@@ -448,14 +443,13 @@ function Set-TargetResource
     }
 
     # action
-    Write-Debug ($debugMessages.SetAction -f $Execute, $Argument, $WorkingDirectory)
-    $actionParam = 
-    @{
-        Execute = $Execute
-        Argument = $Argument
-        WorkingDirectory = $WorkingDirectory
+    if ($PSBoundParameters.ContainsKey("Action"))
+    {
+        # Action param
+        $actionHash = ConvertCimInstanceToHashTable -CimInstance $Action
+        Write-Debug ($debugMessages.SetAction -f $actionHash.Execute, $actionHash.Argument, $actionHash.WorkingDirectory)
+        $scheduleTaskParam.action = New-ScheduledTaskAction @actionHash
     }
-    $scheduleTaskParam.action = CreateTaskSchedulerAction @actionParam
 
     # trigger
     if ($ScheduledAt -ne $null)
@@ -501,7 +495,7 @@ function Set-TargetResource
     # settings
     $scheduleTaskParam.settings = if ($PSBoundParameters.ContainsKey('ExecuteTimeLimitTicks'))
     {
-        New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (TicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
+        New-ScheduledTaskSettingsSet -Disable:$Disable -Hidden:$Hidden -Compatibility $Compatibility -ExecutionTimeLimit (ConvertTicksToTimeSpan -Ticks $ExecuteTimeLimitTicks)
     }
     else
     {
@@ -535,13 +529,7 @@ function Test-TargetResource
         [System.String]$Description,
 
         [parameter(Mandatory = $false)]
-        [System.String]$Execute,
-
-        [parameter(Mandatory = $false)]
-        [System.String]$Argument,
-
-        [parameter(Mandatory = $false)]
-        [System.String]$WorkingDirectory,
+        [Microsoft.Management.Infrastructure.CimInstance[]]$Action,
 
         [parameter(Mandatory = $false)]
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
@@ -597,9 +585,7 @@ function Test-TargetResource
         'TaskName',
         'TaskPath'
         'Description', 
-        'Execute', 
-        'Argument', 
-        'WorkingDirectory', 
+        'Action', 
         'Credential', 
         'Runlevel',
         'Compatibility',
@@ -654,51 +640,6 @@ function ValidateSameFolderNotExist
 #endregion
 
 #region Create Helper
-
-function CreateTaskSchedulerAction 
-{
-    [CmdletBinding()]
-    param
-    (
-        [string]$Argument,
-        [string]$Execute,
-        [string]$WorkingDirectory
-    )
-    if ($Execute -eq [string]::Empty){ throw New-Object System.InvalidOperationException ($errorMessages.ExecuteBrank) }
-
-    $param = @{}
-    $param.Execute = $Execute
-    if ($Argument -ne [string]::Empty){ $param.Argument = $Argument }
-    if ($WorkingDirectory -ne [string]::Empty){ $param.WorkingDirectory = $WorkingDirectory }
-    return New-ScheduledTaskAction @param
-}
-
-function ConvertToTimeSpan
-{
-    [OutputType([TimeSpan[]])]
-    [CmdletBinding()]
-    param(
-        [parameter(Mandatory = $false, Position  = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string[]]$TimeSpanString
-    )
-
-    foreach ($x in $TimeSpanString)
-    {
-        if (-not [string]::IsNullOrWhiteSpace($TimeSpanString))
-        {
-            [TimeSpan]$result = New-Object System.TimeSpan;
-            if (![TimeSpan]::TryParse($x, [ref]$result))
-            {
-                [TimeSpan]::MaxValue
-            }
-            else
-            {
-                $result
-            }
-        }
-    }
-}
 
 function CreateTaskSchedulerTrigger
 {
@@ -756,7 +697,34 @@ function CreateTaskSchedulerTrigger
 
 #region Convert Helper
 
-function TicksToTimeSpan
+function ConvertToTimeSpan
+{
+    [OutputType([TimeSpan[]])]
+    [CmdletBinding()]
+    param(
+        [parameter(Mandatory = $false, Position  = 0)]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$TimeSpanString
+    )
+
+    foreach ($x in $TimeSpanString)
+    {
+        if (-not [string]::IsNullOrWhiteSpace($TimeSpanString))
+        {
+            [TimeSpan]$result = New-Object System.TimeSpan;
+            if (![TimeSpan]::TryParse($x, [ref]$result))
+            {
+                [TimeSpan]::MaxValue
+            }
+            else
+            {
+                $result
+            }
+        }
+    }
+}
+
+function ConvertTicksToTimeSpan
 {
     [OutputType([System.TimeSpan])]
     [CmdletBinding()]
@@ -765,6 +733,27 @@ function TicksToTimeSpan
         [System.Int64]$Ticks
     )
     return [TimeSpan]::FromTicks($Ticks)
+}
+
+function ConvertCimInstanceToHashTable
+{
+    [OutputType([HashTable])]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance[]]$CimInstance
+    )
+
+    $hashTable = @{}
+    foreach ($item in $CimInstance.GetEnumerator())
+    {
+        if ($item.Value -ne $null)
+        {
+            $hashTable.($item.Key) = $item.Value
+        }
+    }
+    return $hashTable
 }
 
 #endregion
@@ -1363,65 +1352,65 @@ function TestScheduledTaskStatus
     [CmdletBinding(DefaultParameterSetName = "Repetition")]
     param
     (
-        [parameter(Mandatory = 1, Position  = 0)]
+        [parameter(Mandatory = $true, Position  = 0)]
         [string]$TaskName,
     
-        [parameter(Mandatory = 0, Position  = 1)]
+        [parameter(Mandatory = $false, Position  = 1)]
         [string]$TaskPath = "\",
 
-        [parameter(Mandatory = 0, Position  = 2)]
+        [parameter(Mandatory = $false, Position  = 2)]
         [string]$Execute,
 
-        [parameter(Mandatory = 0, Position  = 3)]
+        [parameter(Mandatory = $false, Position  = 3)]
         [string]$Argument,
     
-        [parameter(Mandatory = 0, Position  = 4)]
+        [parameter(Mandatory = $false, Position  = 4)]
         [string]$WorkingDirectory,
 
-        [parameter(Mandatory = 0, Position  = 5)]
+        [parameter(Mandatory = $false, Position  = 5)]
         [datetime[]]$ScheduledAt,
 
-        [parameter(Mandatory = 0, Position  = 6, parameterSetName = "Repetition")]
+        [parameter(Mandatory = $false, Position  = 6, parameterSetName = "Repetition")]
         [TimeSpan[]]$RepetitionInterval,
 
-        [parameter(Mandatory = 0, Position  = 7, parameterSetName = "Repetition")]
+        [parameter(Mandatory = $false, Position  = 7, parameterSetName = "Repetition")]
         [TimeSpan[]]$RepetitionDuration,
 
-        [parameter(Mandatory = 0, Position  = 8, parameterSetName = "Daily")]
+        [parameter(Mandatory = $false, Position  = 8, parameterSetName = "Daily")]
         [bool]$Daily = $false,
 
-        [parameter(Mandatory = 0, Position  = 9, parameterSetName = "Once")]
+        [parameter(Mandatory = $false, Position  = 9, parameterSetName = "Once")]
         [bool]$Once = $false,
 
-        [parameter(Mandatory = 0, Position  = 10, parameterSetName = "AtStatup")]
+        [parameter(Mandatory = $false, Position  = 10, parameterSetName = "AtStatup")]
         [bool]$AtStartup = $false,
 
-        [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
+        [parameter(Mandatory = $false, Position  = 11, parameterSetName = "AtLogOn")]
         [bool]$AtLogOn = $false,
 
-        [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
+        [parameter(Mandatory = $false, Position  = 12, parameterSetName = "AtLogOn")]
         [string]$AtLogOnUserId = "",
 
-        [parameter(Mandatory = 0, Position  = 12)]
+        [parameter(Mandatory = $false, Position  = 13)]
         [string]$Description,
 
-        [parameter(Mandatory = 0, Position  = 13)]
+        [parameter(Mandatory = $false, Position  = 14)]
         [PScredential]$Credential,
 
-        [parameter(Mandatory = 0, Position  = 14)]
+        [parameter(Mandatory = $false, Position  = 15)]
         [bool]$Disable,
 
-        [parameter(Mandatory = 0, Position  = 15)]
+        [parameter(Mandatory = $false, Position  = 16)]
         [bool]$Hidden,
 
-        [parameter(Mandatory = 0, Position  = 16)]
+        [parameter(Mandatory = $false, Position  = 17)]
         [TimeSpan]$ExecutionTimeLimit,
 
-        [parameter(Mandatory = 0, Position  = 17)]
+        [parameter(Mandatory = $false, Position  = 18)]
         [ValidateSet("At", "Win8", "Win7", "Vista", "V1")]
         [string]$Compatibility,
 
-        [parameter(Mandatory = 0,Position  = 18)]
+        [parameter(Mandatory = $false,Position  = 19)]
         [ValidateSet("Highest", "Limited")]
         [string]$Runlevel
     )
@@ -1464,7 +1453,7 @@ function TestScheduledTaskStatus
         # Execute
         $returnHash.Execute = TestScheduledTask -ScheduledTask $current -Parameter Execute -Value $Execute -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('Execute'))
 
-        # Arguments
+        # Argument
         $returnHash.Argument = TestScheduledTask -ScheduledTask $current -Parameter Arguments -Value $Argument -Type ([ScheduledParameterType]::Actions) -IsExist ($PSBoundParameters.ContainsKey('Argument'))
 
         # WorkingDirectory
