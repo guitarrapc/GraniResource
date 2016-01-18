@@ -302,29 +302,8 @@ function Get-TargetResource
         $returnHash.Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
     }
 
-    # Check Action Parameters
-    if ($PSBoundParameters.ContainsKey("Action"))
-    {
-        $actionParam = @{}
-        if ($taskResult.Execute.target -ne $null)
-        {
-            $actionParam.Execute = $taskResult.Execute.target
-        }
-        if ($taskResult.Argument.target -ne $null)
-        {
-            $actionParam.Argument = $taskResult.Argument.target
-        }
-        if ($taskResult.WorkingDirectory.target -ne $null)
-        {
-            $actionParam.WorkingDirectory = $taskResult.WorkingDirectory.target
-        }
-        
-        # action result
-        if ($actionParam.Keys.Count -ne 0)
-        {
-            $returnHash.Action = $actionParam.GetEnumerator() | %{@{$_.Key = $_.Value}};
-        }
-    }
+    # action result
+    $returnHash.Action = (Get-ScheduledTask | where TaskName -eq $TaskName | where TaskPath -eq $TaskPath).Actions
 
     # convert timespan to string
     if (($PSBoundParameters.ContainsKey("ExecuteTimeLimitTicks")) -and ($taskResult.ExecutionTimeLimit.target.Ticks -ne $null))
@@ -597,6 +576,7 @@ function Test-TargetResource
         [System.String]$AtLogOnUserId = ""
     )
 
+    Write-Verbose "Test : $AtLogOnUserId"
     $param = @{}
 
     # obtain other param
@@ -619,7 +599,7 @@ function Test-TargetResource
         'Once',
         'AtStartup',
         'AtLogOn',
-        'AtLoOnUserId'
+        'AtLogOnUserId'
     ) `
     | where {$PSBoundParameters.ContainsKey($_)} `
     | %{ $param.$_ = Get-Variable -Name $_ -ValueOnly }
