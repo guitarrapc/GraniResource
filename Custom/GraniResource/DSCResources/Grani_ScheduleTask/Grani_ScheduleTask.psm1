@@ -588,7 +588,6 @@ function Test-TargetResource
         [System.String]$AtLogOnUserId = ""
     )
 
-    Write-Verbose "Test : $AtLogOnUserId"
     $param = @{}
 
     # obtain other param
@@ -1345,6 +1344,7 @@ function TestScheduledTaskTriggerLogonTrigger
         }
         "UserId"
         {
+            if ($value -eq ""){ $value = $null }
             Write-Debug ($debugMessages.CheckSchedulerUserId -f $Value)
             $target = $trigger.UserId
             $result = $target -eq $Value
@@ -1399,29 +1399,29 @@ function TestScheduledTaskStatus
         [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
         [bool]$AtLogOn = $false,
 
-        [parameter(Mandatory = 0, Position  = 11, parameterSetName = "AtLogOn")]
+        [parameter(Mandatory = 0, Position  = 12, parameterSetName = "AtLogOn")]
         [string]$AtLogOnUserId = "",
 
-        [parameter(Mandatory = 0, Position  = 12)]
+        [parameter(Mandatory = 0, Position  = 13)]
         [string]$Description,
 
-        [parameter(Mandatory = 0, Position  = 13)]
+        [parameter(Mandatory = 0, Position  = 14)]
         [PScredential]$Credential,
 
-        [parameter(Mandatory = 0, Position  = 14)]
+        [parameter(Mandatory = 0, Position  = 15)]
         [bool]$Disable,
 
-        [parameter(Mandatory = 0, Position  = 15)]
+        [parameter(Mandatory = 0, Position  = 16)]
         [bool]$Hidden,
 
-        [parameter(Mandatory = 0, Position  = 16)]
+        [parameter(Mandatory = 0, Position  = 17)]
         [TimeSpan]$ExecutionTimeLimit,
 
-        [parameter(Mandatory = 0, Position  = 17)]
+        [parameter(Mandatory = 0, Position  = 18)]
         [ValidateSet("At", "Win8", "Win7", "Vista", "V1")]
         [string]$Compatibility,
 
-        [parameter(Mandatory = 0,Position  = 18)]
+        [parameter(Mandatory = 0,Position  = 19)]
         [ValidateSet("Highest", "Limited")]
         [string]$Runlevel
     )
@@ -1522,7 +1522,7 @@ function TestScheduledTaskStatus
         $returnHash.AtLogOn = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
 
         # UserId (AtLogOn execute UserId)
-        $returnHash.AtLogonUserId = (TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'))).Result;
+        $returnHash.AtLogonUserId = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'));
 
     #endregion
 
