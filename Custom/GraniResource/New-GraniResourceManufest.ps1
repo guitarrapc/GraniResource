@@ -11,6 +11,7 @@ $script:moduleManufest = @{
     RequiredModules      = @()
     FunctionsToExport    = @('*')
     CmdletsToExport      = '*'
+    Tags                 = "DesiredStateConfiguration", "DSC", "DSC Resources"
     ReleaseNotes         = "https://github.com/guitarrapc/DSCResources/releases/tag/ver.$moduleVersion"
     ProjectUri           = "https://github.com/guitarrapc/DSCResources"
     LicenseUri           = "https://github.com/guitarrapc/DSCResources/blob/master/LICENSE"
