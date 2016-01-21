@@ -7,6 +7,14 @@ Installation
 ----
 
 You can retrieve Resource through [PoweShellGet](https://www.powershellgallery.com/packages/GraniResource).
+
+Find a Resource
+```
+Find-DscResource -ModuleName GraniResource
+```
+
+And then install what you want.
+
 ```powershell
 Install-Module GraniResource
 ```
