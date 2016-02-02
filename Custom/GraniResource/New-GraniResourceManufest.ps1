@@ -1,5 +1,5 @@
 ﻿$moduleName = 'GraniResource'
-$moduleVersion = '3.7.4'
+$moduleVersion = '3.7.5'
 $script:moduleManufest = @{
     Path                 = ".\$ModuleName.psd1"
     ModuleVersion        = $moduleVersion
@@ -15,6 +15,9 @@ $script:moduleManufest = @{
     ReleaseNotes         = "https://github.com/guitarrapc/DSCResources/releases/tag/ver.$moduleVersion"
     ProjectUri           = "https://github.com/guitarrapc/DSCResources"
     LicenseUri           = "https://github.com/guitarrapc/DSCResources/blob/master/LICENSE"
+    <#
+    # As these are not supported in PowerShell 4.0...
+    # and this section cause Module Version in mof to be force "0.0"
     DscResourcesToExport = @(
         "cACL",
         "cDomainJoin",
@@ -35,6 +38,7 @@ $script:moduleManufest = @{
         "cWebPI",
         "cWebPILauncher"
     )
+    #>
 }
 
 New-ModuleManifest @moduleManufest
