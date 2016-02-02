@@ -1,5 +1,5 @@
 ﻿$moduleName = 'GraniResource'
-$moduleVersion = '3.7.3'
+$moduleVersion = '3.7.4'
 $script:moduleManufest = @{
     Path                 = ".\$ModuleName.psd1"
     ModuleVersion        = $moduleVersion
