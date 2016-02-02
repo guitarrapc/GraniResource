@@ -85,6 +85,7 @@ $debugMessages = Data {
         SkipNullPassedParameter = Skipping {0} as passed value is null.
         SkipPrincipal = Skip Credential. Using System for Principal.
         UsePrincipal = Using principal with Credential. Execution will be fail if not elevated.
+        ValidateTaskPathChar = Validated Task Path for {0} char expected to be '\\' but was not. Add '\\'. TaskPath : {1}, NewTaskPath : {2}
 "@
 }
 
@@ -179,7 +180,8 @@ function Get-TargetResource
     $param = @{}
 
     # Task Path validation
-    $param.TaskPath = ValidateTaskPathLastChar -taskPath $taskPath
+    $validatedTaskPath = ValidateTaskPathLastChar -taskPath $taskPath
+    $param.TaskPath = ValidateTaskPathFirstChar -taskPath $validatedTaskPath
 
     if ($Disable)
     {
@@ -393,11 +395,15 @@ function Set-TargetResource
         [System.String]$AtLogOnUserId = ""
     )
     
-    # exist
+    # Task Path validation
+    $validatedTaskPath = ValidateTaskPathLastChar -taskPath $TaskPath
+    $newTaskPath = ValidateTaskPathFirstChar -taskPath $validatedTaskPath
+
+    # Get Existing Schedule Task
     $existingTaskParam = 
     @{
         TaskName = $taskName
-        TaskPath = ValidateTaskPathLastChar -taskPath $taskPath
+        TaskPath = $newTaskPath
     }
     $existingTask = GetExistingTaskScheduler @existingTaskParam
 
@@ -405,7 +411,7 @@ function Set-TargetResource
 
     if ($Ensure -eq "Absent")
     {
-        Write-Verbose ($verboseMessages.EnsureDetectAbsent -f $TaskPath, $TaskName)
+        Write-Verbose ($verboseMessages.EnsureDetectAbsent -f $newTaskPath, $TaskName)
         $existingTask | Unregister-ScheduledTask -Confirm:$false > $null;
         RemoveScheduledTaskEmptyDirectoryPath
         return;
@@ -415,7 +421,7 @@ function Set-TargetResource
 
     #region Present
 
-    Write-Verbose ($verboseMessages.EnsureDetectPresent -f $TaskPath, $TaskName)
+    Write-Verbose ($verboseMessages.EnsureDetectPresent -f $newTaskPath, $TaskName)
     
     # Enable/Disable
     if (($existingTask | measure).Count -ne 0)
@@ -424,7 +430,7 @@ function Set-TargetResource
         switch ($Disable)
         {
             $true {
-                Write-Verbose ($verboseMessages.DisableDetected -f $TaskPath, $TaskName)
+                Write-Verbose ($verboseMessages.DisableDetected -f $newTaskPath, $TaskName)
                 $existingTask | Disable-ScheduledTask
                 return
             }
@@ -508,7 +514,7 @@ function Set-TargetResource
     }
 
     # Register ScheduledTask
-    $registerParam = GetRegisterParam -Credential $Credential -Runlevel $Runlevel -TaskName $TaskName -TaskPath $TaskPath -scheduleTaskParam $scheduleTaskParam
+    $registerParam = GetRegisterParam -Credential $Credential -Runlevel $Runlevel -TaskName $TaskName -TaskPath $newTaskPath -scheduleTaskParam $scheduleTaskParam
     Register-ScheduledTask @registerParam -Force | select * | Out-String | Write-Debug
 
     #endregion
@@ -631,9 +637,33 @@ function ValidateTaskPathLastChar
         [string]$TaskPath
     )
 
+    $newTaskPath = $TaskPath;
     $lastChar = [System.Linq.Enumerable]::ToArray($TaskPath) | select -Last 1
-    if ($lastChar -ne "\"){ return $TaskPath + "\" }
-    return $TaskPath
+    if ($lastChar -ne "\")
+    {
+        $newTaskPath = $TaskPath + "\";
+        Write-Debug ($debugMessages.ValidateTaskPathChar -f "Last", $TaskPath, $newTaskPath);
+    }
+    return $newTaskPath
+}
+
+function ValidateTaskPathFirstChar
+{
+    [OutputType([Void])]
+    [CmdletBinding()]
+    param
+    (
+        [string]$TaskPath
+    )
+    
+    $newTaskPath = $TaskPath;
+    $firstChar = [System.Linq.Enumerable]::ToArray($TaskPath) | select -First 1;
+    if ($firstChar -ne "\")
+    {
+        $newTaskPath = "\" + $TaskPath;
+        Write-Debug ($debugMessages.ValidateTaskPathChar -f "First", $TaskPath, $newTaskPath);
+    }
+    return $newTaskPath
 }
 
 function ValidateSameFolderNotExist
