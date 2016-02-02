@@ -27,7 +27,6 @@ function Initialize
     Add-Type -TypeDefinition @"
         public enum ScheduledTaskPropertyType
         {
-            TaskPath,
             TaskName,
             Description,
             Execute,
