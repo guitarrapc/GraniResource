@@ -224,3 +224,54 @@ You can set ScheduledTask with Specific UserAccount, only when you passed Valid 
 ```
 no mapping between account names and security IDs was done. (Exception from HRESULT:0x80070534)
 ```
+
+**For below ver.3.7.5 users**
+
+There are First Char, Last Char fpr TaskPath from ver.3.7.6.
+However previous version only check Last Char.
+
+If you are using ver.3.7.5 or below, then first char of TaskPath must be  ```\```.
+
+For example, following is pass.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "\hoge"
+        AtLogon = $true
+        AtLogOnUserId = "test"
+        Compatibility = "Win8"
+        Credential = $Credential
+        Disable = $false
+    }
+}
+```
+
+While below will always failed for Test, and run Set everytime.
+
+```powershell
+configuration ScheduleTask
+{
+    Import-DscResource -Modulename GraniResource
+    cScheduleTask ScheduleTask
+    {
+        Ensure = "Present"
+        Execute = "powershell.exe"
+        Argument = '-Command "Get-Date | Out-File c:\hoge.log"'
+        TaskName = "hoge"
+        TaskPath = "hoge" # Don't do this.
+        AtLogon = $true
+        AtLogOnUserId = "test"
+        Compatibility = "Win8"
+        Credential = $Credential
+        Disable = $false
+    }
+}
+```
