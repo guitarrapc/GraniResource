@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{87D5257A-BFC2-4811-8208-C42FC24396B9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GraniResource</RootNamespace>
+    <AssemblyName>GraniResource</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DSCResources\cWebPILauncher\cWebPILauncher.md" />
+    <None Include="DSCResources\cWebPILauncher\cWebPILauncher.psd1" />
+    <None Include="DSCResources\cWebPILauncher\cWebPILauncher.schema.psm1" />
+    <None Include="DSCResources\Grani_ACL\Grani_ACL.psm1" />
+    <None Include="DSCResources\Grani_ACL\Grani_ACL.schema.mof" />
+    <None Include="DSCResources\Grani_ACL\README.md" />
+    <None Include="DSCResources\Grani_DomainJoin\Grani_DomainJoin.psm1" />
+    <None Include="DSCResources\Grani_DomainJoin\Grani_DomainJoin.schema.mof" />
+    <None Include="DSCResources\Grani_DomainJoin\README.md" />
+    <None Include="DSCResources\Grani_DotNetFramework\Grani_DotNetFramework.psm1" />
+    <None Include="DSCResources\Grani_DotNetFramework\Grani_DotNetFramework.schema.mof" />
+    <None Include="DSCResources\Grani_DotNetFramework\README.md" />
+    <None Include="DSCResources\Grani_Download\Grani_Download.psm1" />
+    <None Include="DSCResources\Grani_Download\Grani_Download.schema.mof" />
+    <None Include="DSCResources\Grani_Download\README.md" />
+    <None Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.psm1" />
+    <None Include="DSCResources\Grani_GitHubApiContent\Grani_GitHubApiContent.schema.mof" />
+    <None Include="DSCResources\Grani_GitHubApiContent\README.md" />
+    <None Include="DSCResources\Grani_HostsFile\Grani_HostsFile.psm1" />
+    <None Include="DSCResources\Grani_HostsFile\Grani_HostsFile.schema.mof" />
+    <None Include="DSCResources\Grani_HostsFile\README.md" />
+    <None Include="DSCResources\Grani_InheritACL\Grani_InheritACL.psm1" />
+    <None Include="DSCResources\Grani_InheritACL\Grani_InheritACL.schema.mof" />
+    <None Include="DSCResources\Grani_InheritACL\README.md" />
+    <None Include="DSCResources\Grani_PendingReboot\Grani_PendingReboot.psm1" />
+    <None Include="DSCResources\Grani_PendingReboot\Grani_PendingReboot.schema.mof" />
+    <None Include="DSCResources\Grani_PendingReboot\README.md" />
+    <None Include="DSCResources\Grani_PfxImport\Grani_PfxImport.psm1" />
+    <None Include="DSCResources\Grani_PfxImport\Grani_PfxImport.schema.mof" />
+    <None Include="DSCResources\Grani_PfxImport\README.md" />
+    <None Include="DSCResources\Grani_RegistryKey\Grani_RegistryKey.psm1" />
+    <None Include="DSCResources\Grani_RegistryKey\Grani_RegistryKey.schema.mof" />
+    <None Include="DSCResources\Grani_RegistryKey\README.md" />
+    <None Include="DSCResources\Grani_S3Content\Grani_S3Content.psm1" />
+    <None Include="DSCResources\Grani_S3Content\Grani_S3Content.schema.mof" />
+    <None Include="DSCResources\Grani_S3Content\README.md" />
+    <None Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.psm1" />
+    <None Include="DSCResources\Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.schema.mof" />
+    <None Include="DSCResources\Grani_ScheduleTaskLog\README.md" />
+    <None Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.psm1" />
+    <None Include="DSCResources\Grani_ScheduleTask\Grani_ScheduleTask.schema.mof" />
+    <None Include="DSCResources\Grani_ScheduleTask\README.md" />
+    <None Include="DSCResources\Grani_SymbolicLink\Grani_SymbolicLink.psm1" />
+    <None Include="DSCResources\Grani_SymbolicLink\Grani_SymbolicLink.schema.mof" />
+    <None Include="DSCResources\Grani_SymbolicLink\README.md" />
+    <None Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.psm1" />
+    <None Include="DSCResources\Grani_TCPAckFrequency\Grani_TCPAckFrequency.schema.mof" />
+    <None Include="DSCResources\Grani_TCPAckFrequency\README.md" />
+    <None Include="DSCResources\Grani_TopShelf\Grani_TopShelf.psm1" />
+    <None Include="DSCResources\Grani_TopShelf\Grani_TopShelf.schema.mof" />
+    <None Include="DSCResources\Grani_TopShelf\README.md" />
+    <None Include="DSCResources\Grani_WebPI\Grani_WebPI.psm1" />
+    <None Include="DSCResources\Grani_WebPI\Grani_WebPI.schema.mof" />
+    <None Include="DSCResources\Grani_WebPI\README.md" />
+    <None Include="GraniResource.psd1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DSCResources\cWebPILauncher\cWebPILauncher.png" />
+    <Content Include="DSCResources\Grani_ACL\cACL.png" />
+    <Content Include="DSCResources\Grani_DomainJoin\cDomainJoin.png" />
+    <Content Include="DSCResources\Grani_DotNetFramework\cDotNetFramework.png" />
+    <Content Include="DSCResources\Grani_Download\cDownload.png" />
+    <Content Include="DSCResources\Grani_GitHubApiContent\cGitHubApiContent.png" />
+    <Content Include="DSCResources\Grani_HostsFile\cHostsFile.png" />
+    <Content Include="DSCResources\Grani_InheritACL\cInheritACL.png" />
+    <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedNoPreserve.png" />
+    <Content Include="DSCResources\Grani_InheritACL\cInheritACLProtectedPreserve.png" />
+    <Content Include="DSCResources\Grani_PendingReboot\cPendingReboot.png" />
+    <Content Include="DSCResources\Grani_PfxImport\cPfxImport.png" />
+    <Content Include="DSCResources\Grani_RegistryKey\cRegistryKey.png" />
+    <Content Include="DSCResources\Grani_S3Content\cS3Content.png" />
+    <Content Include="DSCResources\Grani_ScheduleTaskLog\cScheduleTaskLog.png" />
+    <Content Include="DSCResources\Grani_ScheduleTask\cScheduleTask.png" />
+    <Content Include="DSCResources\Grani_SymbolicLink\cSymbolicLink.png" />
+    <Content Include="DSCResources\Grani_TCPAckFrequency\cTCPAckFrequency.png" />
+    <Content Include="DSCResources\Grani_TopShelf\cTopShelf.png" />
+    <Content Include="DSCResources\Grani_WebPI\cWebPI.png" />
+    <Content Include="New-GraniResourceManufest.ps1" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
