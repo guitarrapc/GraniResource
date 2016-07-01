@@ -1,7 +1,7 @@
 IMPORTANT NOTICE
 ----
 
-This repository will move to https://github.com/guitarrapc/GraniResource for simplify.
+This repository will change name to https://github.com/guitarrapc/GraniResource for simplify. Temporary created new name repository.
 
 DSCResources
 ============
