@@ -1,69 +1,62 @@
-IMPORTANT NOTICE
-----
-
-This repository will change name to https://github.com/guitarrapc/GraniResource for simplify. Temporary created new name repository.
-
-DSCResources
-============
-
-PowerShel DSC Resources
-
-What inside
-----
-
-Directory|ResourceName
-----|----
-Custom|GraniResource
-MicrosoftScriptCenter|MSFT Resource
-PowerShellOrg|PowerShell Org DSC Resource
-
 GraniResource
-----
+============
 
 DSC Resources published  by [Grani.Inc.](http://grani.jp/)
 
-You can manage followings.
+**Notice : 1st/July/2016**
+
+Repository name changed from DSCResources to GraniResource to simplify code management.
+
+Installation
+----
+
+You can retrieve Resource through [PoweShellGet](https://www.powershellgallery.com/packages/GraniResource).
+
+```powershell
+Install-Module GraniResource
+```
+
+Where can I see how to usage of DSCResource?
+----
+
+You may find README.md inside DSCResource\ResourceNameFolder\README.md.
+
+
+What Inside?
+----
+
+- All Resource have it's README.md inside [DSCResouce](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources).
+- Check [UnitTestFiles](https://github.com/guitarrapc/GraniResource/tree/master/Test) for GraniResource sample usage.
 
 ResourceName|FriendlyName|Description
 ----|----|----
-[Grani_ACL](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_ACL)|cACL|ACL Resource make you ability to manage ACL through easy configuration.
-[Grani_DomainJoin](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_DomainJoin)|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
-[Grani_DotNetFramework](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_DotNetFramework)|cDotNetFramework|Manage .NET Framework offline file install/uninstall.
-[Grani_Download](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_Download)|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
-[Grani_GitHubApiContent](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_GitHubApiContent)|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
-[Grani_HostsFile](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_HostsFile)|cHostsFile|Operate hosts file entry with configuration.
-[Grani_InheritACL](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_InheritACL)|cInheritACL|Manage NTFS AccessRule Inheritance. Use cACL to manage each access rules for further usage.
-[Grani_PendingReboot](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_PendingReboot) | cPendingReboot | Allow you to handle reboot with configuration both LocalConfigurationManager ```RebootNodeIfNeeded``` setting as $true/$false.
-[Grani_PfxImport](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_PfxImport)|cPfxImport|Import Pfx file into desired CertStore / or Remove pfx from CertStore.
-[Grani_RegistryKey](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_RegistryKey) | cRegistryKey | Allow you to handle Registry SubKey with Configuration.
-[Grani_S3Content](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_S3Content)|cS3Content|Download and track change with S3 Object and Local File.
-[Grani_ScheduleTask](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_ScheduleTask)|cScheduledTask|Enable you to configure Schedule Task. (Not all property supported, but quiet a lot.)
-[Grani_ScheduleTaskLog](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_ScheduleTaskLog)|cScheduledTaskLog|Enable/Disable Scheduled Task Log
-[Grani_SymbolicLink](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_SymbolicLink)| cSymbolicLink | Create/Remove SymbolicLink.
-[Grani_TCPAckFrequency](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_TCPAckFrequency)|cTCPAckFrequency|Enable/Disable TCPAckFrequency
-[Grani_TopShelf](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_TopShelf)|cTopShelf|Install/Uninstall TopShelf Application
-[Grani_WebPI](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/Grani_WebPI)|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)
-[cWebPILauncher](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources/cWebPILauncher)|cWebPILauncher|Install WebPlatformInstaller itself
+[Grani_ACL](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_ACL)|cACL|ACL Resource make you ability to manage ACL through easy configuration.
+[Grani_DomainJoin](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_DomainJoin)|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
+[Grani_DotNetFramework](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_DotNetFramework)|cDotNetFramework|Manage .NET Framework offline file install/uninstall.
+[Grani_Download](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_Download)|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
+[Grani_GitHubApiContent](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_GitHubApiContent)|cGitHubApiContent|Download GitHub content to local through API. This include file hash comparison for detecting file change.
+[Grani_HostsFile](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_HostsFile)|cHostsFile|Operate hosts file entry with configuration.
+[Grani_InheritACL](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_InheritACL)|cInheritACL|Manage NTFS AccessRule Inheritance. Use cACL to manage each access rules for further usage.
+[Grani_PendingReboot](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_PendingReboot) | cPendingReboot | Allow you to handle reboot with configuration both LocalConfigurationManager ```RebootNodeIfNeeded``` setting as $true/$false.
+[Grani_PfxImport](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_PfxImport)|cPfxImport|Import Pfx file into desired CertStore / or Remove pfx from CertStore.
+[Grani_RegistryKey](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_RegistryKey) | cRegistryKey | Allow you to handle Registry SubKey with Configuration.
+[Grani_S3Content](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_S3Content)|cS3Content|Download and track change with S3 Object and Local File.
+[Grani_ScheduleTask](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_ScheduleTask)|cScheduledTask|Enable you to configure Schedule Task. (Not all property supported, but quiet a lot.)
+[Grani_ScheduleTaskLog](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_ScheduleTaskLog)|cScheduledTaskLog|Enable/Disable Scheduled Task Log
+[Grani_SymbolicLink](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_SymbolicLink)| cSymbolicLink | Create/Remove SymbolicLink.
+[Grani_TCPAckFrequency](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_TCPAckFrequency)|cTCPAckFrequency|Enable/Disable TCPAckFrequency
+[Grani_TopShelf](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_TopShelf)|cTopShelf|Install/Uninstall TopShelf Application
+[Grani_WebPI](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_WebPI)|cWebPI|Install WebPlatformInstaller Products(You cannot uninstall from WebPI)
+[cWebPILauncher](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/cWebPILauncher)|cWebPILauncher|Install WebPlatformInstaller itself
 
-Check [UnitTestFiles](https://github.com/guitarrapc/DSCResources/tree/master/Custom/Test/DSCResources) for GraniResource sample usage.
 
-All Resource have it's README.md inside [DSCResouce](https://github.com/guitarrapc/DSCResources/tree/master/Custom/GraniResource/DSCResources).
 
-MicrosoftScriptCenter
+Directory Tree
 ----
 
-Microsoft PowerShell Team publish awesome DSC Resource in ScriptCenter. (future PowerShellGet).
-
-This include PSDesiredStateConfiguration Resource to create Pull Server.
-
-This Repogitry keeps to some version and rename Resource Prefix from x to c as PowerShell Team recommended.
-
-
-PowerShellOrgDSC
-----
-
-PowerShellOrg is community DSC Repository. Hope we can share Resources.
-
-This include PowerShellOrg Resource which needed.
-
-However some resource are too norty to use in production. (Like TaskScheduler / Choco Resource)  GraniResource include much more powerfull resource which already fully use in production for hundreds of Windows Server 2012 R2.
+DirectoryName | Description
+----|----
+Designer | Contains xDSCResourceDesigner script to create ```*.schame.mof``` and ```*.psm1```.
+DSCResource | Contains  DSC Resource source code.
+Package | Contains Zip file for release tags.
+Test | Contains Pester and Configuration Tests for each DSC Resource.

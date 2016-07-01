@@ -1,13 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraniResource", "GraniResource\GraniResource.csproj", "{87D5257A-BFC2-4811-8208-C42FC24396B9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{A201D6A6-74EC-47F4-8791-373B6380804E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Designer", "Designer\Designer.csproj", "{A58D3D3C-FF82-4099-8435-177DB8241579}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSCResource", "DSCResources\DSCResource.csproj", "{87D5257A-BFC2-4811-8208-C42FC24396B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{F6C2E1B5-DC94-4C03-B801-B2292E338EDD}"
+	ProjectSection(SolutionItems) = preProject
+		GraniResource.psd1 = GraniResource.psd1
+		New-GraniResourceManufest.ps1 = New-GraniResourceManufest.ps1
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +22,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A201D6A6-74EC-47F4-8791-373B6380804E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A201D6A6-74EC-47F4-8791-373B6380804E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A201D6A6-74EC-47F4-8791-373B6380804E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +30,10 @@ Global
 		{A58D3D3C-FF82-4099-8435-177DB8241579}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A58D3D3C-FF82-4099-8435-177DB8241579}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A58D3D3C-FF82-4099-8435-177DB8241579}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87D5257A-BFC2-4811-8208-C42FC24396B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
