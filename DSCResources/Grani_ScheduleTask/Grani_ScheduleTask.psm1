@@ -312,11 +312,11 @@ function Get-TargetResource
     }
     if ($PSBoundParameters.ContainsKey("RepetitionIntervalTimeSpanString"))
     {
-        $returnHash.RepetitionIntervalTimeSpanString = $taskResult.RepetitionInterval.target | where {$_} | %{$_.ToString()}
+        $returnHash.RepetitionIntervalTimeSpanString = @($taskResult.RepetitionInterval.target | where {$_} | %{$_.ToString()})
     }
     if ($PSBoundParameters.ContainsKey("RepetitionDurationTimeSpanString"))
     {
-        $returnHash.RepetitionDurationTimeSpanString = $taskResult.RepetitionDuration.target | where {$_} | %{$_.ToString()}
+        $returnHash.RepetitionDurationTimeSpanString = @($taskResult.RepetitionDuration.target | where {$_} | %{$_.ToString()})
     }
 
     return $returnHash
