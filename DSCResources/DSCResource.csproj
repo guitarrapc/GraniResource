@@ -32,6 +32,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.PowerShell.5.ReferenceAssemblies.1.0.0\lib\net4\System.Management.Automation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grani_CredentialManager\CredentialManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +54,9 @@
     <None Include="Grani_ACL\Grani_ACL.psm1" />
     <None Include="Grani_ACL\Grani_ACL.schema.mof" />
     <None Include="Grani_ACL\README.md" />
+    <None Include="Grani_CredentialManager\Grani_CredentialManager.psm1" />
+    <None Include="Grani_CredentialManager\Grani_CredentialManager.schema.mof" />
+    <None Include="Grani_CredentialManager\README.md" />
     <None Include="Grani_DomainJoin\Grani_DomainJoin.psm1" />
     <None Include="Grani_DomainJoin\Grani_DomainJoin.schema.mof" />
     <None Include="Grani_DomainJoin\README.md" />
