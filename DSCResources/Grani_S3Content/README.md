@@ -13,7 +13,7 @@ Grani_S3Content | cS3Content | GraniResource
 Test Status
 ----
 
-See GraniResource.Test for the detail.
+See **Test** Project for the detail.
 
 Method | Result
 ----|----

@@ -13,7 +13,7 @@ Grani_PfxImport | cPfxImport | GraniResource
 Test Status
 ----
 
-See GraniResource.Test for the detail.
+See **Test** Project for the detail.
 
 Method | Result
 ----|----

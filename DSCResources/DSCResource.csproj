@@ -80,6 +80,7 @@
     <Content Include="Grani_CredentialManager\README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Grani_CredentialManager\cCredentialManager.png" />
     <Content Include="Grani_DomainJoin\Grani_DomainJoin.psm1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
