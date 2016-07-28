@@ -314,10 +314,15 @@
       $(PostBuildEventDependsOn);
       PostBuildMacros;
     </PostBuildEventDependsOn>
-    <PostBuildEvent>rmdir $(SolutionDir)TmpPackage\ /S /Q
-mkdir $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName)
-xcopy $(SolutionDir)*.psd1 $(SolutionDir)TmpPackage\$(TargetName)
-xcopy $(TargetDir)* $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName) /s /i
-powershell -Command Compress-Archive -Path $(SolutionDir)TmpPackage\* -DestinationPath $(SolutionDir)Package\$(TargetName)_@(VersionNumber).zip -Force</PostBuildEvent>
+    <PostBuildEvent>
+      powershell -Command $(SolutionDir)New-GraniResourceManifest.ps1 -Version @(VersionNumber) -Path $(SolutionDir)$(TargetName).psd1
+      rmdir $(SolutionDir)TmpPackage\ /S /Q
+      mkdir $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName)
+      xcopy $(SolutionDir)*.psd1 $(SolutionDir)TmpPackage\$(TargetName)
+      xcopy $(TargetDir)* $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName) /s /i
+      del $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName)\*.dll
+      del $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName)\*.pdb
+      powershell -Command Compress-Archive -Path $(SolutionDir)TmpPackage\* -DestinationPath $(SolutionDir)Package\$(TargetName)_@(VersionNumber).zip -Force
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

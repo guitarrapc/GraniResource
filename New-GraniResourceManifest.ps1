@@ -1,8 +1,8 @@
-﻿$moduleName = 'GraniResource'
-$moduleVersion = '3.7.7'
+﻿param([string]$Version, [string]$Path)
+
 $script:moduleManufest = @{
-    Path                 = ".\$ModuleName.psd1"
-    ModuleVersion        = $moduleVersion
+    Path                 = $Path
+    ModuleVersion        = $Version
     Author               = 'guitarrapc'
     CompanyName          = 'Grani'
     Description          = 'DSC Resource for Windows Configuration Management.'
@@ -12,7 +12,7 @@ $script:moduleManufest = @{
     FunctionsToExport    = @('*')
     CmdletsToExport      = '*'
     Tags                 = "DesiredStateConfiguration", "DSC", "DSC Resources"
-    ReleaseNotes         = "https://github.com/guitarrapc/GraniResource/releases/tag/ver.$moduleVersion"
+    ReleaseNotes         = "https://github.com/guitarrapc/GraniResource/releases/tag/ver.$Version"
     ProjectUri           = "https://github.com/guitarrapc/GraniResource"
     LicenseUri           = "https://github.com/guitarrapc/GraniResource/blob/master/LICENSE"
     <#
