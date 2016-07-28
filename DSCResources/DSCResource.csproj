@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -44,89 +44,245 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Grani_CredentialManager\CredentialManager.cs" />
+    <Content Include="Grani_CredentialManager\CredentialManager.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cWebPILauncher\cWebPILauncher.md" />
-    <None Include="cWebPILauncher\cWebPILauncher.psd1" />
-    <None Include="cWebPILauncher\cWebPILauncher.schema.psm1" />
-    <None Include="Grani_ACL\Grani_ACL.psm1" />
-    <None Include="Grani_ACL\Grani_ACL.schema.mof" />
-    <None Include="Grani_ACL\README.md" />
-    <None Include="Grani_CredentialManager\Grani_CredentialManager.psm1" />
-    <None Include="Grani_CredentialManager\Grani_CredentialManager.schema.mof" />
-    <None Include="Grani_CredentialManager\README.md" />
-    <None Include="Grani_DomainJoin\Grani_DomainJoin.psm1" />
-    <None Include="Grani_DomainJoin\Grani_DomainJoin.schema.mof" />
-    <None Include="Grani_DomainJoin\README.md" />
-    <None Include="Grani_DotNetFramework\Grani_DotNetFramework.psm1" />
-    <None Include="Grani_DotNetFramework\Grani_DotNetFramework.schema.mof" />
-    <None Include="Grani_DotNetFramework\README.md" />
-    <None Include="Grani_Download\Grani_Download.psm1" />
-    <None Include="Grani_Download\Grani_Download.schema.mof" />
-    <None Include="Grani_Download\README.md" />
-    <None Include="Grani_GitHubApiContent\Grani_GitHubApiContent.psm1" />
-    <None Include="Grani_GitHubApiContent\Grani_GitHubApiContent.schema.mof" />
-    <None Include="Grani_GitHubApiContent\README.md" />
-    <None Include="Grani_HostsFile\Grani_HostsFile.psm1" />
-    <None Include="Grani_HostsFile\Grani_HostsFile.schema.mof" />
-    <None Include="Grani_HostsFile\README.md" />
-    <None Include="Grani_InheritACL\Grani_InheritACL.psm1" />
-    <None Include="Grani_InheritACL\Grani_InheritACL.schema.mof" />
-    <None Include="Grani_InheritACL\README.md" />
-    <None Include="Grani_PendingReboot\Grani_PendingReboot.psm1" />
-    <None Include="Grani_PendingReboot\Grani_PendingReboot.schema.mof" />
-    <None Include="Grani_PendingReboot\README.md" />
-    <None Include="Grani_PfxImport\Grani_PfxImport.psm1" />
-    <None Include="Grani_PfxImport\Grani_PfxImport.schema.mof" />
-    <None Include="Grani_PfxImport\README.md" />
-    <None Include="Grani_RegistryKey\Grani_RegistryKey.psm1" />
-    <None Include="Grani_RegistryKey\Grani_RegistryKey.schema.mof" />
-    <None Include="Grani_RegistryKey\README.md" />
-    <None Include="Grani_S3Content\Grani_S3Content.psm1" />
-    <None Include="Grani_S3Content\Grani_S3Content.schema.mof" />
-    <None Include="Grani_S3Content\README.md" />
-    <None Include="Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.psm1" />
-    <None Include="Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.schema.mof" />
-    <None Include="Grani_ScheduleTaskLog\README.md" />
-    <None Include="Grani_ScheduleTask\Grani_ScheduleTask.psm1" />
-    <None Include="Grani_ScheduleTask\Grani_ScheduleTask.schema.mof" />
-    <None Include="Grani_ScheduleTask\README.md" />
-    <None Include="Grani_SymbolicLink\Grani_SymbolicLink.psm1" />
-    <None Include="Grani_SymbolicLink\Grani_SymbolicLink.schema.mof" />
-    <None Include="Grani_SymbolicLink\README.md" />
-    <None Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency.psm1" />
-    <None Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency.schema.mof" />
-    <None Include="Grani_TCPAckFrequency\README.md" />
-    <None Include="Grani_TopShelf\Grani_TopShelf.psm1" />
-    <None Include="Grani_TopShelf\Grani_TopShelf.schema.mof" />
-    <None Include="Grani_TopShelf\README.md" />
-    <None Include="Grani_WebPI\Grani_WebPI.psm1" />
-    <None Include="Grani_WebPI\Grani_WebPI.schema.mof" />
-    <None Include="Grani_WebPI\README.md" />
+    <Content Include="cWebPILauncher\cWebPILauncher.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cWebPILauncher\cWebPILauncher.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cWebPILauncher\cWebPILauncher.schema.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ACL\Grani_ACL.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ACL\Grani_ACL.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ACL\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_CredentialManager\Grani_CredentialManager.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_CredentialManager\Grani_CredentialManager.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_CredentialManager\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DomainJoin\Grani_DomainJoin.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DomainJoin\Grani_DomainJoin.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DomainJoin\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DotNetFramework\Grani_DotNetFramework.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DotNetFramework\Grani_DotNetFramework.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DotNetFramework\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_Download\Grani_Download.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_Download\Grani_Download.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_Download\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_GitHubApiContent\Grani_GitHubApiContent.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_GitHubApiContent\Grani_GitHubApiContent.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_GitHubApiContent\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_HostsFile\Grani_HostsFile.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_HostsFile\Grani_HostsFile.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_HostsFile\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_InheritACL\Grani_InheritACL.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_InheritACL\Grani_InheritACL.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_InheritACL\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PendingReboot\Grani_PendingReboot.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PendingReboot\Grani_PendingReboot.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PendingReboot\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PfxImport\Grani_PfxImport.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PfxImport\Grani_PfxImport.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PfxImport\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_RegistryKey\Grani_RegistryKey.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_RegistryKey\Grani_RegistryKey.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_RegistryKey\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_S3Content\Grani_S3Content.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_S3Content\Grani_S3Content.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_S3Content\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTaskLog\Grani_ScheduleTaskLog.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTaskLog\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTask\Grani_ScheduleTask.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTask\Grani_ScheduleTask.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTask\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_SymbolicLink\Grani_SymbolicLink.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_SymbolicLink\Grani_SymbolicLink.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_SymbolicLink\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TCPAckFrequency\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TopShelf\Grani_TopShelf.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TopShelf\Grani_TopShelf.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TopShelf\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_WebPI\Grani_WebPI.psm1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_WebPI\Grani_WebPI.schema.mof">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_WebPI\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="cWebPILauncher\cWebPILauncher.png" />
-    <Content Include="Grani_ACL\cACL.png" />
-    <Content Include="Grani_DomainJoin\cDomainJoin.png" />
-    <Content Include="Grani_DotNetFramework\cDotNetFramework.png" />
-    <Content Include="Grani_Download\cDownload.png" />
-    <Content Include="Grani_GitHubApiContent\cGitHubApiContent.png" />
-    <Content Include="Grani_HostsFile\cHostsFile.png" />
-    <Content Include="Grani_InheritACL\cInheritACL.png" />
-    <Content Include="Grani_InheritACL\cInheritACLProtectedNoPreserve.png" />
-    <Content Include="Grani_InheritACL\cInheritACLProtectedPreserve.png" />
-    <Content Include="Grani_PendingReboot\cPendingReboot.png" />
-    <Content Include="Grani_PfxImport\cPfxImport.png" />
-    <Content Include="Grani_RegistryKey\cRegistryKey.png" />
-    <Content Include="Grani_S3Content\cS3Content.png" />
-    <Content Include="Grani_ScheduleTaskLog\cScheduleTaskLog.png" />
-    <Content Include="Grani_ScheduleTask\cScheduleTask.png" />
-    <Content Include="Grani_SymbolicLink\cSymbolicLink.png" />
-    <Content Include="Grani_TCPAckFrequency\cTCPAckFrequency.png" />
-    <Content Include="Grani_TopShelf\cTopShelf.png" />
-    <Content Include="Grani_WebPI\cWebPI.png" />
+    <Content Include="cWebPILauncher\cWebPILauncher.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ACL\cACL.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DomainJoin\cDomainJoin.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_DotNetFramework\cDotNetFramework.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_Download\cDownload.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_GitHubApiContent\cGitHubApiContent.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_HostsFile\cHostsFile.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_InheritACL\cInheritACL.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_InheritACL\cInheritACLProtectedNoPreserve.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_InheritACL\cInheritACLProtectedPreserve.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PendingReboot\cPendingReboot.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_PfxImport\cPfxImport.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_RegistryKey\cRegistryKey.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_S3Content\cS3Content.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTaskLog\cScheduleTaskLog.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_ScheduleTask\cScheduleTask.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_SymbolicLink\cSymbolicLink.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TCPAckFrequency\cTCPAckFrequency.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_TopShelf\cTopShelf.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Grani_WebPI\cWebPI.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -136,4 +292,23 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="PostBuildMacros">
+    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+      <Output TaskParameter="Assemblies" ItemName="Targets" />
+    </GetAssemblyIdentity>
+    <ItemGroup>
+      <VersionNumber Include="@(Targets->'%(Version)')" />
+    </ItemGroup>
+  </Target>
+  <PropertyGroup>
+    <PostBuildEventDependsOn>
+      $(PostBuildEventDependsOn);
+      PostBuildMacros;
+    </PostBuildEventDependsOn>
+    <PostBuildEvent>rmdir $(SolutionDir)TmpPackage\ /S /Q
+mkdir $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName)
+xcopy $(SolutionDir)*.psd1 $(SolutionDir)TmpPackage\$(TargetName)
+xcopy $(TargetDir)* $(SolutionDir)TmpPackage\$(TargetName)\$(ProjectName) /s /i
+powershell -Command Compress-Archive -Path $(SolutionDir)TmpPackage\* -DestinationPath $(SolutionDir)Package\$(TargetName)_@(VersionNumber).zip -Force</PostBuildEvent>
+  </PropertyGroup>
 </Project>

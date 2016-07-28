@@ -171,3 +171,6 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# Tmp Package
+TmpPackage\*

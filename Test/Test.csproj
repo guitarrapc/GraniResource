@@ -40,12 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
-    <Compile Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
-    <Compile Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
-    <Compile Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\Program.cs" />
-    <Compile Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\Properties\AssemblyInfo.cs" />
-    <Compile Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\Service.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -225,21 +219,6 @@
     <Content Include="Grani_TopShelf\Configuration\Present\cTopShelf.ps1" />
     <Content Include="Grani_TopShelf\Configuration\Present\SetLog.txt" />
     <Content Include="Grani_TopShelf\Configuration\Present\SkipLog.txt" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\packages\Topshelf.3.1.4\lib\net35\Topshelf.dll" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\packages\Topshelf.3.1.4\lib\net40-full\Topshelf.dll" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\packages\Topshelf.3.1.4\[Content_Types].xml" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService.sln" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.exe" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.pdb" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.vshost.exe" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\Topshelf.dll" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\SampleTopShelfService.csproj.FileListAbsolute.txt" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\SampleTopShelfService.exe" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\SampleTopShelfService.pdb" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\packages\Topshelf.3.1.4\lib\net35\Topshelf.dll" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\packages\Topshelf.3.1.4\lib\net40-full\Topshelf.dll" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\packages\Topshelf.3.1.4\[Content_Types].xml" />
-    <Content Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\SampleTopShelfService.csproj" />
     <Content Include="Grani_TopShelf\Service.ps1" />
     <Content Include="Grani_TopShelf\Service.Tests.ps1" />
     <Content Include="Grani_TopShelf\TargetResource.ps1" />
@@ -339,21 +318,10 @@
     <None Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Enable\mof\localhost.mof" />
     <None Include="Grani_TopShelf\Configuration\Absent\mof\localhost.mof" />
     <None Include="Grani_TopShelf\Configuration\Present\mof\localhost.mof" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\packages\Topshelf.3.1.4\Topshelf.3.1.4.nupkg" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\.gitattributes" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\.gitignore" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\App.config" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.exe.config" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.vshost.exe.config" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\bin\Debug\SampleTopShelfService.vshost.exe.manifest" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\SampleTopShelfService.csprojResolveAssemblyReference.cache" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\packages.config" />
-    <None Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\packages\Topshelf.3.1.4\Topshelf.3.1.4.nupkg" />
     <None Include="Grani_WebPI\WAP_PowerShellAPI\mof\localhost.mof" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Grani_TopShelf\SampleTopShelfService\SampleTopShelfService\obj\Debug\TempPE\" />
+    <Folder Include="Grani_TopShelf\SampleTopShelfService\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
