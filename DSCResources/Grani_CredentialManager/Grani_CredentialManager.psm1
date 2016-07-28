@@ -28,6 +28,7 @@ Data VerboseMessages {
     ConvertFrom-StringData -StringData @"
         CheckingAbsent = Detected as Ensure=Absent. Checking Target is not exists.
         CheckingPresent = Detected as Ensure=Present. Checking Target credential is as desired.
+        CredentialNotExists = Ensure detected as Present but credential was missing. Please make sure credential is exists.
         FailedAbsent = Target was found as not desired.
         PassPresent = Target's Credential was detected as desired.
         RemovingCredential = Removing Target Credential. Target : {0}
@@ -42,7 +43,7 @@ Data DebugMessages {
 
 Data ErrorMessages {
     ConvertFrom-StringData -StringData @"
-        CredentialNotExistsException = Credential not exists exception!! Please make sure credential is exists when Ensure is Present.
+        CredentialNotExistsException = Credential parameter's value not exists exception!! Please make sure credential is exists.
 "@
 }
 
@@ -88,13 +89,13 @@ function Get-TargetResource
     # Present == Registered credential must match desired credential.
     if ($Ensure -eq [EnsureType]::Present.ToString())
     {
+        Write-Verbose -Message ($VerboseMessages.CheckingPresent);
+
         if (($null -eq $Credential) -or ([PSCredential]::Empty -eq $Credential))
         {
-            throw New-Object System.NullReferenceException ($ErrorMessages.CredentialNotExistsException)
+            Write-Verbose -Message ($VerboseMessages.CredentialNotExists);
         }
-
-        Write-Verbose -Message ($VerboseMessages.CheckingPresent);
-        if (TestCredential -Target $Target)
+        elseif (TestCredential -Target $Target)
         {
             if (IsCredentialMatch -Target $Target -Credential $Credential)
             {
@@ -139,7 +140,9 @@ function Set-TargetResource
     {
         if (($null -eq $Credential) -or ([PSCredential]::Empty -eq $Credential))
         {
-            throw New-Object System.NullReferenceException ($ErrorMessages.CredentialNotExistsException)
+            Write-Verbose -Message ($VerboseMessages.CredentialNotExists);
+            throw $ErrorMessages.CredentialNotExistsException;
+            return;
         }
 
         Write-Verbose -Message ($VerboseMessages.SetCredential -f $Target);
