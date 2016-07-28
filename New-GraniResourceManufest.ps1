@@ -1,5 +1,5 @@
 ﻿$moduleName = 'GraniResource'
-$moduleVersion = '3.7.6'
+$moduleVersion = '3.7.7'
 $script:moduleManufest = @{
     Path                 = ".\$ModuleName.psd1"
     ModuleVersion        = $moduleVersion
@@ -12,9 +12,9 @@ $script:moduleManufest = @{
     FunctionsToExport    = @('*')
     CmdletsToExport      = '*'
     Tags                 = "DesiredStateConfiguration", "DSC", "DSC Resources"
-    ReleaseNotes         = "https://github.com/guitarrapc/DSCResources/releases/tag/ver.$moduleVersion"
-    ProjectUri           = "https://github.com/guitarrapc/DSCResources"
-    LicenseUri           = "https://github.com/guitarrapc/DSCResources/blob/master/LICENSE"
+    ReleaseNotes         = "https://github.com/guitarrapc/GraniResource/releases/tag/ver.$moduleVersion"
+    ProjectUri           = "https://github.com/guitarrapc/GraniResource"
+    LicenseUri           = "https://github.com/guitarrapc/GraniResource/blob/master/LICENSE"
     <#
     # As these are not supported in PowerShell 4.0...
     # and this section cause Module Version in mof to be force "0.0"
