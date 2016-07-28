@@ -174,3 +174,4 @@ FakesAssemblies/
 
 # Tmp Package
 TmpPackage\*
+*DSCResource.Tests/
