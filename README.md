@@ -32,7 +32,7 @@ ResourceName|FriendlyName|Description
 ----|----|----
 [cWebPILauncher](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/cWebPILauncher)|cWebPILauncher|Install WebPlatformInstaller itself
 [Grani_ACL](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_ACL)|cACL| Allow you to manage ACL entries with this resource.
-[Grani_CredentialManager]https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_CredentialManager)|cCredentialManager| All you to manageCredential Manager entry.
+[Grani_CredentialManager](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_CredentialManager) |cCredentialManager| All you to manageCredential Manager entry.
 [Grani_DomainJoin](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_DomainJoin)|cDomainJoin|Join/Unjoin Domain Resource. This free you from xComputerManagement resource force to specify Host Computer name.
 [Grani_DotNetFramework](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_DotNetFramework)|cDotNetFramework|Manage .NET Framework offline file install/uninstall.
 [Grani_Download](https://github.com/guitarrapc/GraniResource/tree/master/DSCResources/Grani_Download)|cDownload|Download Remote file to local. This include file hash comparison for detecting file change.
