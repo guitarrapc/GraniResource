@@ -171,3 +171,7 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# Tmp Package
+TmpPackage/
+*DSCResource.Tests/
