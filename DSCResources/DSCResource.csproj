@@ -303,7 +303,7 @@
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
   </Target>
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PostBuildEventDependsOn>
       $(PostBuildEventDependsOn);
       PostBuildMacros;
