@@ -11,11 +11,7 @@ function Initialize
         }
 "@ -ErrorAction SilentlyContinue; 
 
-    # Credential Manager C# on the fly compile to avoid dll lock.
-    # Import Class as [GraniResource.CredentialManager]
-    $code = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath "CredentialManager.cs") -Raw
-    $referenceAssemblies = @("System", "System.Linq", "System.ComponentModel", "System.Management.Automation", "System.Runtime.InteropServices")
-    Add-Type -TypeDefinition $code -ReferencedAssemblies $referenceAssemblies -ErrorAction SilentlyContinue;
+    Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Grani_CredentialManagerHelper.psm1") -Verbose:$false -Force
 }
 
 . Initialize;
@@ -79,7 +75,7 @@ function Get-TargetResource
     if ($Ensure -eq [EnsureType]::Absent.ToString())
     {
         Write-Verbose -Message ($VerboseMessages.CheckingAbsent);
-        if (TestCredential -Target $Target)
+        if (TestTarget -Target $Target)
         {
             Write-Verbose -Message ($VerboseMessages.FailedAbsent);
             $returnHash.Ensure = [EnsureType]::Present.ToString();
@@ -91,11 +87,11 @@ function Get-TargetResource
     {
         Write-Verbose -Message ($VerboseMessages.CheckingPresent);
 
-        if (($null -eq $Credential) -or ([PSCredential]::Empty -eq $Credential))
+        if (IsCredentialEmpty -Credential $Credential)
         {
             Write-Verbose -Message ($VerboseMessages.CredentialNotExists);
         }
-        elseif (TestCredential -Target $Target)
+        elseif (TestTarget -Target $Target)
         {
             if (IsCredentialMatch -Target $Target -Credential $Credential)
             {
@@ -127,10 +123,10 @@ function Set-TargetResource
     # Absent == Start remove existing Target
     if ($Ensure -eq [EnsureType]::Absent.ToString())
     {
-        if (TestCredential -Target $Target)
+        if (TestTarget -Target $Target)
         {
             Write-Verbose -Message ($VerboseMessages.RemovingCredential -f $Target);
-            RemoveCredential -Target $Target;
+            RemoveTarget -Target $Target;
             return;
         }
     }
@@ -138,11 +134,10 @@ function Set-TargetResource
     # Present == Register credential as desired
     if ($Ensure -eq [EnsureType]::Present.ToString())
     {
-        if (($null -eq $Credential) -or ([PSCredential]::Empty -eq $Credential))
+        if (IsCredentialEmpty -Credential $Credential)
         {
             Write-Verbose -Message ($VerboseMessages.CredentialNotExists);
             throw $ErrorMessages.CredentialNotExistsException;
-            return;
         }
 
         Write-Verbose -Message ($VerboseMessages.SetCredential -f $Target);
@@ -169,117 +164,6 @@ function Test-TargetResource
     )
 
     return (Get-TargetResource -Target $Target -Credential $Credential -Ensure $Ensure).Ensure -eq $Ensure
-}
-
-#endregion
-
-#region Helper
-
-function ListCredential
-{
-    [OutputType([PSCredential])]
-    [CmdletBinding()]
-    param
-    ()
-    
-    return [GraniResource.CredentialManager]::List();
-}
-
-function RemoveCredential
-{
-    [OutputType([void])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(mandatory = $false, position = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Target,
-
-        [Parameter(mandatory = $false, position = 1)]
-        [ValidateNotNullOrEmpty()]
-        [GraniResource.CredType]$Type = [GraniResource.CredType]::Generic
-    )
- 
-    [GraniResource.CredentialManager]::Remove($Target, $Type);
-}
-
-function TestCredential
-{
-    [OutputType([bool])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(mandatory = $false, position = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Target,
-
-        [Parameter(mandatory = $false, position = 1)]
-        [ValidateNotNullOrEmpty()]
-        [GraniResource.CredType]$Type = [GraniResource.CredType]::Generic
-    )
- 
-    [GraniResource.CredentialManager]::Exists($Target, $Type);
-}
-
-function GetCredential
-{
-    [OutputType([PSCredential])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(mandatory = $false, position = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Target,
-
-        [Parameter(mandatory = $false, position = 1)]
-        [ValidateNotNullOrEmpty()]
-        [GraniResource.CredType]$Type = [GraniResource.CredType]::Generic
-    )
-    
-    return [GraniResource.CredentialManager]::Read($Target, $Type, "");
-}
-
-function SetCredential
-{
-    [OutputType([void])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(mandatory = $false, position = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Target,
-
-        [Parameter(mandatory = $false, position = 1)]
-        [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential]$Credential,
-
-        [Parameter(mandatory = $false, position = 2)]
-        [ValidateNotNullOrEmpty()]
-        [GraniResource.CredType]$Type = [GraniResource.CredType]::Generic
-    )
-    
-    [GraniResource.CredentialManager]::Write($Target, $Credential, $Type)
-}
-
-function IsCredentialMatch
-{
-    [OutputType([bool])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(mandatory = $false, position = 0)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Target,
-
-        [Parameter(mandatory = $false, position = 1)]
-        [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential]$Credential
-    )
-
-    $current = GetCredential -Target $Target;
-    $isUserNameMatch = $current.UserName -eq $Credential.UserName;
-    $isPassMatch = $current.GetNetworkCredential().Password -eq $Credential.GetNetworkCredential().Password;
-    return $isUserNameMatch -and $isPassMatch;
 }
 
 #endregion
