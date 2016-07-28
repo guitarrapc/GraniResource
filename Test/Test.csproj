@@ -192,6 +192,10 @@
     <Content Include="Grani_ScheduleTask\TestScheduledTaskStatus.Tests.ps1" />
     <Content Include="Grani_ScheduleTask\ValidateTaskPathLastChar.ps1" />
     <Content Include="Grani_ScheduleTask\ValidateTaskPathLastChar.Tests.ps1" />
+    <Content Include="Grani_CredentialManager\Configuration\Absent\SetLog.txt" />
+    <Content Include="Grani_CredentialManager\Configuration\Absent\SkipLog.txt" />
+    <Content Include="Grani_CredentialManager\Configuration\Present\SetLog.txt" />
+    <Content Include="Grani_CredentialManager\Configuration\Present\SkipLog.txt" />
     <Content Include="Grani_SymbolicLink\Configuration\Absent\cSymbolicLink.ps1" />
     <Content Include="Grani_SymbolicLink\Configuration\Absent\SetLog.txt" />
     <Content Include="Grani_SymbolicLink\Configuration\Absent\SkipLog.txt" />
@@ -313,6 +317,14 @@
     <None Include="Grani_ScheduleTask\Configuration\Present\Once\SYSTEM\present\localhost.mof" />
     <None Include="Grani_ScheduleTask\Configuration\Present\Repetition\SpecificUser\present\localhost.mof" />
     <None Include="Grani_ScheduleTask\Configuration\Present\Repetition\SYSTEM\present\localhost.mof" />
+    <Content Include="Grani_CredentialManager\Configuration\Absent\cSymbolicLink.ps1" />
+    <None Include="Grani_CredentialManager\Configuration\Absent\mof\localhost.mof" />
+    <Content Include="Grani_CredentialManager\Configuration\Present\cSymbolicLink.ps1" />
+    <None Include="Grani_CredentialManager\Configuration\Present\mof\localhost.mof" />
+    <Content Include="Grani_CredentialManager\IsTest.ps1" />
+    <Content Include="Grani_CredentialManager\IsTest.Tests.ps1" />
+    <Content Include="Grani_CredentialManager\TargetResource.ps1" />
+    <Content Include="Grani_CredentialManager\TargetResource.Tests.ps1" />
     <None Include="Grani_SymbolicLink\Configuration\Absent\mof\localhost.mof" />
     <None Include="Grani_SymbolicLink\Configuration\Present\mof\localhost.mof" />
     <None Include="Grani_TCPAckFrequency\Grani_TCPAckFrequency\Disable\mof\localhost.mof" />
