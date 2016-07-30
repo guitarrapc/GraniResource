@@ -181,7 +181,7 @@ try
                     {Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
                 }
 
-                $get = Get-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                $get = Get-TargetResource -InstanceIdentifier $instanceIdentifier  -Target $target -Credential $credential -Ensure $ensure
                 It "Get-TargetResource Should return Ensure : Absent" {
                     $get.Ensure | Should be "Absent"
                 }

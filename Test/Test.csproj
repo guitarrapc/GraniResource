@@ -238,6 +238,7 @@
     <None Include="cWebPILauncher\cWebPILauncher\Localhost.mof" />
     <None Include="Grani_ACL\Absent\ACLChange\Localhost.mof" />
     <None Include="Grani_ACL\Present\ACLChange\Localhost.mof" />
+    <Content Include="Grani_CredentialManager\Integration\Grani_CredentialManager.Config.MultipleTargetPresent.ps1" />
     <None Include="Grani_CredentialManager\Unit\Grani_CredentialManagerHelper.Tests.ps1" />
     <None Include="Grani_CredentialManager\Unit\Grani_CredentialManager.Tests.ps1" />
     <Content Include="Grani_CredentialManager\Integration\Grani_CredentialManager.Config.Absent.ps1" />
