@@ -74,9 +74,7 @@
     <Content Include="Grani_CredentialManager\Grani_CredentialManager.psm1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Grani_CredentialManager\Grani_CredentialManager.schema.mof">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <None Include="Grani_CredentialManager\Grani_CredentialManager.schema.mof" />
     <Content Include="Grani_CredentialManager\README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

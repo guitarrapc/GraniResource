@@ -54,6 +54,9 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
+        [System.String]$InstanceIdentifier,
+
+        [parameter(Mandatory = $true)]
         [System.String]$Target,
 
         [parameter(Mandatory = $false)]
@@ -66,6 +69,9 @@ function Get-TargetResource
 
     # Initialize return values
     $returnHash = @{
+        # No meaning with InstanceIdentifier for "how Resource work" but it is identifier to deceive DSC Engine when you want to keep "Same target, Credential for multiple PsDscRunAsCredential".
+        # Normally InstanceIdentifier can be same as Target or ConfigurationName. Just change every instance's InstanceIdentifier when you want to set as above situation.
+        InstanceIdentifier = $InstanceIdentifier;
         Target = $Target;
         Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly;
         Ensure = [EnsureType]::Absent.ToString();
@@ -110,6 +116,9 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
+        [System.String]$InstanceIdentifier,
+
+        [parameter(Mandatory = $true)]
         [System.String]$Target,
 
         [parameter(Mandatory = $false)]
@@ -153,6 +162,9 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
+        [System.String]$InstanceIdentifier,
+
+        [parameter(Mandatory = $true)]
         [System.String]$Target,
 
         [parameter(Mandatory = $false)]
@@ -163,7 +175,7 @@ function Test-TargetResource
         [System.String]$Ensure
     )
 
-    return (Get-TargetResource -Target $Target -Credential $Credential -Ensure $Ensure).Ensure -eq $Ensure
+    return (Get-TargetResource -InstanceIdentifier $InstanceIdentifier -Target $Target -Credential $Credential -Ensure $Ensure).Ensure -eq $Ensure
 }
 
 #endregion

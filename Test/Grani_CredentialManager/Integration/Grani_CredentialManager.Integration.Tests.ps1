@@ -47,10 +47,12 @@ try
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
 
+
         It 'Should have set the resource and all the parameters should match' {
             $current = Get-DscConfiguration | Where-Object {
                 $_.ConfigurationName -eq "$($global:DSCResourceName)_Config_Present"
             }
+            $current.InstanceIdentifier | Should Be $configurationDataPresent.AllNodes.InstanceIdentifier
             $current.Ensure | Should Be $configurationDataPresent.AllNodes.Ensure
             $current.Target | Should Be $ConfigurationDataPresent.AllNodes.Target
         }
@@ -81,8 +83,42 @@ try
             $current = Get-DscConfiguration | Where-Object {
                 $_.ConfigurationName -eq "$($global:DSCResourceName)_Config_Absent"
             }
+
+            $current.InstanceIdentifier | Should Be $configurationDataAbsent.AllNodes.InstanceIdentifier
             $current.Ensure | Should Be $configurationDataAbsent.AllNodes.Ensure
             $current.Target | Should Be $ConfigurationDataAbsent.AllNodes.Target
+        }
+    }
+
+    Describe "$($global:DSCResourceName)_MultipleTargetPresent_Integration" {
+
+        #load configuration
+        $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($global:DSCResourceName).Config.MultipleTargetPresent.ps1"
+        . $ConfigFile -Verbose -ErrorAction Stop
+
+        It 'Should compile without throwing' {
+            {
+                . "$($global:DSCResourceName)_Config_MultipleTargetPresent" -OutputPath $TestEnvironment.WorkingFolder -ConfigurationData $configurationDataMultipleTargetPresent
+                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+            } | Should Not throw
+        }
+
+        It 'should be true for Test-Configuration' {
+            { Test-DscConfiguration -Verbose -ErrorAction Stop } | Should Be $true
+        }
+
+        It 'should be able to call Get-DscConfiguration without throwing' {
+            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+        }
+
+        It 'Should have set the resource and all the parameters should match' {
+            $current = Get-DscConfiguration | Where-Object {
+                $_.ConfigurationName -eq "$($global:DSCResourceName)_Config_MultipleTargetPresent"
+            }
+
+            $current.InstanceIdentifier | Should Be $configurationDataMultipleTargetPresent.AllNodes.InstanceIdentifier
+            $current.Ensure | Should Be $configurationDataMultipleTargetPresent.AllNodes.Ensure
+            $current.Target | Should Be $configurationDataMultipleTargetPresent.AllNodes.Target
         }
     }
 }
