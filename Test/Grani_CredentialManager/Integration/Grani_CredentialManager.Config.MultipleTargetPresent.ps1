@@ -3,19 +3,11 @@
     Import-DscResource -Modulename GraniResource
     Node localhost
     {
-        foreach($item in $Node.InstanceIdentifier)
+        foreach($identifier in $Node.InstanceIdentifier)
         {
-            cCredentialManager MultipleTargetPresent
+            cCredentialManager $identifier
             {
-                InstanceIdentifier = $item
-                Ensure = $Node.Ensure
-                Target = $Node.Target
-                Credential = $Node.Credential
-            }
-
-            cCredentialManager MultipleTargetPresent2
-            {
-                InstanceIdentifier = $item
+                InstanceIdentifier = $identifier
                 Ensure = $Node.Ensure
                 Target = $Node.Target
                 Credential = $Node.Credential
@@ -30,7 +22,7 @@ $configurationDataMultipleTargetPresent = @{
         @{
             NodeName = "localhost"
             PSDscAllowPlainTextPassword = $true
-            InstanceIdentifier = "PesterTest", "PesterTest2"
+            InstanceIdentifier = @("PesterTest", "PesterTest2")
             Ensure = "Present"
             Target = "PesterTest"
             Credential = New-Object PSCredential ("PesterTestDummy", ("PesterTestPassword" | ConvertTo-SecureString -Force -AsPlainText))
