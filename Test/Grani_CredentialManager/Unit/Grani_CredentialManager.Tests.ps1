@@ -28,6 +28,7 @@ try
 {
     InModuleScope $global:dscResourceName {
 
+        $instanceIdentifier = "PesterTest"
         $target = "PesterTest"
         $credential = New-Object PSCredential ("PesterTest", ("PesterTestPassword" | ConvertTo-SecureString -Force -AsPlainText))
         $dummyUserCredential = New-Object PSCredential ("PesterTestDummy", ("PesterTestPassword" | ConvertTo-SecureString -Force -AsPlainText))
@@ -35,12 +36,17 @@ try
         $ensure = "Present"
 
         Describe 'Schema' {
-            it 'Target Should be mandatory with one value.' {
+            it 'InstanceIdentifier Should be mandatory.' {
+                $resource = Get-DscResource -Name $global:dscResourceName
+                $resource.Properties.Where{$_.Name -eq 'InstanceIdentifier'}.IsMandatory | Should be $true
+            }
+
+            it 'Target Should be mandatory.' {
                 $resource = Get-DscResource -Name $global:dscResourceName
                 $resource.Properties.Where{$_.Name -eq 'Target'}.IsMandatory | Should be $true
             }
 
-            it 'Credential Should not be mandatory with one value.' {
+            it 'Credential Should not be mandatory.' {
                 $resource = Get-DscResource -Name $global:dscResourceName
                 $resource.Properties.Where{$_.Name -eq 'Credential'}.IsMandatory | Should be $false
             }
@@ -57,7 +63,15 @@ try
                     Write-Output $false;
                 }
 
-                $get = Get-TargetResource -Target $target -Credential $credential -Ensure "Absent"
+                $get = Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure "Absent"
+                It 'Should return hashtable with Key InstanceIdentifier'{
+                    $get.ContainsKey('InstanceIdentifier') | Should Be $true
+                }
+
+                It 'Should return hashtable with Value that matches "PesterTest"'{
+                    $get.InstanceIdentifier | Should be $instanceIdentifier
+                }
+
                 It 'Should return hashtable with Key Target'{
                     $get.ContainsKey('Target') | Should Be $true
                 }
@@ -80,7 +94,7 @@ try
                     Write-Output $false;
                 }
 
-                $get = Get-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                $get = Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
 
                 It 'Should return hashtable with Key Ensure'{
                     $get.ContainsKey('Ensure') | Should Be $true
@@ -101,7 +115,7 @@ try
                 }
 
                 It 'Mocking Target exists, and credential not match Should return hashtable with Value that matches "Absent"'{
-                    $get = Get-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                    $get = Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
                     $get.Ensure | Should be 'Absent'
                 }
 
@@ -110,7 +124,7 @@ try
                 }
 
                 It 'Mocking Target exists, and credential match Should return hashtable with Value that matches "Present"'{
-                    $get = Get-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                    $get = Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
                     $get.Ensure | Should be 'Present'
                 }
             }
@@ -119,7 +133,7 @@ try
         Describe "$global:dscResourceName\Test-TargetResouce" {
             Context "Return type check" {
                 It 'Should return bool'{
-                    $test = Test-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                    $test = Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
                     $test.GetType().FullName | Should Be System.Boolean
                 }
             }
@@ -130,7 +144,7 @@ try
                 }
 
                 It 'Should return hashtable with Key Ensure'{
-                    $test = Test-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                    $test = Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
                     $test | Should Be $false
                 }
             }
@@ -145,7 +159,7 @@ try
                 }
 
                 It 'Mocking Target exists, and credential not match Should return hashtable with Value that matches "False"'{
-                    $test = Test-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                    $test = Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
                     $test | Should be $false
                 }
 
@@ -154,7 +168,7 @@ try
                 }
 
                 It 'Mocking Target exists, and credential match Should return hashtable with Value that matches "True"'{
-                    $test = Test-TargetResource -Target $target -Credential $credential -Ensure $ensure
+                    $test = Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure
                     $test | Should be $true
                 }
             }
@@ -164,7 +178,7 @@ try
             Context "Scratch environment" {
 
                 It "Get-TargetResource Should not throw" {
-                    {Get-TargetResource -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
+                    {Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
                 }
 
                 $get = Get-TargetResource -Target $target -Credential $credential -Ensure $ensure
@@ -181,47 +195,47 @@ try
                 }
 
                 It "Test-TargetResource Present Should return false" {
-                   Test-TargetResource -Target $target -Credential $credential -Ensure $ensure | Should be $false
+                   Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure | Should be $false
                 }
 
                 It "Test-TargetResource Absent Should return true" {
-                    Test-TargetResource -Target $target -Credential $credential -Ensure Absent | Should be $true
+                    Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure Absent | Should be $true
                 }
 
                 It "Set-TargetResource Present Should not Throw as Ensure : $ensure" {
-                    {Set-TargetResource -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
+                    {Set-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
                 }
             }
 
             Context "Already configured environment." {
                 It "Get-TargetResource Should not throw" {
-                    {Get-TargetResource -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
+                    {Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure} | Should not Throw
                 }
 
                 It "Get-TargetResource Should return Ensure : $ensure" {
-                    (Get-TargetResource -Target $target -Credential $credential -Ensure $ensure).Ensure | Should be $ensure
+                    (Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure).Ensure | Should be $ensure
                 }
 
                 It "Test-TargetResource Should return false as Ensure : Absent" {
-                    Test-TargetResource -Target $target -Credential $credential -Ensure Absent | Should be $false
+                    Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure Absent | Should be $false
                 }
 
                 It "Test-TargetResource Should return true as Ensure : $ensure" {
-                    Test-TargetResource -Target $target -Credential $credential -Ensure $ensure | Should be $true
+                    Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure | Should be $true
                 }
             }
 
             Context "Remove existing Settings with Directory." {
                 It "Set-TargetResource Absent Should not Throw" {
-                    {Set-TargetResource -Target $target -Credential $credential -Ensure Absent} | Should not Throw
+                    {Set-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure Absent} | Should not Throw
                 }
         
                 It "Test-TargetResource Present Should return false" {
-                   Test-TargetResource -Target $target -Credential $credential -Ensure $ensure | Should be $false
+                   Test-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure $ensure | Should be $false
                 }
 
                 It "Test-TargetResource Absent Should return true" {
-                    Get-TargetResource -Target $target -Credential $credential -Ensure Absent | Should be $true
+                    Get-TargetResource -InstanceIdentifier $instanceIdentifier -Target $target -Credential $credential -Ensure Absent | Should be $true
                 }
             }
         }
