@@ -18,26 +18,7 @@ $script:moduleManufest = @{
     <#
     # As these are not supported in PowerShell 4.0...
     # and this section cause Module Version in mof to be force "0.0"
-    DscResourcesToExport = @(
-        "cACL",
-        "cDomainJoin",
-        "cDotNetFramework",
-        "cDownload",
-        "cGitHubApiContent",
-        "cHostsFile",
-        "cInheritACL",
-        "cPendingReboot",
-        "cPfxImport",
-        "cRegistryKey",
-        "cS3Content",
-        "cScheduleTask",
-        "cScheduleTaskLog",
-        "cSymbolicLink",
-        "cTCPAckFrequency",
-        "cTopShelf",
-        "cWebPI",
-        "cWebPILauncher"
-    )
+    DscResourcesToExport = @()
     #>
 }
 

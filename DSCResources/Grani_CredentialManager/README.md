@@ -41,6 +41,7 @@ configuration Present_System
     {
         cCredentialManager Present
         {
+            InstanceIdentifier = $Node.InstanceIdentifier
             Ensure = $Node.Ensure
             Target = $Node.Target
             Credential = $Node.Credential
@@ -53,6 +54,7 @@ $configurationData = @{
         @{
             NodeName = "localhost"
             PSDscAllowPlainTextPassword = $true
+            InstanceIdentifier = "JustAnIdentifierToKeepUnique"
             Ensure = "Present"
             Target = "DesiredTargetName"
             Credential = New-Object PSCredential ("PesterTestDummy", ("PesterTestPassword" | ConvertTo-SecureString -Force -AsPlainText))
@@ -71,8 +73,9 @@ configuration Absent_System
     Import-DscResource -Modulename GraniResource
     Node localhost
     {
-        cCredentialManager Present
+        cCredentialManager Absent
         {
+            InstanceIdentifier = $Node.InstanceIdentifier
             Ensure = $Node.Ensure
             Target = $Node.Target
         }
@@ -84,6 +87,7 @@ $configurationData = @{
         @{
             NodeName = "localhost"
             PSDscAllowPlainTextPassword = $true
+            InstanceIdentifier = "JustAnIdentifierToKeepUnique"
             Ensure = "Absent"
             Target = "DesiredTargetName"
         }
@@ -110,6 +114,89 @@ configuration Present_PsDscRunAsCredential
     {
         cCredentialManager Present
         {
+            InstanceIdentifier = $Node.InstanceIdentifier
+            Ensure = $Node.Ensure
+            Target = $Node.Target
+            Credential = $Node.Credential
+            PsDscRunAsCredential = $Node.PsDscRunAsCredential
+        }
+    }
+}
+
+$configurationData = @{
+    AllNodes = @(
+        @{
+            NodeName = "localhost"
+            PSDscAllowPlainTextPassword = $true
+            InstanceIdentifier = "JustAnIdentifierToKeepUnique"
+            Ensure = "Present"
+            Target = "DesiredTargetName"
+            Credential = New-Object PSCredential ("PesterTestDummy", ("PesterTestPassword" | ConvertTo-SecureString -Force -AsPlainText))
+            PsDscRunAsCredential = New-Object PSCredential ("administrator", ("SuperExcellntPassword____????1111" | ConvertTo-SecureString -Force -AsPlainText))
+        }
+    )
+}
+
+Present_PsDscRunAsCredential -ConfigurationData $configurationData
+```
+
+### Sample4. Remove Credential Manager entry **DesiredTargetName** from Specific user account by using PsDscRunAsCredential (== In this case **administrator**).
+
+```powershell
+configuration Absent_PsDscRunAsCredential
+{
+    Import-DscResource -Modulename GraniResource
+    Node localhost
+    {
+        cCredentialManager Absent
+        {
+            InstanceIdentifier = $Node.InstanceIdentifier
+            Ensure = $Node.Ensure
+            Target = $Node.Target
+            PsDscRunAsCredential = $Node.PsDscRunAsCredential
+        }
+    }
+}
+
+$configurationData = @{
+    AllNodes = @(
+        @{
+            NodeName = "localhost"
+            PSDscAllowPlainTextPassword = $true
+            InstanceIdentifier = "JustAnIdentifierToKeepUnique"
+            Ensure = "Absent"
+            Target = "DesiredTargetName"
+            PsDscRunAsCredential = New-Object PSCredential ("administrator", ("SuperExcellntPassword____????1111" | ConvertTo-SecureString -Force -AsPlainText))
+        }
+    )
+}
+
+Absent_PsDscRunAsCredential -ConfigurationData $configurationData
+```
+
+### Sample5. Create Credential Manager entry **DesiredTargetName** to Multiple user account by using PsDscRunAsCredential (== In this case **administrator**).
+
+**InstanceIdentifier** is just an identifier to avoid DSC detect duplicate resource for Same **Target**, **Credential** is trying to set to multuple account.
+
+This means you can set any value and never effects to Cred Manager for **InstanceIdentifier**. Just be careful to be unique like following. 
+
+```powershell
+configuration Present_MultpleSameTarget
+{
+    Import-DscResource -Modulename GraniResource
+    Node localhost
+    {
+        cCredentialManager System
+        {
+            InstanceIdentifier = "Sytem"
+            Ensure = $Node.Ensure
+            Target = $Node.Target
+            Credential = $Node.Credential
+        }
+
+        cCredentialManager User
+        {
+            InstanceIdentifier = "User"
             Ensure = $Node.Ensure
             Target = $Node.Target
             Credential = $Node.Credential
@@ -131,37 +218,6 @@ $configurationData = @{
     )
 }
 
-Present_PsDscRunAsCredential -ConfigurationData $configurationData
+Present_MultpleSameTarget -ConfigurationData $configurationData
 ```
 
-### Sample4. Remove Credential Manager entry **DesiredTargetName** from Specific user account by using PsDscRunAsCredential (== In this case **administrator**).
-
-```powershell
-configuration Absent_PsDscRunAsCredential
-{
-    Import-DscResource -Modulename GraniResource
-    Node localhost
-    {
-        cCredentialManager Present
-        {
-            Ensure = $Node.Ensure
-            Target = $Node.Target
-            PsDscRunAsCredential = $Node.PsDscRunAsCredential
-        }
-    }
-}
-
-$configurationData = @{
-    AllNodes = @(
-        @{
-            NodeName = "localhost"
-            PSDscAllowPlainTextPassword = $true
-            Ensure = "Absent"
-            Target = "DesiredTargetName"
-            PsDscRunAsCredential = New-Object PSCredential ("administrator", ("SuperExcellntPassword____????1111" | ConvertTo-SecureString -Force -AsPlainText))
-        }
-    )
-}
-
-Absent_PsDscRunAsCredential -ConfigurationData $configurationData
-```

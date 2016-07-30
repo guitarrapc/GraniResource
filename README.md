@@ -61,3 +61,16 @@ Designer | Contains xDSCResourceDesigner script to create ```*.schame.mof``` and
 DSCResource | Contains  DSC Resource source code.
 Package | Contains Zip file for release tags.
 Test | Contains Pester and Configuration Tests for each DSC Resource.
+
+How to release new version
+----
+
+Creating new package zip is Fully integrated with Visual Studio.
+
+1. Open GraniResource.Sln with Visual Studio. 
+1. Open Property for **DSCResources**.
+1. Go to Assembly Information.
+1. Increment Assetmbly version. This version will be automatically used in ```GraniResource.psd1``` and zip file naming. 
+1. Change Build setting to **Release** build and run build.
+1. Now you will find new DSC Module is created in ```TmpPackage\GraniResource```, and zip file is created in ```Package\GraniResource_{AssemblyVersion}.zip```.
+
