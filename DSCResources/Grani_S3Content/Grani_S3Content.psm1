@@ -431,7 +431,7 @@ function GetS3ObjectHash
         [string]$Key
     )
 
-    return (Get-S3Object -BucketName $BucketName -Key $Key).ETag.Replace('"', "")
+    return (Get-S3Object -BucketName $BucketName -Key $Key | where Key -eq $Key).ETag.Replace('"', "")
 }
 
 #endregion
