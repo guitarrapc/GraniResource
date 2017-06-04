@@ -226,7 +226,10 @@ function Get-TargetResource
         elseif ($PSBoundParameters.ContainsKey("AtLogOn"))
         {
             $param.AtLogOn = $AtLogOn
-            $param.AtLogOnUserId = $AtLogOnUserId
+            if ($PSBoundParameters.ContainsKey("AtLogOnUserId"))
+            {
+                $param.AtLogOnUserId = $AtLogOnUserId
+            }
         }
         else
         {
@@ -1405,7 +1408,7 @@ function TestScheduledTaskTriggerBootTrigger
     }
 }
 
-function TestScheduledTaskTriggerLogonTrigger
+function TestScheduledTaskTriggerAtLogonTrigger
 {
     [OutputType([bool])]
     [CmdletBinding()]
@@ -1435,24 +1438,63 @@ function TestScheduledTaskTriggerLogonTrigger
 
     $trigger = $ScheduledTaskXml.task.Triggers.LogonTrigger
     $result = $false
-    switch ($Parameter)
+    Write-Debug $debugMessages.CheckSchedulerAtLogOn
+    if ([string]::IsNullOrEmpty($trigger))
     {
-        "AtLogOn"
-        {
-            Write-Debug $debugMessages.CheckSchedulerAtLogOn
-            $target = $trigger.Enabled
-            $result = $target -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
-        }
-        "UserId"
-        {
-            if ($value -eq ""){ $value = $null }
-            Write-Debug ($debugMessages.CheckSchedulerUserId -f $Value)
-            $target = $trigger.UserId
-            $result = $target -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+        Write-Debug 'Detected $trigger is null. Fall back to xml check.'
+        $target = ($ScheduledTaskXml.task.Triggers | Get-Member -MemberType Properties | % Name) -contains "LogonTrigger"
+        $result = $target -eq $Value
+        Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+    }
+    else
+    {
+        $target = $null -ne $trigger
+        $result = $target -eq $Value
+        Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+    }
+
+    return @{
+        target = $target
+        result = $result
+    }
+}
+
+function TestScheduledTaskTriggerUserIdLogonTrigger
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$ScheduledTaskXml,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if (!$IsExist)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
         }
     }
+
+    $trigger = $ScheduledTaskXml.task.Triggers.LogonTrigger
+    $result = $false
+    if ($value -eq ""){ $value = $null }
+    Write-Debug ($debugMessages.CheckSchedulerUserId -f $Value)
+    $target = $trigger.UserId
+    $result = $target -eq $Value
+    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+
     return @{
         target = $target
         result = $result
@@ -1621,10 +1663,10 @@ function TestScheduledTaskStatus
         $returnHash.AtStartup = TestScheduledTaskTriggerBootTrigger -ScheduledTaskXml $xml -Parameter AtStatup -Value $AtStartup -IsExist ($PSBoundParameters.ContainsKey('AtStartup'))
 
         # AtLogOn
-        $returnHash.AtLogOn = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
+        $returnHash.AtLogOn = TestScheduledTaskTriggerAtLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
 
         # UserId (AtLogOn execute UserId)
-        $returnHash.AtLogonUserId = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'));
+        $returnHash.AtLogonUserId = TestScheduledTaskTriggerUserIdLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'));
 
     #endregion
 
@@ -1667,6 +1709,12 @@ function New-ZipPairs
         [scriptBlock]$resultSelector
     )
 
+    begin
+    {
+        $e2 = @($second).GetEnumerator()
+        $psvariable = New-Object 'System.Collections.Generic.List[System.Management.Automation.psvariable]'
+    }
+
     process
     {
         if ([string]::IsNullOrWhiteSpace($first)){ break }        
@@ -1707,12 +1755,6 @@ function New-ZipPairs
             if(($d4 = $context -as [IDisposable]) -ne $null) {$d4.Dispose() }
             if(($d5 = $tuple -as [IDisposable]) -ne $null) {$d5.Dispose() }
         }
-    }
-
-    begin
-    {
-        $e2 = @($second).GetEnumerator()
-        $psvariable = New-Object 'System.Collections.Generic.List[System.Management.Automation.psvariable]'
     }
 }
 
