@@ -226,7 +226,10 @@ function Get-TargetResource
         elseif ($PSBoundParameters.ContainsKey("AtLogOn"))
         {
             $param.AtLogOn = $AtLogOn
-            $param.AtLogOnUserId = $AtLogOnUserId
+            if ($PSBoundParameters.ContainsKey("AtLogOnUserId"))
+            {
+                $param.AtLogOnUserId = $AtLogOnUserId
+            }
         }
         else
         {
@@ -758,17 +761,34 @@ function CreateTaskSchedulerTrigger
         $ScheduledAtPair = New-ZipPairs -first $ScheduledAt -Second $repetitionPair
         $ScheduledAtPair `
         | %{
-            if ($_.Item2.Item1 -ge $_.Item2.Item2){ throw New-Object System.InvalidOperationException ($errorMessages.InvalidTrigger -f $_.Item2.Item1, $_.Item2.Item2)}
+            $at = $_.Item1;
+            $interval = $_.Item2.Item1;
+            $duration = $_.Item2.Item2;
+            if ($interval -ge $duration){ throw New-Object System.InvalidOperationException ($errorMessages.InvalidTrigger -f $interval, $duration)}
+
             # if TimeSpan.MaxValue should lower than uint16.MaxValue == 65535
-            if ($_.Item2.Item2.TotalDays -ge [System.UInt16]::MaxValue)
+            if ($duration.TotalDays -ge [System.UInt16]::MaxValue)
             {
-                $t = New-ScheduledTaskTrigger -At $_.Item1 -RepetitionInterval $_.Item2.Item1 -Once;
-                $t.Repetition.StopAtDurationEnd = $false;
-                return $t;
+                try
+                {
+                    # set as infinite for Win2016/Win10 or higher
+                    $t = New-ScheduledTaskTrigger -At $at -RepetitionInterval $interval -Once;
+                    # only Windows 10 or Windows 2016 have this property.
+                    if (($t.Repetition | Get-Member -MemberType Properties | Where Name -eq "StopAtDurationEnd" | Measure).Count -eq 1)
+                    {
+                        $t.Repetition.StopAtDurationEnd = $false;
+                    }
+                    $t;
+                }
+                catch [System.Management.Automation.PSArgumentException]
+                {
+                    # set for Windows Server 2012 R2, 8.1 or lower
+                    New-ScheduledTaskTrigger -At $at -RepetitionInterval $interval -RepetitionDuration $duration -Once
+                }
             }
             else
             {
-                return New-ScheduledTaskTrigger -At $_.Item1 -RepetitionInterval $_.Item2.Item1 -RepetitionDuration $_.Item2.Item2 -Once
+                New-ScheduledTaskTrigger -At $at -RepetitionInterval $interval -RepetitionDuration $duration -Once
             }
         }
     }
@@ -1405,7 +1425,7 @@ function TestScheduledTaskTriggerBootTrigger
     }
 }
 
-function TestScheduledTaskTriggerLogonTrigger
+function TestScheduledTaskTriggerAtLogonTrigger
 {
     [OutputType([bool])]
     [CmdletBinding()]
@@ -1435,24 +1455,63 @@ function TestScheduledTaskTriggerLogonTrigger
 
     $trigger = $ScheduledTaskXml.task.Triggers.LogonTrigger
     $result = $false
-    switch ($Parameter)
+    Write-Debug $debugMessages.CheckSchedulerAtLogOn
+    if ([string]::IsNullOrEmpty($trigger))
     {
-        "AtLogOn"
-        {
-            Write-Debug $debugMessages.CheckSchedulerAtLogOn
-            $target = $trigger.Enabled
-            $result = $target -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
-        }
-        "UserId"
-        {
-            if ($value -eq ""){ $value = $null }
-            Write-Debug ($debugMessages.CheckSchedulerUserId -f $Value)
-            $target = $trigger.UserId
-            $result = $target -eq $Value
-            Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+        Write-Debug 'Detected $trigger is null. Fall back to xml check.'
+        $target = ($ScheduledTaskXml.task.Triggers | Get-Member -MemberType Properties | Where Name -eq "LogonTrigger" | Measure).Count -ge 1
+        $result = $target -eq $Value
+        Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+    }
+    else
+    {
+        $target = $null -ne $trigger
+        $result = $target -eq $Value
+        Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+    }
+
+    return @{
+        target = $target
+        result = $result
+    }
+}
+
+function TestScheduledTaskTriggerUserIdLogonTrigger
+{
+    [OutputType([bool])]
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$ScheduledTaskXml,
+
+        [parameter(Mandatory = $true)]
+        [string]$Parameter,
+
+        [parameter(Mandatory = $false)]
+        [PSObject]$Value,
+
+        [bool]$IsExist
+    )
+
+    # skip when Parameter not use
+    if (!$IsExist)
+    {
+        Write-Debug ($debugMessages.SkipNoneUseParameter -f $Parameter)
+        return @{
+            target = $null
+            result = $true
         }
     }
+
+    $trigger = $ScheduledTaskXml.task.Triggers.LogonTrigger
+    $result = $false
+    if ($value -eq ""){ $value = $null }
+    Write-Debug ($debugMessages.CheckSchedulerUserId -f $Value)
+    $target = $trigger.UserId
+    $result = $target -eq $Value
+    Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
+
     return @{
         target = $target
         result = $result
@@ -1621,10 +1680,10 @@ function TestScheduledTaskStatus
         $returnHash.AtStartup = TestScheduledTaskTriggerBootTrigger -ScheduledTaskXml $xml -Parameter AtStatup -Value $AtStartup -IsExist ($PSBoundParameters.ContainsKey('AtStartup'))
 
         # AtLogOn
-        $returnHash.AtLogOn = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
+        $returnHash.AtLogOn = TestScheduledTaskTriggerAtLogonTrigger -ScheduledTaskXml $xml -Parameter AtLogOn -Value $AtLogOn -IsExist ($PSBoundParameters.ContainsKey('AtLogOn'))
 
         # UserId (AtLogOn execute UserId)
-        $returnHash.AtLogonUserId = TestScheduledTaskTriggerLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'));
+        $returnHash.AtLogonUserId = TestScheduledTaskTriggerUserIdLogonTrigger -ScheduledTaskXml $xml -Parameter UserId -Value $AtLogOnUserId -IsExist ($PSBoundParameters.ContainsKey('AtLogOnUserId'));
 
     #endregion
 
@@ -1667,6 +1726,12 @@ function New-ZipPairs
         [scriptBlock]$resultSelector
     )
 
+    begin
+    {
+        $e2 = @($second).GetEnumerator()
+        $psvariable = New-Object 'System.Collections.Generic.List[System.Management.Automation.psvariable]'
+    }
+
     process
     {
         if ([string]::IsNullOrWhiteSpace($first)){ break }        
@@ -1707,12 +1772,6 @@ function New-ZipPairs
             if(($d4 = $context -as [IDisposable]) -ne $null) {$d4.Dispose() }
             if(($d5 = $tuple -as [IDisposable]) -ne $null) {$d5.Dispose() }
         }
-    }
-
-    begin
-    {
-        $e2 = @($second).GetEnumerator()
-        $psvariable = New-Object 'System.Collections.Generic.List[System.Management.Automation.psvariable]'
     }
 }
 

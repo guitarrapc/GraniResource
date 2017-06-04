@@ -26,7 +26,8 @@ Describe "Grani_ScheduleTask : TargetResource" {
     $daily = $true
     $atStartup = $true
     $atLogOn = $true
-    $atLogOnUserId = "test"
+    #$atLogOnUserId = "test"
+    $atLogOnUserId = "WINDOWS10PRO\admin"
 
     Context "Scratch environment with simple parameters." {
 
@@ -287,16 +288,8 @@ Describe "Grani_ScheduleTask : TargetResource" {
     }
 
     Context "Try Empty Repetition" {
-        It "Set-TargetResource Present should not Throw as Ensure : $ensure, ScheduledAt : $scheduledAt, RepetitionIntervalTimeSpanString : $emptyrepetitionIntervalTimeSpanString, RepetitionDuration : $emptyRepetitionDuration" {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString} | should not Throw
-        }
-
-        It "Test-TargetResource should return true." {
-            Test-TargetResource  -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString | should be $true
-        }
-
-        It "Get-TargetResource should not throw" {
-            {Get-TargetResource  -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString} | should not Throw
+        It "Set-TargetResource Present should Throw as Ensure : $ensure, ScheduledAt : $scheduledAt, RepetitionIntervalTimeSpanString : $emptyrepetitionIntervalTimeSpanString, RepetitionDuration : $emptyRepetitionDuration" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -ScheduledAt $scheduledAt -Disable $disable -Execute $execute -RepetitionIntervalTimeSpanString $emptyRepetitionIntervalTimeSpanString -RepetitionDurationTimeSpanString $emptyrepetitionDurationTimeSpanString} | should Throw
         }
     }
 
@@ -317,20 +310,20 @@ Describe "Grani_ScheduleTask : TargetResource" {
             Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential | should be $false
         }
 
-        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName), AtLogOnUserId : $($credential.UserName)" {
-            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+        It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName), AtLogOnUserId : $atLogOnUserId" {
+            {Set-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential} | should not Throw
         }
 
         It "Test-TargetResource should return true." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential | should be $true
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential | should be $true
         }
 
         It "Get-TargetResource should not throw" {
-            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential} | should not Throw
+            {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential} | should not Throw
         }
 
         It "Test-TargetResource should return false." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential | should be $false
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $credential.UserName -Disable $disable -Execute $execute -Credential $credential | should be $false
         }
 
         It "Set-TargetResource Present should not Throw as Ensure : $ensure, AtLogon : $atLogOn, Credential : $($credential.UserName), AtLogOnUserId : $atLogOnUserId" {
@@ -345,8 +338,8 @@ Describe "Grani_ScheduleTask : TargetResource" {
             {Get-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -AtLogOnUserId $atLogOnUserId -Disable $disable -Execute $execute -Credential $credential} | should not Throw
         }
 
-        It "Test-TargetResource should return false when Specific User require to be AnyUser." {
-            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential | should be $false
+        It "Test-TargetResource should return true when Specific User require to be AnyUser. Because you are not checking!" {
+            Test-TargetResource -Ensure $ensure -TaskPath $taskPath -TaskName $taskName -AtLogon $atLogOn -Disable $disable -Execute $execute -Credential $credential | should be $true
         }
     }
 
