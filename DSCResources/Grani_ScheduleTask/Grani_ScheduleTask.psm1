@@ -761,17 +761,34 @@ function CreateTaskSchedulerTrigger
         $ScheduledAtPair = New-ZipPairs -first $ScheduledAt -Second $repetitionPair
         $ScheduledAtPair `
         | %{
-            if ($_.Item2.Item1 -ge $_.Item2.Item2){ throw New-Object System.InvalidOperationException ($errorMessages.InvalidTrigger -f $_.Item2.Item1, $_.Item2.Item2)}
+            $at = $_.Item1;
+            $interval = $_.Item2.Item1;
+            $duration = $_.Item2.Item2;
+            if ($interval -ge $duration){ throw New-Object System.InvalidOperationException ($errorMessages.InvalidTrigger -f $interval, $duration)}
+
             # if TimeSpan.MaxValue should lower than uint16.MaxValue == 65535
-            if ($_.Item2.Item2.TotalDays -ge [System.UInt16]::MaxValue)
+            if ($duration.TotalDays -ge [System.UInt16]::MaxValue)
             {
-                $t = New-ScheduledTaskTrigger -At $_.Item1 -RepetitionInterval $_.Item2.Item1 -Once;
-                $t.Repetition.StopAtDurationEnd = $false;
-                return $t;
+                try
+                {
+                    # set as infinite for Win2016/Win10 or higher
+                    $t = New-ScheduledTaskTrigger -At $at -RepetitionInterval $interval -Once;
+                    # only Windows 10 or Windows 2016 have this property.
+                    if (($t.Repetition | Get-Member -MemberType Properties | Where Name -eq "StopAtDurationEnd" | Measure).Count -eq 1)
+                    {
+                        $t.Repetition.StopAtDurationEnd = $false;
+                    }
+                    $t;
+                }
+                catch [System.Management.Automation.PSArgumentException]
+                {
+                    # set for Windows Server 2012 R2, 8.1 or lower
+                    New-ScheduledTaskTrigger -At $at -RepetitionInterval $interval -RepetitionDuration $duration -Once
+                }
             }
             else
             {
-                return New-ScheduledTaskTrigger -At $_.Item1 -RepetitionInterval $_.Item2.Item1 -RepetitionDuration $_.Item2.Item2 -Once
+                New-ScheduledTaskTrigger -At $at -RepetitionInterval $interval -RepetitionDuration $duration -Once
             }
         }
     }
@@ -1442,7 +1459,7 @@ function TestScheduledTaskTriggerAtLogonTrigger
     if ([string]::IsNullOrEmpty($trigger))
     {
         Write-Debug 'Detected $trigger is null. Fall back to xml check.'
-        $target = ($ScheduledTaskXml.task.Triggers | Get-Member -MemberType Properties | % Name) -contains "LogonTrigger"
+        $target = ($ScheduledTaskXml.task.Triggers | Get-Member -MemberType Properties | Where Name -eq "LogonTrigger" | Measure).Count -ge 1
         $result = $target -eq $Value
         Write-Debug ($debugMessages.ScheduleTaskResult -f $Parameter, $result, $target)
     }
