@@ -1,11 +1,9 @@
 ﻿#region Initialize
 
-function Initialize
-{
+function Initialize {
     # Enum for Ensure
-    try
-    {
-    Add-Type -TypeDefinition @"
+    try {
+        Add-Type -TypeDefinition @"
         public enum EnsureType
         {
             Present,
@@ -13,8 +11,7 @@ function Initialize
         }
 "@
     }
-    catch
-    {
+    catch {
     }
 }
 
@@ -53,8 +50,7 @@ $exceptionMessage = DATA {
 
 #region *-TargetResource
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [OutputType([System.Collections.Hashtable])]
     [CmdletBinding()]
     param
@@ -69,53 +65,46 @@ function Get-TargetResource
         [System.Boolean]$PreserveInheritance = $true,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]$Ensure
     )
 
     # Set Default value
     $isPathExist = $true;
     $returnValue = @{
-        Path = $Path;
-        IsProtected = $false;
+        Path                = $Path;
+        IsProtected         = $false;
         PreserveInheritance = $true;
     };
 
     # Path existance Check
-    if (!(Test-Path -Path $Path))
-    {
+    if (!(Test-Path -Path $Path)) {
         Write-Verbose ($verboseMessage.PathNotFound -f $Path);
         $isPathExist = $false;
     }
-    else
-    {
-        try
-        {
+    else {
+        try {
             # Obtain current ACL
             Write-Verbose ($verboseMessage.ObtainACL -f $Path);
             $acl = Get-Acl -Path $Path -ErrorAction Stop;            
 
             # IsProtected Check
-            if ($acl.AreAccessRulesProtected)
-            {
+            if ($acl.AreAccessRulesProtected) {
                 Write-Verbose ($verboseMessage.DetectIsProtected);
                 $returnValue.IsProtected = $true;
 
                 # Could not detect PreserveInheritanceCheck because this information will lost when Protected.
                 $returnValue.PreserveInheritance = $PreserveInheritance;
             }
-            else
-            {
+            else {
                 Write-Verbose ($verboseMessage.DetectIsNotProtected);
                 $returnValue.IsProtected = $false;
 
                 # PreserveInheritanceCheck
-                foreach ($access in $acl.Access)
-                {
+                foreach ($access in $acl.Access) {
                     Write-Debug ($debugMessage.CheckingPreserveInheritance -f $access.IdentityReference, $access.AccessControlType, $access.IsInherited);
                     $isInherited = $access.IsInherited;
-                    if ($isInherited)
-                    {
+                    if ($isInherited) {
                         Write-Verbose ($verboseMessage.DetectPreserveInheritance);
                         $returnValue.PreserveInheritance = $true;
                         break; # break is fine when any access was detected inherited.
@@ -123,20 +112,17 @@ function Get-TargetResource
                 }
             }
         }
-        catch
-        {
+        catch {
             Write-Verbose ($verboseMessage.GetTargetResourceDetectExeption -f $_);
 
         }
     }
 
     # Ensure Check (Not path detected => Ensure = "Absent")
-    if ($isPathExist -and ($IsProtected -eq $returnValue.IsProtected) -and ($PreserveInheritance -eq $returnValue.PreserveInheritance))
-    {
+    if ($isPathExist -and ($IsProtected -eq $returnValue.IsProtected) -and ($PreserveInheritance -eq $returnValue.PreserveInheritance)) {
         $returnValue.Ensure = [EnsureType]::Present.ToString();
     }
-    else
-    {
+    else {
         $returnValue.Ensure = [EnsureType]::Absent.ToString();
     }
 
@@ -144,8 +130,7 @@ function Get-TargetResource
 }
 
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [OutputType([Void])]
     [CmdletBinding()]
     param
@@ -160,13 +145,12 @@ function Set-TargetResource
         [System.Boolean]$PreserveInheritance = $true,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]$Ensure
     )
 
     # Path existance Check
-    if (!(Test-Path -Path $Path))
-    {
+    if (!(Test-Path -Path $Path)) {
         throw New-Object System.IO.FileNotFoundException ($exceptionMessage.PathNotFoundException -f $Path)
     }
 
@@ -176,8 +160,7 @@ function Set-TargetResource
     # Modify ACL
     Write-Debug -Message ($debugMessage -f $Path, $IsProtected, $PreserveInheritance);
     $acl.SetAccessRuleProtection($IsProtected, $PreserveInheritance);
-    if (($acl.Access | sort).Count -eq 0)
-    {
+    if (($acl.Access | sort).Count -eq 0) {
         throw New-Object System.InvalidOperationException ($exceptionMessage.NoAccessRuleLeftException);
     }
 
@@ -186,8 +169,7 @@ function Set-TargetResource
 }
 
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [OutputType([System.Boolean])]
     [CmdletBinding()]
     param
@@ -202,7 +184,7 @@ function Test-TargetResource
         [System.Boolean]$PreserveInheritance = $true,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]$Ensure
     )
 

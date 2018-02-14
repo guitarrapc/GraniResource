@@ -1,14 +1,11 @@
 #region Initialize
 
-function Initialize
-{
+function Initialize {
     # Load Assembly to use HttpClient
-    try
-    {
+    try {
         Add-Type -AssemblyName System.Net.Http
     }
-    catch
-    {
+    catch {
     }
 
     # cache Location Variable
@@ -92,8 +89,7 @@ $exceptionMessage = DATA {
 
 #region *-TargetResource
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -120,7 +116,7 @@ function Get-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]$Header = $null,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
+        [ValidateSet("application/json", "application/vnd.github+json", "application/vnd.github.v3.raw", "application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -135,8 +131,7 @@ function Get-TargetResource
     )
 
     # Set Custom Cache Location
-    if ($CacheLocation -ne [string]::Empty)
-    {
+    if ($CacheLocation -ne [string]::Empty) {
         Write-Debug -Message ($debugMessage.SetCacheLocationPath -f $CacheLocation)
         $script:cacheLocation = $CacheLocation
     }
@@ -159,7 +154,7 @@ function Get-TargetResource
         ContentType = $ContentType
         UserAgent = $UserAgent
         AllowRedirect = $AllowRedirect
-        OAuth2Token = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$OAuth2Token.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
+        OAuth2Token = New-CimInstance -ClassName MSFT_Credential -Property @{Username = [string]$OAuth2Token.UserName; Password = [string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
         CacheLocation = $CacheLocation
         Ensure = "Absent"
     }
@@ -169,43 +164,35 @@ function Get-TargetResource
     $itemType = GetPathItemType -Path $DestinationPath
 
     $fileExists = $false
-    switch ($itemType.ToString())
-    {
-        ([GraniDonwloadItemTypeEx]::FileInfo.ToString())
-        {
+    switch ($itemType.ToString()) {
+        ([GraniDonwloadItemTypeEx]::FileInfo.ToString()) {
             Write-Debug -Message ($debugMessage.ItemTypeWasFile -f $DestinationPath)
             $fileExists = $true
         }
-        ([GraniDonwloadItemTypeEx]::DirectoryInfo.ToString())
-        {
+        ([GraniDonwloadItemTypeEx]::DirectoryInfo.ToString()) {
             Write-Debug -Message ($debugMessage.ItemTypeWasDirectory -f $DestinationPath)
         }
-        ([GraniDonwloadItemTypeEx]::Other.ToString())
-        {
+        ([GraniDonwloadItemTypeEx]::Other.ToString()) {
             Write-Debug -Message ($debugMessage.ItemTypeWasOther -f $DestinationPath)
         }
-        ([GraniDonwloadItemTypeEx]::NotExists.ToString())
-        {
+        ([GraniDonwloadItemTypeEx]::NotExists.ToString()) {
             Write-Debug -Message ($debugMessage.ItemTypeWasNotExists -f $DestinationPath)
         }
     }
 
     # Already Up-to-date Check
     Write-Debug -Message $debugMessage.IsDestinationPathAlreadyUpToDate
-    if ($fileExists -eq $true)
-    {
+    if ($fileExists -eq $true) {
         Write-Debug -Message $debugMessage.IsFileExists
         $currentFileHash = GetFileHash -Path $DestinationPath
         $cachedFileHash = GetCache -DestinationPath $DestinationPath -Uri $validUri
 
         Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $cachedFileHash)
-        if ($currentFileHash -eq $cachedFileHash)
-        {
+        if ($currentFileHash -eq $cachedFileHash) {
             Write-Verbose -Message $verboseMessage.alreadyUpToDate
             $returnHash.Ensure = "Present"
         }
-        else
-        {
+        else {
             Write-Verbose -Message $verboseMessage.notUpToDate
         }
     }
@@ -214,8 +201,7 @@ function Get-TargetResource
 }
 
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -242,7 +228,7 @@ function Set-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
+        [ValidateSet("application/json", "application/vnd.github+json", "application/vnd.github.v3.raw", "application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -257,8 +243,7 @@ function Set-TargetResource
     )
 
     # Set Custom Cache Location
-    if ($CacheLocation -ne [string]::Empty)
-    {
+    if ($CacheLocation -ne [string]::Empty) {
         Write-Debug -Message ($debugMessage.SetCacheLocationPath -f $CacheLocation)
         $script:cacheLocation = $CacheLocation
     }
@@ -283,8 +268,7 @@ function Set-TargetResource
 }
 
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -312,7 +296,7 @@ function Test-TargetResource
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
+        [ValidateSet("application/json", "application/vnd.github+json", "application/vnd.github.v3.raw", "application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -347,8 +331,7 @@ function Test-TargetResource
 
 #region HttpClient Helper
 
-function Invoke-HttpClient
-{
+function Invoke-HttpClient {
     [OutputType([void])]
     [CmdletBinding()]
     param
@@ -367,7 +350,7 @@ function Invoke-HttpClient
 
         [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("application/json","application/vnd.github+json","application/vnd.github.v3.raw","application/vnd.github.v3.html")]
+        [ValidateSet("application/json", "application/vnd.github+json", "application/vnd.github.v3.raw", "application/vnd.github.v3.html")]
         [System.String]$ContentType = "application/json",
 
         [parameter(Mandatory = $false)]
@@ -378,8 +361,7 @@ function Invoke-HttpClient
         [System.Boolean]$AllowRedirect = $true
     )
 
-    begin
-    {
+    begin {
         #region Initialize
 
         # Should support Timeout? : Default -> 1:40 min
@@ -391,40 +373,34 @@ function Invoke-HttpClient
         $httpClient = New-Object System.Net.Http.HttpClient ($httpClientHandler)
 
         # Request Header
-        if ($Header.Keys.Count -ne 0)
-        {
-            foreach ($item in $Header.GetEnumerator())
-            {
+        if ($Header.Keys.Count -ne 0) {
+            foreach ($item in $Header.GetEnumerator()) {
                 Write-Debug -Message ($debugMessage.AddRequestHeader -f $item.Key, $item.Value)
                 $httpClient.DefaultRequestHeaders.Add($item.Key, $item.Value)
             }   
         }
 
         # Request Header : Keep-Alive
-        if (($httpClient.DefaultRequestHeaders.GetEnumerator() | where Key -eq "Keep-Alive" | measure).Count -eq 0)
-        {
+        if (($httpClient.DefaultRequestHeaders.GetEnumerator() | where Key -eq "Keep-Alive" | measure).Count -eq 0) {
             Write-Debug -Message ($debugMessage.AddKeepAliveToRequestHeader)
             $httpClient.DefaultRequestHeaders.Add("Keep-Alive", "true")
         }
 
         # ContentType
-        if ($ContentType -ne [string]::Empty)
-        {
+        if ($ContentType -ne [string]::Empty) {
             Write-Debug -Message ($debugMessage.AddContentType -f $ContentType)
             $private:mediaType = New-Object System.Net.Http.Headers.MediaTypeWithQualityHeaderValue($ContentType)
             $httpClient.DefaultRequestHeaders.Accept.Add($mediaType)
         }
 
         # UserAgent
-        if ($UserAgent -ne [string]::Empty)
-        {
+        if ($UserAgent -ne [string]::Empty) {
             Write-Debug -Message ($debugMessage.AddUserAgent -f $UserAgent)
             $httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($UserAgent)
         }
 
         # Credential
-        if ($OAuth2Token.GetNetworkCredential().Password -ne [string]::Empty)
-        {
+        if ($OAuth2Token.GetNetworkCredential().Password -ne [string]::Empty) {
             # Credential on Handler does not work with Basic Authentication : http://stackoverflow.com/questions/25761214/why-would-my-rest-service-net-clients-send-every-request-without-authentication
             # $httpClientHandler.Credential = $Credential
 
@@ -438,50 +414,43 @@ function Invoke-HttpClient
         #endregion
     }
 
-    end
-    {
-        try
-        {
+    end {
+        try {
             #region Test Connection
 
             Write-Debug -Message ($debugMessage.TestUriConnection -f $Uri.ToString())
             $res = $httpClient.GetAsync($Uri)
             $res.ConfigureAwait($false) > $null
-            if ($res.Exception -ne $null){ throw $res.Exception }
-            if ($res.Result.StatusCode -ne [System.Net.HttpStatusCode]::OK){ throw ($exceptionMessage.InvalidResponce -f $res.Result.StatusCode.value__, $Uri) }
+            if ($res.Exception -ne $null) { throw $res.Exception }
+            if ($res.Result.StatusCode -ne [System.Net.HttpStatusCode]::OK) { throw ($exceptionMessage.InvalidResponce -f $res.Result.StatusCode.value__, $Uri) }
             
             #endregion
 
             #region Execute Download
 
-            switch ($ContentType)
-            {
-                "application/json"
-                {
+            switch ($ContentType) {
+                "application/json" {
                     Write-Verbose -Message ($verboseMessage.DownloadString -f $res.Result.StatusCode.value__, $Uri)
                     [System.Threading.Tasks.Task`1[string]]$requestResult = GetStringAsync -Uri $Uri
 
                     Write-Debug -Message $debugMessage.ContentTypeDetectedAsJson
                     WriteJson -Path $Path -RequestResult $requestResult
                 }
-                "application/vnd.github+json"
-                {
+                "application/vnd.github+json" {
                     Write-Verbose -Message ($verboseMessage.DownloadString -f $res.Result.StatusCode.value__, $Uri)
                     [System.Threading.Tasks.Task`1[string]]$requestResult = GetStringAsync -Uri $Uri
                     
                     Write-Debug -Message $debugMessage.ContentTypeDetectedAsJson
                     WriteJson -Path $Path -RequestResult $requestResult
                 }
-                "application/vnd.github.v3.raw"
-                {
+                "application/vnd.github.v3.raw" {
                     Write-Verbose -Message ($verboseMessage.DownloadStream -f $res.Result.StatusCode.value__, $Uri)
                     [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = GetStreamAsync -Uri $Uri
 
                     Write-Debug -Message $debugMessage.ContentTypeDetectedAsRaw
                     WriteStream -Path $Path -Stream $stream
                 }
-                "application/vnd.github.v3.html"
-                {
+                "application/vnd.github.v3.html" {
                     Write-Verbose -Message ($verboseMessage.DownloadStream -f $res.Result.StatusCode.value__, $Uri)
                     [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = GetStreamAsync -Uri $Uri
 
@@ -494,21 +463,18 @@ function Invoke-HttpClient
             
             Write-Verbose -Message ($debugMessage.DownloadComplete)
         }
-        catch [System.Exception]
-        {
+        catch [System.Exception] {
             throw $_
         }
-        finally
-        {
-            if (($null -ne $res) -and ($res.IsCompleted -eq $true)){ $res.Dispose() }
-            if ($null -ne $httpClient){ $httpClient.Dispose() }
-            if ($null -ne $httpClientHandler){ $httpClientHandler.Dispose() }
+        finally {
+            if (($null -ne $res) -and ($res.IsCompleted -eq $true)) { $res.Dispose() }
+            if ($null -ne $httpClient) { $httpClient.Dispose() }
+            if ($null -ne $httpClientHandler) { $httpClientHandler.Dispose() }
         }
     }
 }
 
-function GetStringAsync
-{
+function GetStringAsync {
     [OutputType([System.Threading.Tasks.Task`1[string]])]
     [CmdletBinding()]
     param
@@ -519,12 +485,11 @@ function GetStringAsync
 
     [System.Threading.Tasks.Task`1[string]]$requestResult = $httpClient.GetStringAsync($Uri)
     $requestResult.ConfigureAwait($false) > $null
-    if ($requestResult.Exception -ne $null){ throw $requestResult.Exception }
+    if ($requestResult.Exception -ne $null) { throw $requestResult.Exception }
     return $requestResult
 }
 
-function GetStreamAsync
-{
+function GetStreamAsync {
     [OutputType([System.Threading.Tasks.Task`1[System.IO.Stream]])]
     [CmdletBinding()]
     param
@@ -535,12 +500,11 @@ function GetStreamAsync
 
     [System.Threading.Tasks.Task`1[System.IO.Stream]]$stream = $httpClient.GetStreamAsync($Uri)
     $stream.ConfigureAwait($false) > $null
-    if ($stream.Exception -ne $null){ throw $stream.Exception }
+    if ($stream.Exception -ne $null) { throw $stream.Exception }
     return $stream
 }
 
-function WriteJson
-{
+function WriteJson {
     [OutputType([void])]
     [CmdletBinding()]
     param
@@ -552,10 +516,8 @@ function WriteJson
         [System.Threading.Tasks.Task`1[string]]$RequestResult
     )
 
-    begin
-    {
-        function GetContentBase64String
-        {
+    begin {
+        function GetContentBase64String {
             [OutputType([string])]
             [CmdletBinding()]
             param
@@ -568,12 +530,11 @@ function WriteJson
             Write-Debug -Message $debugMessage.ConvertstringToJsonAndGetContent
             $content = ($RequestResult.Result | ConvertFrom-Json).Content
 
-            if ($content -eq [string]::Empty){ throw New-Object System.NullReferenceException $exceptionMessage.ContentNotFoundFromResponce }
+            if ($content -eq [string]::Empty) { throw New-Object System.NullReferenceException $exceptionMessage.ContentNotFoundFromResponce }
             return $content
         }
 
-        function ConvertFromBase64ToUTF8
-        {
+        function ConvertFromBase64ToUTF8 {
             [OutputType([string])]
             [CmdletBinding()]
             param
@@ -582,24 +543,20 @@ function WriteJson
                 [string]$String
             )
 
-            try
-            {
+            try {
                 # convert bse64 to UTF8
                 Write-Debug -Message $debugMessage.ConvertBase64String
                 $utf8String = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($String))
                 return $utf8String
             }
-            catch
-            {
+            catch {
                 throw $_
             }
         }
     }
 
-    process
-    {
-        try
-        {
+    process {
+        try {
             # Get base64 string from Content Property of response json
             $content = GetContentBase64String -RequestResult $RequestResult
         
@@ -610,15 +567,13 @@ function WriteJson
             [System.IO.File]::WriteAllText($Path, $decodedString, [System.Text.Encoding]::UTF8)
             
         }
-        finally
-        {
-            if (($null -ne $RequestResult) -and ($RequestResult.IsCompleted -eq $true)){ $RequestResult.Dispose() }
+        finally {
+            if (($null -ne $RequestResult) -and ($RequestResult.IsCompleted -eq $true)) { $RequestResult.Dispose() }
         }
     }
 }
 
-function WriteStream
-{
+function WriteStream {
     [OutputType([void])]
     [CmdletBinding()]
     param
@@ -630,17 +585,15 @@ function WriteStream
         [System.Threading.Tasks.Task`1[System.IO.Stream]]$Stream
     )
 
-    try
-    {
+    try {
         # Write stream to the File
         Write-Debug -Message ($debugMessage.WriteStream -f $Path)
         $fileStream = [System.IO.File]::Create($Path)
         $Stream.Result.CopyTo($fileStream)
     }
-    finally
-    {
-        if ($null -ne $fileStream){ $fileStream.Dispose() }
-        if (($null -ne $Stream) -and ($Stream.IsCompleted -eq $true)){ $Stream.Dispose() }
+    finally {
+        if ($null -ne $fileStream) { $fileStream.Dispose() }
+        if (($null -ne $Stream) -and ($Stream.IsCompleted -eq $true)) { $Stream.Dispose() }
     }
 }
 
@@ -648,8 +601,7 @@ function WriteStream
 
 #region Parse Helper
 
-function ParseGitHubApiUri
-{
+function ParseGitHubApiUri {
     [OutputType([string])]
     [CmdletBinding()]
     param
@@ -675,8 +627,7 @@ function ParseGitHubApiUri
 
 #region Validation Helper
 
-function ValidateUri
-{
+function ValidateUri {
     [OutputType([uri])]
     [CmdletBinding()]
     param
@@ -687,9 +638,8 @@ function ValidateUri
     
     Write-Debug -Message ($debugMessage.ValidateUri -f $Uri)
     [uri]$result = $Uri -as [uri]
-    if ($result.AbsolutePath -eq $null){ throw New-Object System.NullReferenceException ($exceptionMessage.InvalidCastURI -f $Uri)}
-    if ($result.Scheme -ne "https")
-    {
+    if ($result.AbsolutePath -eq $null) { throw New-Object System.NullReferenceException ($exceptionMessage.InvalidCastURI -f $Uri)}
+    if ($result.Scheme -ne "https") {
         $errorId = "UriValidationFailure";
         $errorMessage = $exceptionMessage.InvalidUriSchema -f ${Uri}
         ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
@@ -697,8 +647,7 @@ function ValidateUri
     return $result
 }
 
-function ValidateFilePath
-{
+function ValidateFilePath {
     [OutputType([Void])]
     [CmdletBinding()]
     param
@@ -709,23 +658,18 @@ function ValidateFilePath
     
     Write-Debug -Message ($debugMessage.ValidateFilePath -f $Path)
     $itemType = GetPathItemType -Path $Path
-    switch ($itemType.ToString())
-    {
-        ([GraniDonwloadItemTypeEx]::FileInfo.ToString())
-        {
+    switch ($itemType.ToString()) {
+        ([GraniDonwloadItemTypeEx]::FileInfo.ToString()) {
             return;
         }
-        ([GraniDonwloadItemTypeEx]::NotExists.ToString())
-        {
+        ([GraniDonwloadItemTypeEx]::NotExists.ToString()) {
             # Create Parent Directory check
             $parentPath = Split-Path $Path -Parent
-            if (-not (Test-Path -Path $parentPath))
-            {
+            if (-not (Test-Path -Path $parentPath)) {
                 [System.IO.Directory]::CreateDirectory($parentPath) > $null
             }
         }
-        Default
-        {
+        Default {
             $errorId = "FileValidationFailure"
             $errorMessage = $exceptionMessage.DestinationPathAlreadyExistAsNotFile -f $Path, $itemType.ToString()
             ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
@@ -738,8 +682,7 @@ function ValidateFilePath
 
 #region Cache Helper
 
-function GetFileHash
-{
+function GetFileHash {
     [OutputType([string])]
     [CmdletBinding()]
     param
@@ -751,8 +694,7 @@ function GetFileHash
     return (Get-FileHash -Path $Path -Algorithm SHA256).Hash
 }
 
-function GetCacheKey
-{
+function GetCacheKey {
     [OutputType([string])]
     [CmdletBinding()]
     param
@@ -768,8 +710,7 @@ function GetCacheKey
     return $key
 }
 
-function GetCache
-{
+function GetCache {
     [OutputType([string])]
     [CmdletBinding()]
     param
@@ -785,15 +726,14 @@ function GetCache
     $path = Join-Path $script:cacheLocation $cacheKey
     
     # Test Cache Path is exist
-    if (-not (Test-Path -Path $path)){ return [string]::Empty }
+    if (-not (Test-Path -Path $path)) { return [string]::Empty }
 
     # Get FileHash from Cache File
     $fileHash = (Import-CliXml -Path $path).FileHash
     return $fileHash    
 }
 
-function UpdateCache
-{
+function UpdateCache {
     [OutputType([void])]
     [CmdletBinding()]
     param
@@ -809,8 +749,7 @@ function UpdateCache
     $path = Join-Path $script:cacheLocation $cacheKey
 
     # create cacheLocaltion Directory
-    if (-not (Test-Path -Path $script:cacheLocation))
-    {
+    if (-not (Test-Path -Path $script:cacheLocation)) {
         [System.IO.Directory]::CreateDirectory($script:cacheLocation) > $null
     }
 
@@ -823,8 +762,7 @@ function UpdateCache
     $obj | Export-CliXml -Path $path -Force
 }
 
-function NewXmlObject
-{
+function NewXmlObject {
     [OutputType([PSCustomObject])]
     [CmdletBinding()]
     param
@@ -851,8 +789,7 @@ function NewXmlObject
 
 #region ItemType Helper
 
-function GetPathItemType
-{
+function GetPathItemType {
     [OutputType([GraniDonwloadItemTypeEx])]
     [CmdletBinding()]
     param
@@ -865,25 +802,20 @@ function GetPathItemType
     $type = [string]::Empty
 
     # Check type of the Path Item
-    if (-not (Test-Path -Path $Path))
-    {
+    if (-not (Test-Path -Path $Path)) {
         return [GraniDonwloadItemTypeEx]::NotExists
     }
     
     $pathItem = Get-Item -Path $path
     $pathItemType = $pathItem.GetType().FullName
-    $type = switch ($pathItemType)
-    {
-        "System.IO.FileInfo"
-        {
+    $type = switch ($pathItemType) {
+        "System.IO.FileInfo" {
             [GraniDonwloadItemTypeEx]::FileInfo
         }
-        "System.IO.DirectoryInfo"
-        {
+        "System.IO.DirectoryInfo" {
             [GraniDonwloadItemTypeEx]::DirectoryInfo
         }
-        Default
-        {
+        Default {
             [GraniDonwloadItemTypeEx]::Other
         }
     }
@@ -895,8 +827,7 @@ function GetPathItemType
 
 #region Converter from Microsoft.Management.Infrastructure.CimInstance[] (KeyValuePair) to HashTable
 
-function ConvertKCimInstanceToHashtable
-{
+function ConvertKCimInstanceToHashtable {
     [OutputType([hashtable[]])]
     [CmdletBinding()]
     param
@@ -906,14 +837,12 @@ function ConvertKCimInstanceToHashtable
         [Microsoft.Management.Infrastructure.CimInstance[]]$CimInstance
     )
 
-    if ($null -eq $CimInstance)
-    {
+    if ($null -eq $CimInstance) {
         return @{}
     }
 
     $hashtable = New-Object System.Collections.Generic.List[hashtable]
-    foreach($item in $CimInstance.GetEnumerator())
-    {
+    foreach ($item in $CimInstance.GetEnumerator()) {
         $hashtable.Add(@{$item.Key = $item.Value})
     }
 
@@ -924,8 +853,7 @@ function ConvertKCimInstanceToHashtable
 
 #region Exception Helper
 
-function ThrowInvalidDataException
-{
+function ThrowInvalidDataException {
     [OutputType([Void])]
     [CmdletBinding()]
     param
