@@ -3,22 +3,19 @@ $Script:WebPlatformInstaller = [ordered]@{}
 $WebPlatformInstaller.RequiredAssemblies = 'C:\Program Files\Microsoft\Web Platform Installer\Microsoft.Web.PlatformInstaller.dll'
 $WebPlatformInstaller.Requiredexe = 'C:\Program Files\Microsoft\Web Platform Installer\WebpiCmd-x64.exe'
 
-function New-WebPlatformInstaller
-{
+function New-WebPlatformInstaller {
     [OutputType([Void])] 
     [CmdletBinding()]
     param()
 
-    if (-not(Test-Path $WebPlatformInstaller.RequiredAssemblies)){ throw New-Object System.IO.FileNotFoundException ("Unable to find the specified file.", $WebPlatformInstaller.RequiredAssemblies) }
-    if (-not(Test-Path $WebPlatformInstaller.Requiredexe)){ throw New-Object System.IO.FileNotFoundException ("Unable to find the specified file.", $WebPlatformInstaller.Requiredexe) }
+    if (-not(Test-Path $WebPlatformInstaller.RequiredAssemblies)) { throw New-Object System.IO.FileNotFoundException ("Unable to find the specified file.", $WebPlatformInstaller.RequiredAssemblies) }
+    if (-not(Test-Path $WebPlatformInstaller.Requiredexe)) { throw New-Object System.IO.FileNotFoundException ("Unable to find the specified file.", $WebPlatformInstaller.Requiredexe) }
 
-    try
-    {
+    try {
         [reflection.assembly]::LoadWithPartialName("Microsoft.Web.PlatformInstaller") > $null
         Add-Type -Path $WebPlatformInstaller.RequiredAssemblies
     }
-    catch
-    {
+    catch {
     }
 }
 
@@ -28,8 +25,7 @@ New-WebPlatformInstaller
 
 #region Resource
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [OutputType([System.String])]
     [CmdletBinding()]
     param
@@ -38,11 +34,10 @@ function Set-TargetResource
         [System.String]$Name
     )
     Install-WebPlatformInstallerProgram -ProductId $Name
-    if ($?){ Write-Verbose "Installing WebPI Package '$Name' complete."; return; }
+    if ($?) { Write-Verbose "Installing WebPI Package '$Name' complete."; return; }
 }
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [OutputType([HashTable])]
     [CmdletBinding()]
     param
@@ -57,8 +52,7 @@ function Get-TargetResource
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [OutputType([System.Boolean])]
     [CmdletBinding()]
     param
@@ -75,8 +69,7 @@ function Test-TargetResource
 
 #region Constructor
 
-function New-WebPlatformInstallerInstallManager
-{
+function New-WebPlatformInstallerInstallManager {
     [OutputType([Void])]
     [CmdletBinding()]
     param()
@@ -84,8 +77,7 @@ function New-WebPlatformInstallerInstallManager
     $WebPlatformInstaller.installManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
 }
 
-function New-WebPlatformInstallerProductManager
-{
+function New-WebPlatformInstallerProductManager {
     [OutputType([Void])] 
     [CmdletBinding()]
     param()
@@ -103,9 +95,8 @@ function New-WebPlatformInstallerProductManager
 
 #region Product
 
-function Get-WebPlatformInstallerProduct
-{
-<#
+function Get-WebPlatformInstallerProduct {
+    <#
 .Synopsis
    Get WebPlatformInstaller Packages.
 .DESCRIPTION
@@ -150,51 +141,44 @@ function Get-WebPlatformInstallerProduct
         [switch]$Force
     )
 
-    begin
-    {
-        if (($null -eq $WebPlatformInstaller.productManagerProducts) -or $Force){ New-WebPlatformInstallerProductManager }
+    begin {
+        if (($null -eq $WebPlatformInstaller.productManagerProducts) -or $Force) { New-WebPlatformInstallerProductManager }
 
         # Initialize
-        if ($PSBoundParameters.ContainsKey('ProductId'))
-        {
+        if ($PSBoundParameters.ContainsKey('ProductId')) {
             $result = $null
             $private:productManagerDic = New-Object 'System.Collections.Generic.Dictionary[[string], [Microsoft.Web.PlatformInstaller.Product]]' ([StringComparer]::OrdinalIgnoreCase)
             $private:productManagerList = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Product]'
-            $WebPlatformInstaller.productManagerProducts | %{$productManagerDic.Add($_.ProductId, $_)}
+            $WebPlatformInstaller.productManagerProducts | % {$productManagerDic.Add($_.ProductId, $_)}
         }
     }
 
-    process
-    {
-        if (-not $PSBoundParameters.ContainsKey('ProductId'))
-        {
+    process {
+        if (-not $PSBoundParameters.ContainsKey('ProductId')) {
             Write-Verbose ("Searching All Products.")
-            switch ($true)
-            {
+            switch ($true) {
                 $Installed { return $WebPlatformInstaller.productManagerProducts | where {$_.IsInstalled($false) } | sort ProductId }
                 $Available { return $WebPlatformInstaller.productManagerProducts | where {-not $_.IsInstalled($false) } | sort ProductId }
                 Default { return $WebPlatformInstaller.productManagerProducts | sort ProductId }
             }
         }
 
-        foreach ($id in $ProductId)
-        {
+        foreach ($id in $ProductId) {
             # Search product by ProductId
             Write-Verbose ("Searching ProductId : '{0}'" -f $id)
             $isSuccess = $productManagerDic.TryGetValue($id, [ref]$result)
 
             # Success
-            if ($isSuccess){ $productManagerList.Add($result); continue; }
+            if ($isSuccess) { $productManagerList.Add($result); continue; }
 
             # Skip
-            if ($id -in $WebPlatformInstaller.productManagerProductsBlankKeyword.ProductId){ [Console]::WriteLine("ProductId '{0}' will skip as it is not supported." -f $id); continue; }
+            if ($id -in $WebPlatformInstaller.productManagerProductsBlankKeyword.ProductId) { [Console]::WriteLine("ProductId '{0}' will skip as it is not supported." -f $id); continue; }
 
             # Fail
             throw New-Object System.InvalidOperationException ("WebPlatform Installation could not found package '{0}' as valid ProductId. Please select from '{1}'" -f $id, (($WebPlatformInstaller.productManagerProducts.ProductId | sort) -join "', '"))
         }
 
-        switch ($true)
-        {
+        switch ($true) {
             $Installed { return $productManagerList | where {$_.IsInstalled($false) } | sort ProductId }
             $Available { return $productManagerList | where {-not $_.IsInstalled($false) } | sort ProductId }
             Default { return $productManagerList | sort ProductId }
@@ -206,9 +190,8 @@ function Get-WebPlatformInstallerProduct
 
 #region Install
 
-function Install-WebPlatformInstallerProgram
-{
-<#
+function Install-WebPlatformInstallerProgram {
+    <#
 .Synopsis
    Install target Package.
 .DESCRIPTION
@@ -231,53 +214,45 @@ function Install-WebPlatformInstallerProgram
         [string]$LanguageCode = 'en'
     )
 
-    process
-    {
+    process {
         Write-Verbose "Checking Product is already installed."
         $ProductId `
-        | % {
-            if(Test-WebPlatformInstallerProductIsInstalled -ProductId $_){ [Console]::WriteLine("Package '{0}' already installed. Skip installation." -f $_); return; }
+            | % {
+            if (Test-WebPlatformInstallerProductIsInstalled -ProductId $_) { [Console]::WriteLine("Package '{0}' already installed. Skip installation." -f $_); return; }
             $productIdList.Add($_)
         }
     }
 
-    end
-    {
-        if (($productIdList | measure).count -eq 0){ return; }
-        try
-        {
+    end {
+        if (($productIdList | measure).count -eq 0) { return; }
+        try {
             # Prerequisites
             Write-Verbose "Get Product"
             [Microsoft.Web.PlatformInstaller.Product[]]$product = Get-WebPlatformInstallerProduct -ProductId $productIdList
-            if ($null -eq $product){ throw New-Object System.NullReferenceException }
+            if ($null -eq $product) { throw New-Object System.NullReferenceException }
 
             # Install
             # InstallByNET -LanguageCode $LanguageCode -product $product
             InstallByWebPICmd -Name $ProductId
         }
-        catch
-        {
+        catch {
             throw $_
         }
-        finally
-        {
-            if ($null -ne $WebPlatformInstaller.installManager){ $WebPlatformInstaller.installManager.Dispose() }
+        finally {
+            if ($null -ne $WebPlatformInstaller.installManager) { $WebPlatformInstaller.installManager.Dispose() }
         }
     }
 
-    begin
-    {
+    begin {
         # Initialize
-        if ($null -eq $WebPlatformInstaller.productManager){ New-WebPlatformInstallerProductManager }
+        if ($null -eq $WebPlatformInstaller.productManager) { New-WebPlatformInstallerProductManager }
         $productIdList = New-Object 'System.Collections.Generic.List[string]'
 
-        function ShowInstallerContextStatus
-        {
-            if ($null -ne $WebPlatformInstaller.installManager.InstallerContexts){ $WebPlatformInstaller.installManager.InstallerContexts | Out-String -Stream | Write-Verbose }
+        function ShowInstallerContextStatus {
+            if ($null -ne $WebPlatformInstaller.installManager.InstallerContexts) { $WebPlatformInstaller.installManager.InstallerContexts | Out-String -Stream | Write-Verbose }
         }
 
-        function WatchInstallationStatus
-        {
+        function WatchInstallationStatus {
             [OutputType([bool])] 
             [CmdletBinding()]
             param
@@ -293,16 +268,14 @@ function Install-WebPlatformInstallerProgram
             )
 
             # Skip
-            if ($postStatus -eq $preStatus)
-            {
+            if ($postStatus -eq $preStatus) {
                 Write-Verbose "Installation not begin"
                 return $false
             }
 
             # Monitor
             ShowInstallerContextStatus
-            while($postStatus -ne [Microsoft.Web.PlatformInstaller.InstallationState]::InstallCompleted)
-            {
+            while ($postStatus -ne [Microsoft.Web.PlatformInstaller.InstallationState]::InstallCompleted) {
                 Start-Sleep -Milliseconds 100
                 $postStatus = $WebPlatformInstaller.installManager.InstallerContexts.InstallationState
             }
@@ -314,8 +287,7 @@ function Install-WebPlatformInstallerProgram
             return $true
         }
 
-        function InstallByNET
-        {
+        function InstallByNET {
             [OutputType([void])] 
             [CmdletBinding()]
             param
@@ -335,18 +307,18 @@ function Install-WebPlatformInstallerProgram
             [Microsoft.Web.PlatformInstaller.Language]$language = $WebPlatformInstaller.productManager.GetLanguage($LanguageCode)        
 
             $product `
-            | % {
+                | % {
                 Write-Verbose "Get Installer"
                 $x = $_.GetInstaller($language)
-                if ($null -eq $x.InstallerFile){ [Console]::WriteLine("Package '{0}' detected as no Installer to install. Skip Installation." -f $_.ProductId); return; }
+                if ($null -eq $x.InstallerFile) { [Console]::WriteLine("Package '{0}' detected as no Installer to install. Skip Installation." -f $_.ProductId); return; }
                 $installer.Add($x)
                 $WebPlatformInstaller.InstallManager.Load($installer)
  
                 Write-Verbose "Donwload Installer"
                 ShowInstallerContextStatus
                 $failureReason = $null
-                $success = $WebPlatformInstaller.InstallManager.InstallerContexts | %{ $WebPlatformInstaller.installManager.DownloadInstallerFile($_, [ref]$failureReason) }
-                if ((-not $success) -and $failureReason){ throw New-Object System.InvalidOperationException ("Donwloading '{0}' Failed Exception!! Reason : {1}" -f ($ProductId -join "' ,'"), $failureReason ) }
+                $success = $WebPlatformInstaller.InstallManager.InstallerContexts | % { $WebPlatformInstaller.installManager.DownloadInstallerFile($_, [ref]$failureReason) }
+                if ((-not $success) -and $failureReason) { throw New-Object System.InvalidOperationException ("Donwloading '{0}' Failed Exception!! Reason : {1}" -f ($ProductId -join "' ,'"), $failureReason ) }
             
                 Write-Verbose "Show Donwloaded Installer Status"
                 ShowInstallerContextStatus
@@ -356,20 +328,19 @@ function Install-WebPlatformInstallerProgram
 
                 Write-Verbose "Start Installation with StartInstallation()"
                 $WebPlatformInstaller.installManager.StartInstallation()
-                if (WatchInstallationStatus -ProductId $_.ProductId -PreStatus $preStatus -PostStatus $WebPlatformInstaller.installManager.InstallerContexts.InstallationState){ return; }
+                if (WatchInstallationStatus -ProductId $_.ProductId -PreStatus $preStatus -PostStatus $WebPlatformInstaller.installManager.InstallerContexts.InstallationState) { return; }
 
                 Write-Verbose "Start Installation with StartApplicationInstallation()"
                 $WebPlatformInstaller.installManager.StartApplicationInstallation()
-                if (WatchInstallationStatus -ProductId $_.ProductId -PreStatus $preStatus -PostStatus $WebPlatformInstaller.installManager.InstallerContexts.InstallationState){ return; }
+                if (WatchInstallationStatus -ProductId $_.ProductId -PreStatus $preStatus -PostStatus $WebPlatformInstaller.installManager.InstallerContexts.InstallationState) { return; }
 
                 Write-Verbose "Start Installation with StartSynchronousInstallation()"
                 $installResult = $WebPlatformInstaller.installManager.StartSynchronousInstallation()
-                if (WatchInstallationStatus -ProductId $_.ProductId -PreStatus $preStatus -PostStatus $WebPlatformInstaller.installManager.InstallerContexts.InstallationState){ return; }
+                if (WatchInstallationStatus -ProductId $_.ProductId -PreStatus $preStatus -PostStatus $WebPlatformInstaller.installManager.InstallerContexts.InstallationState) { return; }
             }
         }
 
-        function InstallByWebPICmd
-        {
+        function InstallByWebPICmd {
             [OutputType([Void])]
             [CmdletBinding()]
             param
@@ -378,10 +349,8 @@ function Install-WebPlatformInstallerProgram
                 [System.String[]]$Name
             )
 
-            end
-            {
-                foreach ($x in $Name)
-                {
+            end {
+                foreach ($x in $Name) {
                     Write-Verbose ("Installing package '{0}'" -f $x)
                     [string]$arguments = @(
                         "/Install",
@@ -393,11 +362,9 @@ function Install-WebPlatformInstallerProgram
                 }
             }
 
-            begin
-            {
+            begin {
                 Write-Verbose "Start Installation with WebPICmd"
-                function Invoke-WebPICmd
-                {
+                function Invoke-WebPICmd {
                     [OutputType([System.String])]
                     [CmdletBinding()]
                     param
@@ -406,11 +373,10 @@ function Install-WebPlatformInstallerProgram
                         [System.String]$Arguments
                     )
 
-                    $fileName  = "$env:ProgramFiles\Microsoft\Web Platform Installer\WebpiCmd-x64.exe"
-                    if (!(Test-Path -Path $fileName)){ throw New-Object System.InvalidOperationException ("Web Platform Installer not installed exception!") }
+                    $fileName = "$env:ProgramFiles\Microsoft\Web Platform Installer\WebpiCmd-x64.exe"
+                    if (!(Test-Path -Path $fileName)) { throw New-Object System.InvalidOperationException ("Web Platform Installer not installed exception!") }
 
-                    try
-                    {
+                    try {
                         $psi = New-Object System.Diagnostics.ProcessStartInfo
                         $psi.CreateNoWindow = $true 
                         $psi.UseShellExecute = $false 
@@ -428,15 +394,13 @@ function Install-WebPlatformInstallerProgram
                     
                         return $output 
                     }
-                    catch
-                    {
+                    catch {
                         $outputError = $process.StandardError.ReadToEnd()
                         throw $_ + $outputError
                     }
-                    finally
-                    {
-                        if ($null -ne $psi){ $psi = $null}
-                        if ($null -ne $process){ $process.Dispose() }
+                    finally {
+                        if ($null -ne $psi) { $psi = $null}
+                        if ($null -ne $process) { $process.Dispose() }
                     }
                 }
             }
@@ -444,9 +408,8 @@ function Install-WebPlatformInstallerProgram
     }
 }
 
-function Test-WebPlatformInstallerProductIsInstalled
-{
-<#
+function Test-WebPlatformInstallerProductIsInstalled {
+    <#
 .Synopsis
    Test target Package is already installed or not.
 .DESCRIPTION
@@ -468,7 +431,7 @@ function Test-WebPlatformInstallerProductIsInstalled
 
     # Not use Cached Value
     $result = Get-WebPlatformInstallerProduct -ProductId $ProductId | % {$_.IsInstalled($false)}
-    if ($null -ne $result){ Write-Verbose $result }
+    if ($null -ne $result) { Write-Verbose $result }
     return $result
 }
 

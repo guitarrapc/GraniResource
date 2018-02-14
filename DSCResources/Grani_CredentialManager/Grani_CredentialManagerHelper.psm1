@@ -1,7 +1,6 @@
 ﻿#region Initialize
 
-function Initialize
-{
+function Initialize {
     # Credential Manager C# on the fly compile to avoid dll lock.
     # Import Class as [GraniResource.CredentialManager]
     $code = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath "CredentialManager.cs") -Raw
@@ -34,8 +33,7 @@ Data ErrorMessages {
 
 #region Wrapper
 
-function ListCredential
-{
+function ListCredential {
     [OutputType([PSCredential])]
     [CmdletBinding()]
     param
@@ -44,8 +42,7 @@ function ListCredential
     return [GraniResource.CredentialManager]::List();
 }
 
-function RemoveTarget
-{
+function RemoveTarget {
     [OutputType([void])]
     [CmdletBinding()]
     param
@@ -62,8 +59,7 @@ function RemoveTarget
     [GraniResource.CredentialManager]::Remove($Target, $Type);
 }
 
-function TestTarget
-{
+function TestTarget {
     [OutputType([bool])]
     [CmdletBinding()]
     param
@@ -80,8 +76,7 @@ function TestTarget
     [GraniResource.CredentialManager]::Exists($Target, $Type);
 }
 
-function GetCredential
-{
+function GetCredential {
     [OutputType([PSCredential])]
     [CmdletBinding()]
     param
@@ -98,8 +93,7 @@ function GetCredential
     return [GraniResource.CredentialManager]::Read($Target, $Type, "");
 }
 
-function SetCredential
-{
+function SetCredential {
     [OutputType([void])]
     [CmdletBinding()]
     param
@@ -124,8 +118,7 @@ function SetCredential
 
 #region Helper
 
-function IsCredentialEmpty
-{
+function IsCredentialEmpty {
     [OutputType([bool])]
     [CmdletBinding()]
     param
@@ -138,8 +131,7 @@ function IsCredentialEmpty
     return ($null -eq $Credential) -or ([PSCredential]::Empty -eq $Credential)
 }
 
-function IsCredentialMatch
-{
+function IsCredentialMatch {
     [OutputType([bool])]
     [CmdletBinding()]
     param

@@ -9,8 +9,7 @@
         [string]$InstallerUri = "http://go.microsoft.com/fwlink/?LinkId=255386"
     )
 
-    function Get-RedirectedUrl ([String]$URL)
-    { 
+    function Get-RedirectedUrl ([String]$URL) { 
         $request = [System.Net.WebRequest]::Create($InstallerUri)
         $request.AllowAutoRedirect = $false
         $response = $request.GetResponse()
@@ -20,8 +19,7 @@
     $name = "Web Platform Installer"
     $DownloadPath = Get-RedirectedUrl $InstallerUri
 
-    Package InstallWebPILauncher
-    {
+    Package InstallWebPILauncher {
         Name       = $name
         Path       = $DownloadPath
         ReturnCode = 0
