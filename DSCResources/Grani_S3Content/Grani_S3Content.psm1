@@ -302,11 +302,11 @@ function TestS3Bucket {
     )
 
     if ([string]::IsNullOrWhiteSpace($Region)) {
-        return Test-S3Bucket -BucketName $S3BucketName
+        return Test-S3Bucket -BucketName $BucketName
     }
     else {
         Write-Debug -Message ($debugMessage.OverrideRegion -f $Region)
-        return Test-S3Bucket -BucketName $S3BucketName -Region $Region
+        return Test-S3Bucket -BucketName $BucketName -Region $Region
     }
 }
 function TestS3Object {
@@ -459,11 +459,11 @@ function ReadS3Object {
     )
 
     if ([string]::IsNullOrWhiteSpace($Region)) {
-        Read-S3Object -BucketName $S3BucketName -Key $Key -File $File
+        Read-S3Object -BucketName $BucketName -Key $Key -File $File
     }
     else {
         Write-Debug -Message ($debugMessage.OverrideRegion -f $Region)
-        Read-S3Object -BucketName $S3BucketName -Key $Key -File $File -Region $Region
+        Read-S3Object -BucketName $BucketName -Key $Key -File $File -Region $Region
     }
 }
 
