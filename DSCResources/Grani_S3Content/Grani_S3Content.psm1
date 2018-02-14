@@ -1,7 +1,6 @@
 #region Initialize
 
-function Initialize
-{
+function Initialize {
     # Enum for Item Type
     Add-Type -TypeDefinition @"
         public enum GraniDonwloadItemTypeEx
@@ -52,6 +51,7 @@ $debugMessage = DATA {
         ItemTypeWasDirectory = Destination Path found but was Directory : '{0}'
         ItemTypeWasOther = Destination Path found but was neither File nor Directory: '{0}'
         ItemTypeWasNotExists = Destination Path not found : '{0}'
+        OverrideRegion = Overriding Region : '{0}'
         ValidateS3Bucket = Checking S3 Bucket '{0}' is exist.
         ValidateS3Object = Checking S3 Object Key '{0}' is exist.
         ValidateFilePath = Check DestinationPath '{0}' is FileInfo and Parent Directory already exist.
@@ -80,12 +80,10 @@ $exceptionMessage = DATA {
 
 #region *-TargetResource
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [OutputType([System.Collections.Hashtable])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
@@ -105,36 +103,36 @@ function Get-TargetResource
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("FileHash","FileName")]
-        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
+        [ValidateSet("FileHash", "FileName")]
+        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString(),
+
+        [parameter(Mandatory = $false)]
+        [System.String]$Region = [string]::Empty
     )
 
     # Initialize return values
     # Header and OAuth2Token will never return as TypeConversion problem
-    $returnHash = 
-    @{
-        S3BucketName = $S3BucketName
-        Key = $Key
+    $returnHash = @{
+        S3BucketName    = $S3BucketName
+        Key             = $Key
         DestinationPath = $DestinationPath
-        Ensure = [GraniDonwloadEnsuretype]::Absent.ToString()
-        PreAction = $PreAction
-        PostAction = $PostAction
-        Credential = New-CimInstance -ClassName MSFT_Credential -Property @{Username=[string]$Credential.UserName; Password=[string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
-        CheckSum = $CheckSum
+        Ensure          = [GraniDonwloadEnsuretype]::Absent.ToString()
+        PreAction       = $PreAction
+        PostAction      = $PostAction
+        Credential      = New-CimInstance -ClassName MSFT_Credential -Property @{Username = [string]$Credential.UserName; Password = [string]$null} -Namespace root/microsoft/windows/desiredstateconfiguration -ClientOnly
+        CheckSum        = $CheckSum
+        Region          = $Region
     }
 
-    try
-    {
+    try {
         # Fail fast S3Bucket and S3Object existance.
-        $isBucketExist = Test-S3Bucket -BucketName $S3BucketName;
-        if (-not $isBucketExist)
-        {        
+        $isBucketExist = TestS3Bucket -BucketName $S3BucketName -Region $Region
+        if (-not $isBucketExist) {        
             Write-Verbose -Message ($verboseMessage.ResultS3Bucket -f $S3BucketName, $isBucketExist);
             return $returnHash
         }
-        $isObjectExist = TestS3Object -BucketName $S3BucketName -Key $Key;
-        if (-not $isObjectExist)
-        {        
+        $isObjectExist = TestS3Object -BucketName $S3BucketName -Key $Key -Region $Region;
+        if (-not $isObjectExist) {        
             Write-Verbose -Message ($verboseMessage.ResultS3Object -f $Key, $isObjectExist);
             return $returnHash
         }
@@ -144,54 +142,43 @@ function Get-TargetResource
         $itemType = GetPathItemType -Path $DestinationPath
 
         $fileExists = $false
-        switch ($itemType.ToString())
-        {
-            ([GraniDonwloadItemTypeEx]::FileInfo.ToString())
-            {
+        switch ($itemType.ToString()) {
+            ([GraniDonwloadItemTypeEx]::FileInfo.ToString()) {
                 Write-Debug -Message ($debugMessage.ItemTypeWasFile -f $DestinationPath)
                 $fileExists = $true
             }
-            ([GraniDonwloadItemTypeEx]::DirectoryInfo.ToString())
-            {
+            ([GraniDonwloadItemTypeEx]::DirectoryInfo.ToString()) {
                 Write-Debug -Message ($debugMessage.ItemTypeWasDirectory -f $DestinationPath)
             }
-            ([GraniDonwloadItemTypeEx]::Other.ToString())
-            {
+            ([GraniDonwloadItemTypeEx]::Other.ToString()) {
                 Write-Debug -Message ($debugMessage.ItemTypeWasOther -f $DestinationPath)
                 return $returnHash
             }
-            ([GraniDonwloadItemTypeEx]::NotExists.ToString())
-            {
+            ([GraniDonwloadItemTypeEx]::NotExists.ToString()) {
                 Write-Debug -Message ($debugMessage.ItemTypeWasNotExists -f $DestinationPath)
                 return $returnHash
             }
         }
 
         # Already Up-to-date Check
-        if ($fileExists -eq $true)
-        {
+        if ($fileExists -eq $true) {
             Write-Debug -Message $debugMessage.FileExists
-            switch ($CheckSum)
-            {
-                ([GraniDonwloadCheckSumtype]::FileHash.ToString())
-                {
+            switch ($CheckSum) {
+                ([GraniDonwloadCheckSumtype]::FileHash.ToString()) {
                     Write-Debug -Message ($debugMessage.IsDestinationPathAlreadyUpToDate -f $CheckSum)
                     $currentFileHash = GetFileHash -Path $DestinationPath
-                    $s3ObjectCache = GetS3ObjectHash -BucketName $S3BucketName -Key $Key
+                    $s3ObjectCache = GetS3ObjectHash -BucketName $S3BucketName -Key $Key -Region $Region
 
                     Write-Debug -Message ($debugMessage.IsFileAlreadyUpToDate -f $currentFileHash, $s3ObjectCache)
-                    if ($currentFileHash -eq $s3ObjectCache)
-                    {
+                    if ($currentFileHash -eq $s3ObjectCache) {
                         Write-Verbose -Message $verboseMessage.AlreadyUpToDate
                         $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
                     }
-                    else
-                    {
+                    else {
                         Write-Verbose -Message $verboseMessage.NotUpToDate
                     }
                 }
-                ([GraniDonwloadCheckSumtype]::FileName.ToString())
-                {
+                ([GraniDonwloadCheckSumtype]::FileName.ToString()) {
                     # FileName only check : Is destination file exists or not.
                     Write-Debug -Message ($debugMessage.IsCheckSumFileName -f $CheckSum)
                     $returnHash.Ensure = [GraniDonwloadEnsuretype]::Present.ToString()
@@ -199,8 +186,7 @@ function Get-TargetResource
             }
         }
     }
-    catch
-    {
+    catch {
         Write-Error $_
     }
     
@@ -208,12 +194,10 @@ function Get-TargetResource
 }
 
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [OutputType([Void])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
@@ -233,13 +217,16 @@ function Set-TargetResource
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("FileHash","FileName")]
-        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
+        [ValidateSet("FileHash", "FileName")]
+        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString(),
+
+        [parameter(Mandatory = $false)]
+        [System.String]$Region = [string]::Empty
     )
 
     # validate S3 Bucket is exist
-    ValidateS3Bucket -BucketName $S3BucketName
-    ValidateS3Object -BucketName $S3BucketName -Key $Key
+    ValidateS3Bucket -BucketName $S3BucketName -Region $Region
+    ValidateS3Object -BucketName $S3BucketName -Key $Key -Region $Region
 
     # validate DestinationPath is valid
     ValidateFilePath -Path $DestinationPath
@@ -249,19 +236,17 @@ function Set-TargetResource
 
     # Start Download
     Write-Verbose $verboseMessage.StartS3Download
-    Read-S3Object -BucketName $S3BucketName -Key $Key -File $DestinationPath
+    ReadS3Object -BucketName $S3BucketName -Key $Key -File $DestinationPath -Region $Region
 
     # PostAction
     ExecuteScriptBlock -ScriptBlockString $PostAction -Credential $Credential
 }
 
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [OutputType([System.Boolean])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [System.String]$S3BucketName,
 
@@ -281,136 +266,150 @@ function Test-TargetResource
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty,
 
         [parameter(Mandatory = $false)]
-        [ValidateSet("FileHash","FileName")]
-        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString()
+        [ValidateSet("FileHash", "FileName")]
+        [System.String]$CheckSum = [GraniDonwloadCheckSumtype]::FileHash.ToString(),
+
+        [parameter(Mandatory = $false)]
+        [System.String]$Region = [string]::Empty
     )
 
     $param = @{
-        S3BucketName = $S3BucketName
-        Key = $Key
+        S3BucketName    = $S3BucketName
+        Key             = $Key
         DestinationPath = $DestinationPath
-        PreAction = $PreAction
-        PostAction = $PostAction
-        CheckSum = $CheckSum
+        PreAction       = $PreAction
+        PostAction      = $PostAction
+        CheckSum        = $CheckSum
+        Region          = $Region
     }
     return (Get-TargetResource @param).Ensure -eq [GraniDonwloadEnsuretype]::Present.ToString()
 }
-
 
 #endregion
 
 #region S3 Helper
 
-function TestS3Object
-{
+# Test
+function TestS3Bucket {
     [OutputType([Boolean])]
     [CmdletBinding()]
-    param
-    (
+    param (
+        [parameter(Mandatory = $true)]
+        [string]$BucketName,
+
+        [parameter(Mandatory = $false)]
+        [string]$Region
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Region)) {
+        return Test-S3Bucket -BucketName $BucketName
+    }
+    else {
+        Write-Debug -Message ($debugMessage.OverrideRegion -f $Region)
+        return Test-S3Bucket -BucketName $BucketName -Region $Region
+    }
+}
+function TestS3Object {
+    [OutputType([Boolean])]
+    [CmdletBinding()]
+    param (
         [parameter(Mandatory = $true)]
         [string]$BucketName,
 
         [parameter(Mandatory = $true)]
-        [string]$Key
+        [string]$Key,
+
+        [parameter(Mandatory = $false)]
+        [string]$Region
     )
     
     Write-Debug -Message ($debugMessage.IsS3ObjectExist)
-    $objects = Get-S3Object -BucketName $BucketName
+    if ([string]::IsNullOrWhiteSpace($Region)) {
+        $objects = Get-S3Object -BucketName $BucketName
+    }
+    else {
+        Write-Debug -Message ($debugMessage.OverrideRegion -f $Region)
+        $objects = Get-S3Object -BucketName $BucketName -Region $Region
+    }
 
     $result = $null
     $dic = New-Object "System.Collections.Generic.Dictionary[[string], [string]]"
-    $objects | %{ $dic.Add($_.Key, $_.Etag) }
+    $objects | Foreach-Object { $dic.Add($_.Key, $_.Etag) }
     return $dic.TryGetValue($Key, [ref]$result)
 }
 
-#endregion
-
-#region Validation Helper
-
-function ValidateS3Bucket
-{
+# Validation
+function ValidateS3Bucket {
     [OutputType([Void])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
-        [string]$BucketName
+        [string]$BucketName,
+
+        [parameter(Mandatory = $false)]
+        [string]$Region
     )
 
     Write-Debug -Message ($debugMessage.ValidateS3Bucket -f $BucketName)
-    if (-not (Test-S3Bucket -BucketName $BucketName))
-    {
+    if (-not (TestS3Bucket -BucketName $BucketName -Region $Region)) {
         throw New-Object System.NullReferenceException ($exceptionMessage.S3BucketNotExistEXception -f $BucketName)
     }
 }
 
-function ValidateS3Object
-{
+function ValidateS3Object {
     [OutputType([Void])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [string]$BucketName,
 
         [parameter(Mandatory = $true)]
-        [string]$Key
+        [string]$Key,
+
+        [parameter(Mandatory = $false)]
+        [string]$Region
     )
 
     Write-Debug -Message ($debugMessage.ValidateS3Object -f $Key)
-    if (-not (TestS3Object -BucketName $BucketName -Key $Key))
-    {
+    if (-not (TestS3Object -BucketName $BucketName -Key $Key -Region $Region)) {
         throw New-Object System.NullReferenceException ($exceptionMessage.S3ObjectNotExistEXception -f $BucketName, $Key)
     }
 }
 
-function ValidateFilePath
-{
+function ValidateFilePath {
     [OutputType([Void])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [string]$Path
     )
     
     Write-Debug -Message ($debugMessage.ValidateFilePath -f $Path)
     $itemType = GetPathItemType -Path $Path
-    switch ($itemType.ToString())
-    {
-        ([GraniDonwloadItemTypeEx]::FileInfo.ToString())
-        {
+    switch ($itemType.ToString()) {
+        ([GraniDonwloadItemTypeEx]::FileInfo.ToString()) {
             return;
         }
-        ([GraniDonwloadItemTypeEx]::NotExists.ToString())
-        {
+        ([GraniDonwloadItemTypeEx]::NotExists.ToString()) {
             # Create Parent Directory check
             $parentPath = Split-Path $Path -Parent
-            if (-not (Test-Path -Path $parentPath))
-            {
+            if (-not (Test-Path -Path $parentPath)) {
                 [System.IO.Directory]::CreateDirectory($parentPath) > $null
             }
         }
-        Default
-        {
+        Default {
             $errorId = "FileValidationFailure"
             $errorMessage = $exceptionMessage.DestinationPathAlreadyExistAsNotFile -f $Path, $itemType.ToString()
             ThrowInvalidDataException -ErrorId $errorId -ErrorMessage $errorMessage
         }
     }
-
 }
 
-#endregion
-
-#region Hash Helper
-
-function GetFileHash
-{
+# Hash
+function GetFileHash {
     [OutputType([string])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [string]$Path
     )
@@ -418,32 +417,63 @@ function GetFileHash
     return (Get-FileHash -Path $Path -Algorithm MD5).Hash
 }
 
-function GetS3ObjectHash
-{
+function GetS3ObjectHash {
     [OutputType([string])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [string]$BucketName,
 
         [parameter(Mandatory = $true)]
-        [string]$Key
+        [string]$Key,
+
+        [parameter(Mandatory = $false)]
+        [string]$Region
     )
 
-    return (Get-S3Object -BucketName $BucketName -Key $Key | where Key -eq $Key).ETag.Replace('"', "")
+    if ([string]::IsNullOrWhiteSpace($Region)) {
+        return (Get-S3Object -BucketName $BucketName -Key $Key | Where-Object Key -eq $Key).ETag.Replace('"', "")
+    }
+    else {
+        Write-Debug -Message ($debugMessage.OverrideRegion -f $Region)
+        return (Get-S3Object -BucketName $BucketName -Key $Key -Region $Region | Where-Object Key -eq $Key).ETag.Replace('"', "")
+    }
+}
+
+# Reader
+function ReadS3Object {
+    [OutputType([void])]
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory = $true)]
+        [string]$BucketName,
+
+        [parameter(Mandatory = $true)]
+        [string]$Key,
+
+        [parameter(Mandatory = $true)]
+        [string]$File,
+
+        [parameter(Mandatory = $false)]
+        [string]$Region
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Region)) {
+        Read-S3Object -BucketName $BucketName -Key $Key -File $File
+    }
+    else {
+        Write-Debug -Message ($debugMessage.OverrideRegion -f $Region)
+        Read-S3Object -BucketName $BucketName -Key $Key -File $File -Region $Region
+    }
 }
 
 #endregion
 
-#region ItemType Helper
-
-function GetPathItemType
-{
+# ItemType Helper
+function GetPathItemType {
     [OutputType([GraniDonwloadItemTypeEx])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias("FullName", "LiteralPath", "PSPath")]
         [System.String]$Path = [string]::Empty
@@ -452,25 +482,20 @@ function GetPathItemType
     $type = [string]::Empty
 
     # Check type of the Path Item
-    if (-not (Test-Path -Path $Path))
-    {
+    if (-not (Test-Path -Path $Path)) {
         return [GraniDonwloadItemTypeEx]::NotExists
     }
     
     $pathItem = Get-Item -Path $path
     $pathItemType = $pathItem.GetType().FullName
-    $type = switch ($pathItemType)
-    {
-        "System.IO.FileInfo"
-        {
+    $type = switch ($pathItemType) {
+        "System.IO.FileInfo" {
             [GraniDonwloadItemTypeEx]::FileInfo
         }
-        "System.IO.DirectoryInfo"
-        {
+        "System.IO.DirectoryInfo" {
             [GraniDonwloadItemTypeEx]::DirectoryInfo
         }
-        Default
-        {
+        Default {
             [GraniDonwloadItemTypeEx]::Other
         }
     }
@@ -478,16 +503,11 @@ function GetPathItemType
     return $type
 }
 
-#endregion
-
-#region ScriptBlock Execute Helper
-
-function ExecuteScriptBlock
-{
+# ScriptBlock Execute Helper
+function ExecuteScriptBlock {
     [OutputType([Void])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $false)]
         [System.String]$ScriptBlockString = [string]::Empty,
 
@@ -495,39 +515,30 @@ function ExecuteScriptBlock
         [System.Management.Automation.PSCredential]$Credential = [PSCredential]::Empty
     )
 
-    if ($ScriptBlockString -eq [string]::Empty){ return; }
+    if ($ScriptBlockString -eq [string]::Empty) { return; }
 
-    try
-    {
-        $scriptBlock = [ScriptBlock]::Create($ScriptBlockString).GetNewClosure();
-        if ($Credential -eq [PSCredential]::Empty)
-        {
+    try {
+        $scriptBlock = [ScriptBlock]::Create($ScriptBlockString).GetNewClosure()
+        if ($Credential -eq [PSCredential]::Empty) {
             Write-Debug ($debugMessage.ExecuteScriptBlock -f $ScriptBlockString)
             $scriptBlock.Invoke() | Out-String -Stream | Write-Debug
         }
-        else
-        {
+        else {
             Write-Debug ($debugMessage.ExecuteScriptBlockWithCredential -f $ScriptBlockString)
             Invoke-Command -ScriptBlock $scriptBlock -Credential $Credential -ComputerName . | Out-String -Stream | Write-Debug
         }
     }
-    catch
-    {
+    catch {
         Write-Debug ($exceptionMessage.ScriptBlockException -f $ScriptBlockString)
-        throw $_;
+        throw $_
     }
 }
 
-#endregion
-
-#region Exception Helper
-
-function ThrowInvalidDataException
-{
+# Exception Helper
+function ThrowInvalidDataException {
     [OutputType([Void])]
     [CmdletBinding()]
-    param
-    (
+    param (
         [parameter(Mandatory = $true)]
         [System.String]$ErrorId,
 
@@ -540,7 +551,5 @@ function ThrowInvalidDataException
     $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $errorCategory, $null
     throw $errorRecord
 }
-
-#endregion
 
 Export-ModuleMember -Function *-TargetResource
