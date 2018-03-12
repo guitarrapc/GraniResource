@@ -1,7 +1,7 @@
 ﻿$global:dscModuleName = 'GraniResource'
 
 # Import
-$modulePath = (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)).Replace("Test","DSCResources")
+$modulePath = (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)).Replace("Tests","DSCResources")
 $moduleName = (Split-Path -Path $modulePath -leaf)
 $moduleFileName = $moduleName+ ".psm1"
 Import-Module -Name (Join-Path -Path $modulePath -ChildPath $moduleFileName) -Force
