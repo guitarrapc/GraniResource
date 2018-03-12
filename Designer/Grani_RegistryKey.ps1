@@ -14,3 +14,4 @@ $property += New-xDscResourceProperty `
     -Values Present, Absent
 
 New-xDscResource -Name Grani_RegistryKey -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cRegistryKey -Force
+

@@ -26,3 +26,4 @@ $property += New-xDscResourceProperty `
     -Description "Reference type for DnsServer. When Reference is DnsServer, resolve DNS with selected server. When Reference is StaticIp, no resolve and just added IP Address"
 
 New-xDscResource -Name Grani_HostsFile -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cHostsFile -Force
+

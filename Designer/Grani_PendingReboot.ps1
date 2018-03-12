@@ -78,3 +78,4 @@ $property += New-xDscResourceProperty `
     -Attribute Read
 
 New-xDscResource -Name Grani_PendingReboot -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cPendingReboot -Force
+

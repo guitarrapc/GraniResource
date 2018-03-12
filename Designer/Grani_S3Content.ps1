@@ -51,3 +51,4 @@ $property += New-xDscResourceProperty `
     -Description "Use when you want to override AWS Region andpoint string to handle S3bucket."
 
 New-xDscResource -Name Grani_S3Content -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cS3Content -Force
+

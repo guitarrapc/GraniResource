@@ -37,3 +37,4 @@ $property += New-xDscResourceProperty `
     -Attribute Write
 
 New-xDscResource -Name Grani_DomainJoin -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cDomainJoin -Force
+

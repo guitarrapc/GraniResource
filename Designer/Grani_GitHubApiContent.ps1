@@ -64,3 +64,4 @@ $property += New-xDscResourceProperty `
     -Description "Describe File is exist on DestinationPath or not."
 
 New-xDscResource -Name Grani_GitHubApiContent -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cGitHubApiContent -Force
+

@@ -6,3 +6,4 @@ $property += New-xDscResourceProperty `
     -Attribute Key
 
 New-xDscResource -Name Grani_ScheduleTaskLog -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cScheduleTaskLog -Force
+

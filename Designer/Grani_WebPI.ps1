@@ -6,3 +6,4 @@ $property += New-xDscResourceProperty `
     -Attribute Key
 
 New-xDscResource -Name Grani_WebPI -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cWebPI -Force
+

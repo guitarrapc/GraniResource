@@ -29,3 +29,4 @@ $property += New-xDscResourceProperty `
     -Description "Describe installation log log file|Directory Path."
 
 New-xDscResource -Name Grani_DotNetFramework -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cDotNetFramework -Force
+

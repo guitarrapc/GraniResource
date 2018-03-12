@@ -92,3 +92,4 @@ $property += New-xDscResourceProperty `
     -Attribute Write
 
 New-xDscResource -Name Grani_ScheduleTask -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cScheduleTask -Force
+

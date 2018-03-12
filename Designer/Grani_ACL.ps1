@@ -40,3 +40,4 @@ $property += New-xDscResourceProperty `
     -Attribute Write
 
 New-xDscResource -Name Grani_ACL -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cACL -Force
+

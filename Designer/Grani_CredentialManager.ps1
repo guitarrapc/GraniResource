@@ -23,3 +23,4 @@ $property += New-xDscResourceProperty `
     -Values Present, Absent `
     -Description "Ensure Target entry is Present or Absent."
 New-xDscResource -Name Grani_CredentialManager -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cCredentialManager -Force
+

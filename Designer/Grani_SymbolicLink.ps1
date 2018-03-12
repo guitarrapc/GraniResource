@@ -19,3 +19,4 @@ $property += New-xDscResourceProperty `
     -Values Present, Absent
 
 New-xDscResource -Name Grani_SymbolicLink -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cSymbolicLink -Force
+

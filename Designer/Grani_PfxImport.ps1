@@ -38,3 +38,4 @@ $property += New-xDscResourceProperty `
     -Description "Specify Password to import pfx."
 
 New-xDscResource -Name Grani_PfxImport -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cPfxImport -Force
+

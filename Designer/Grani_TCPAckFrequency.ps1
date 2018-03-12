@@ -6,3 +6,4 @@ $property += New-xDscResourceProperty `
     -Attribute Key
 
 New-xDscResource -Name Grani_TCPAckFrequency -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cTCPAckFrequency -Force
+

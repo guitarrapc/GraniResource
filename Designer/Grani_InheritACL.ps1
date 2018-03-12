@@ -20,3 +20,4 @@ $property += New-xDscResourceProperty `
     -Attribute Write
 
 New-xDscResource -Name Grani_InheritACL -Property $property -Path .\ -ModuleName GraniResource -FriendlyName cInheritACL -Force
+
