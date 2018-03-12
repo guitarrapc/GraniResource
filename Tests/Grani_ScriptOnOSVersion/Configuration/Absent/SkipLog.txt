@@ -1,0 +1,17 @@
+VERBOSE: Perform operation 'Invoke CimMethod' with following parameters, ''methodName' =
+SendConfigurationApply,'className' = MSFT_DSCLocalConfigurationManager,'namespaceName' =
+root/Microsoft/Windows/DesiredStateConfiguration'.
+VERBOSE: An LCM method call arrived from computer WINDOWS10PRO with user sid
+S-1-5-21-689215209-1089682319-2662094331-1001.
+VERBOSE: [WINDOWS10PRO]: LCM:  [ Start  Set      ]
+VERBOSE: [WINDOWS10PRO]: LCM:  [ Start  Resource ]  [[cScriptOnOSVersion]hoge]
+VERBOSE: [WINDOWS10PRO]: LCM:  [ Start  Test     ]  [[cScriptOnOSVersion]hoge]
+VERBOSE: [WINDOWS10PRO]:                            [[cScriptOnOSVersion]hoge] Check Platform&OSVersion indicate to run
+ script.
+VERBOSE: [WINDOWS10PRO]: LCM:  [ End    Test     ]  [[cScriptOnOSVersion]hoge]  in 0.0050 seconds.
+VERBOSE: [WINDOWS10PRO]: LCM:  [ Skip   Set      ]  [[cScriptOnOSVersion]hoge]
+VERBOSE: [WINDOWS10PRO]: LCM:  [ End    Resource ]  [[cScriptOnOSVersion]hoge]
+VERBOSE: [WINDOWS10PRO]: LCM:  [ End    Set      ]
+VERBOSE: [WINDOWS10PRO]: LCM:  [ End    Set      ]    in  0.0750 seconds.
+VERBOSE: Operation 'Invoke CimMethod' complete.
+VERBOSE: Time taken for configuration job to complete is 0.142 seconds

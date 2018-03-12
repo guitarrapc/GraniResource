@@ -7,7 +7,7 @@
         SetScript = {Set-Item -Path Env:Grani_ScriptOnOSVersion -Value 1}
         TestScript = {(Test-Path Env:Grani_ScriptOnOSVersion) -and (Get-Item -Path Env:Grani_ScriptOnOSVersion).Value -eq 1}
         ExecuteOnPlatform = [Environment]::OSVersion.Platform
-        ExecuteOnVersionString = [System.Environment]::OSVersion.Version.ToString()
+        ExecuteOnVersion = [System.Environment]::OSVersion.Version.ToString()
         When = 'Equal'
     }
 }
