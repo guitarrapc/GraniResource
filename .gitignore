@@ -402,4 +402,5 @@ ASALocalRun/
 Designer/GraniResource/**/*.ps1
 Designer/GraniResource/**/*.psm1
 Designer/GraniResource/**/*.mof
+Designer/GraniResource/**/*.psd1
 TmpPackage/*
