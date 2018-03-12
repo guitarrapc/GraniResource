@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Grani_TopShelf\SampleTopShelfService\**" />
+    <EmbeddedResource Remove="Grani_TopShelf\SampleTopShelfService\**" />
+    <None Remove="Grani_TopShelf\SampleTopShelfService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Topshelf" Version="4.1.0.117-develop" />
+  </ItemGroup>
+
+</Project>
