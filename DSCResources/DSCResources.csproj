@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.7.10.0</Version>
+    <Version>3.7.11.0</Version>
     <Authors>guitarrapc</Authors>
     <Company>guitarrapc</Company>
     <Copyright>Copyright ©  2018</Copyright>
@@ -10,6 +10,19 @@
     <PackageId>GraniResource</PackageId>
     <Description>PowerShell Desired State Configuration Resources for real production workload.</Description>
     <AssemblyName>DSCResources</AssemblyName>
+    <AssemblyVersion>3.7.11.0</AssemblyVersion>
+    <FileVersion>3.7.11.0</FileVersion>
+    <PostBuildEvent>
+      powershell -ExecutionPolicy RemoteSigned -Command $(SolutionDir)New-GraniResourceManifest.ps1 -Version $(Version) -Path $(SolutionDir)$(Product).psd1
+      rmdir $(SolutionDir)TmpPackage\ /S /Q
+      mkdir $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)
+      xcopy $(TargetDir)* $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName) /s /i
+      xcopy $(SolutionDir)*.psd1 $(SolutionDir)TmpPackage\$(Product)
+      del $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)\*.dll
+      del $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)\*.pdb
+      del $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)\*.json
+      powershell -ExecutionPolicy RemoteSigned -Command Compress-Archive -Path $(SolutionDir)TmpPackage\* -DestinationPath $(SolutionDir)Package\$(Product)_$(Version).zip -Force
+</PostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,7 +63,7 @@
       PostBuildMacros;
     </PostBuildEventDependsOn>
     <PostBuildEvent>
-      powershell -Command $(SolutionDir)New-GraniResourceManifest.ps1 -Version $(Version) -Path $(SolutionDir)$(Product).psd1
+      powershell -ExecutionPolicy RemoteSigned -Command $(SolutionDir)New-GraniResourceManifest.ps1 -Version $(Version) -Path $(SolutionDir)$(Product).psd1
       rmdir $(SolutionDir)TmpPackage\ /S /Q
       mkdir $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)
       xcopy $(TargetDir)* $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName) /s /i
@@ -58,7 +71,7 @@
       del $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)\*.dll
       del $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)\*.pdb
       del $(SolutionDir)TmpPackage\$(Product)\$(AssemblyName)\*.json
-      powershell -Command Compress-Archive -Path $(SolutionDir)TmpPackage\* -DestinationPath $(SolutionDir)Package\$(Product)_$(Version).zip -Force
+      powershell -ExecutionPolicy RemoteSigned -Command Compress-Archive -Path $(SolutionDir)TmpPackage\* -DestinationPath $(SolutionDir)Package\$(Product)_$(Version).zip -Force
     </PostBuildEvent>
   </PropertyGroup>
 
